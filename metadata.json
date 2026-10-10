@@ -1,0 +1,6 @@
+{
+  "name": "ClearThread ORM — Reddit Content Removal & Reputation Defense",
+  "description": "100% pay-on-results Reddit content removal, administrative TOS escalation, and Google & AI search suppression for SaaS founders, brands, and executives.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
