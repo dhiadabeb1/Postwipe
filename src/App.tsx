@@ -255,6 +255,7 @@ export default function App() {
         },
         body: JSON.stringify({
           _subject: `New PostWipe Audit Request (${caseId}) from ${formData.name.trim()}`,
+          _cc: 'support@postwipe.com',
           _template: 'table',
           _captcha: 'false',
           case_reference: caseId,
@@ -272,6 +273,14 @@ export default function App() {
       // Fallback handled gracefully so user still sees confirmation
     } finally {
       setIsSending(false);
+      if (typeof window !== 'undefined' && typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === 'function') {
+        (window as unknown as { gtag: (...args: unknown[]) => void }).gtag('event', 'generate_lead', {
+          event_category: 'Audit Form',
+          event_label: formData.scopeType,
+          value: 300,
+          currency: 'USD',
+        });
+      }
       setSubmittedDossier({
         caseId,
         name: formData.name.trim(),
@@ -289,12 +298,17 @@ export default function App() {
       {/* Top Bar Contract: 3 Zones */}
       <header className="sticky top-0 z-40 h-16 bg-[#080C14]/90 backdrop-blur-md border-b border-slate-800/80">
         <div className="max-w-[1200px] mx-auto px-6 h-full flex items-center justify-between">
-          {/* Zone 1: Single text element wordmark */}
+          {/* Zone 1: Brand lockup with custom PostWipe logo */}
           <a
             href="#"
-            className="font-display text-xl font-bold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
+            className="inline-flex items-center gap-2.5 font-display text-xl font-bold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
           >
-            PostWipe
+            <img
+              src="/favicon.svg"
+              alt="PostWipe Logo"
+              className="w-7 h-7 rounded-lg shrink-0"
+            />
+            <span>PostWipe</span>
           </a>
 
           {/* Zone 2: Clean navigation links */}
@@ -871,6 +885,16 @@ export default function App() {
                     </p>
                   </div>
                 </div>
+
+                <div className="pt-2 text-xs text-slate-400">
+                  Support Email:{' '}
+                  <a
+                    href="mailto:support@postwipe.com"
+                    className="text-emerald-400 font-mono hover:text-emerald-300 transition-colors"
+                  >
+                    support@postwipe.com
+                  </a>
+                </div>
               </div>
 
               {/* Right Column: Form */}
@@ -1216,7 +1240,14 @@ export default function App() {
       <footer className="border-t border-slate-800/80 py-12 bg-[#080C14] text-xs text-slate-400">
         <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-1">
-            <div className="font-display text-base font-bold text-white">PostWipe</div>
+            <div className="inline-flex items-center gap-2 font-display text-base font-bold text-white">
+              <img
+                src="/favicon.svg"
+                alt="PostWipe Logo"
+                className="w-6 h-6 rounded-md shrink-0"
+              />
+              <span>PostWipe</span>
+            </div>
             <p className="text-xs text-slate-400">
               Reddit Post Removal Service &amp; Online Reputation Management · 100% Pay on Results
             </p>
@@ -1234,6 +1265,12 @@ export default function App() {
             </a>
             <a href="#faq" className="hover:text-white transition-colors">
               FAQ
+            </a>
+            <a
+              href="mailto:support@postwipe.com"
+              className="text-emerald-400 font-mono hover:text-emerald-300 transition-colors"
+            >
+              support@postwipe.com
             </a>
           </div>
 
