@@ -296,23 +296,23 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#080C14] text-[#F8FAFC] flex flex-col selection:bg-emerald-500/30 selection:text-white">
       {/* Top Bar Contract: 3 Zones */}
-      <header className="sticky top-0 z-40 h-16 bg-[#080C14]/90 backdrop-blur-md border-b border-slate-800/80">
+      <header className="sticky top-0 z-40 h-20 bg-[#080C14]/90 backdrop-blur-md border-b border-slate-800/80">
         <div className="max-w-[1200px] mx-auto px-6 h-full flex items-center justify-between">
           {/* Zone 1: Brand lockup with custom PostWipe logo */}
           <a
             href="#"
-            className="inline-flex items-center gap-2.5 font-display text-xl font-bold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
+            className="inline-flex items-center gap-3 font-display text-2xl font-bold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
           >
             <img
               src="/favicon.svg"
               alt="PostWipe Logo"
-              className="w-7 h-7 rounded-lg shrink-0"
+              className="w-8 h-8 rounded-lg shrink-0"
             />
             <span>PostWipe</span>
           </a>
 
           {/* Zone 2: Clean navigation links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+          <nav className="hidden md:flex items-center gap-8 text-base font-semibold text-slate-300">
             <a
               href="#capabilities"
               className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap"
@@ -350,7 +350,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => scrollToAuditForm()}
-              className="px-4 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080C14] focus-visible:ring-emerald-400"
+              className="px-5 py-2.5 text-sm font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080C14] focus-visible:ring-emerald-400"
             >
               Get a Free Confidential Audit
             </button>
@@ -360,33 +360,33 @@ export default function App() {
 
       <main className="flex-1">
         {/* 1. HERO SECTION */}
-        <section className="relative pt-14 pb-20 lg:pt-24 lg:pb-28 border-b border-slate-800/80 text-center overflow-hidden">
+        <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 border-b border-slate-800/80 text-center overflow-hidden">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(16,185,129,0.12),transparent)]"
           />
           <div className="relative max-w-[1200px] mx-auto px-6">
-            <div className="max-w-3xl mx-auto flex flex-col items-center space-y-6">
-              <div className="flex flex-wrap items-center justify-center gap-3 text-sm sm:text-base font-mono text-slate-300">
-                <span className="text-emerald-400 font-bold text-sm sm:text-base">Reddit Post Removal Service</span>
+            <div className="max-w-4xl mx-auto flex flex-col items-center space-y-7">
+              <div className="flex flex-wrap items-center justify-center gap-3 text-base sm:text-lg font-mono text-slate-200">
+                <span className="text-emerald-400 font-bold text-base sm:text-lg">Reddit Post Removal Service</span>
                 <span aria-hidden="true" className="text-slate-500">·</span>
-                <span className="font-bold text-white text-sm sm:text-base">100% Pay on Results</span>
+                <span className="font-bold text-white text-base sm:text-lg">100% Pay on Results</span>
                 <span aria-hidden="true" className="text-slate-500">·</span>
-                <span className="font-bold text-white text-sm sm:text-base">Starting from $300</span>
+                <span className="font-bold text-white text-base sm:text-lg">Starting from $300</span>
               </div>
 
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-[54px] font-bold text-white leading-[1.1] mx-auto">
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mx-auto">
                 Kill the Reddit Thread Costing You Customers. Pay Only After It’s Gone.
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-[62ch] mx-auto">
+              <p className="text-lg sm:text-xl font-medium text-slate-300 leading-relaxed max-w-[62ch] mx-auto">
                 One unfair Reddit post can rank on page one of Google for your brand name and get repeated as fact by ChatGPT, Perplexity, and Gemini. We get rule breaking threads permanently removed at the platform level, wipe the dead links from search engines, and charge nothing unless we succeed.
               </p>
 
               {/* Instant Audit Bar */}
               <form
                 onSubmit={handleQuickAuditSubmit}
-                className="pt-2 w-full max-w-xl mx-auto space-y-3"
+                className="pt-2 w-full max-w-2xl mx-auto space-y-4"
               >
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">
@@ -396,19 +396,19 @@ export default function App() {
                       onChange={(e) => setQuickUrl(e.target.value)}
                       placeholder="Paste the Reddit link here (or click to start)..."
                       aria-label="Reddit thread URL for free confidential audit"
-                      className="w-full h-12 pl-4 pr-4 bg-[#0F1623] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm text-white placeholder-slate-500 font-mono focus:outline-none transition-colors"
+                      className="w-full h-14 pl-4 pr-4 bg-[#0F1623] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-base font-medium text-white placeholder-slate-400 font-mono focus:outline-none transition-colors"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="h-12 px-6 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-sm font-semibold rounded-lg transition-colors inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
+                    className="h-14 px-7 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-base font-bold rounded-lg transition-colors inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
                   >
                     <span>Get a Free Confidential Audit</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-slate-400">
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm sm:text-base font-semibold text-slate-300">
                   <span>Pricing starts from $300</span>
                   <span aria-hidden="true">·</span>
                   <span>$0 if we don’t remove it</span>
@@ -420,34 +420,34 @@ export default function App() {
               {/* Proof Metrics */}
               <div className="w-full pt-8 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
                 <div>
-                  <div className="font-display text-2xl sm:text-3xl font-bold text-white tabular-nums">
+                  <div className="font-display text-3xl sm:text-4xl font-bold text-white tabular-nums">
                     94.2%
                   </div>
-                  <div className="text-xs text-slate-400 mt-1">
+                  <div className="text-sm sm:text-base font-semibold text-slate-300 mt-1">
                     Success rate on cases we take
                   </div>
                 </div>
                 <div>
-                  <div className="font-display text-2xl sm:text-3xl font-bold text-white tabular-nums">
+                  <div className="font-display text-3xl sm:text-4xl font-bold text-white tabular-nums">
                     9.4 Days
                   </div>
-                  <div className="text-xs text-slate-400 mt-1">
+                  <div className="text-sm sm:text-base font-semibold text-slate-300 mt-1">
                     Average time to full removal
                   </div>
                 </div>
                 <div>
-                  <div className="font-display text-2xl sm:text-3xl font-bold text-emerald-400 tabular-nums">
+                  <div className="font-display text-3xl sm:text-4xl font-bold text-emerald-400 tabular-nums">
                     From $300
                   </div>
-                  <div className="text-xs text-slate-400 mt-1">
+                  <div className="text-sm sm:text-base font-semibold text-slate-300 mt-1">
                     Paid only after removal
                   </div>
                 </div>
                 <div>
-                  <div className="font-display text-2xl sm:text-3xl font-bold text-white tabular-nums">
+                  <div className="font-display text-3xl sm:text-4xl font-bold text-white tabular-nums">
                     48 Hrs
                   </div>
-                  <div className="text-xs text-slate-400 mt-1">
+                  <div className="text-sm sm:text-base font-semibold text-slate-300 mt-1">
                     To clear Google &amp; AI search caches
                   </div>
                 </div>
@@ -461,22 +461,22 @@ export default function App() {
           <div className="max-w-[1200px] mx-auto px-6 space-y-12">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div className="max-w-2xl space-y-3">
-                <p className="text-xs font-mono text-emerald-400">
+                <p className="text-sm sm:text-base font-bold font-mono text-emerald-400">
                   Why Founders Work With PostWipe
                 </p>
-                <h2 className="font-display text-3xl sm:text-4xl font-bold text-white">
+                <h2 className="font-display text-3xl sm:text-[42px] font-bold text-white leading-tight">
                   We Don’t Write Fluff Blog Posts to &ldquo;Bury&rdquo; Bad Press. We Delete the Source.
                 </h2>
               </div>
 
-              <div className="flex items-center gap-1 p-1 bg-[#0F1623] border border-slate-800 rounded-lg self-start">
+              <div className="flex items-center gap-1.5 p-1.5 bg-[#0F1623] border border-slate-800 rounded-lg self-start">
                 <button
                   type="button"
                   onClick={() => setComparisonMode('postwipe')}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                  className={`px-4 py-2 text-sm font-bold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                     comparisonMode === 'postwipe'
                       ? 'bg-emerald-400 text-slate-950'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
                   PostWipe Approach
@@ -484,10 +484,10 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setComparisonMode('traditional')}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                  className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                     comparisonMode === 'traditional'
                       ? 'bg-slate-800 text-white'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
                   vs. Traditional PR Agencies
@@ -498,27 +498,27 @@ export default function App() {
             {comparisonMode === 'traditional' ? (
               <div className="bg-[#0F1623] border border-slate-800 rounded-xl p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <div className="text-xs font-mono text-rose-400">
+                  <div className="text-sm font-bold font-mono text-rose-400">
                     The Old Reputation Management Trap
                   </div>
-                  <h3 className="font-display text-xl font-bold text-white">
+                  <h3 className="font-display text-2xl font-bold text-white">
                     Why Paying an SEO Agency to Outrank Reddit Doesn’t Work
                   </h3>
-                  <ul className="space-y-3 text-sm text-slate-400">
+                  <ul className="space-y-3.5 text-base font-medium text-slate-300">
                     <li className="flex items-start gap-2.5">
-                      <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      <X className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
                       <span>
                         Locks you into $5,000+/month retainers with zero promise of ever removing the Reddit post.
                       </span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      <X className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
                       <span>
                         Publishes generic Medium articles and press releases that will never outrank Reddit on Google.
                       </span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      <X className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
                       <span>
                         Leaves the thread live, so ChatGPT, Perplexity, and Gemini keep quoting it to your buyers.
                       </span>
@@ -527,27 +527,27 @@ export default function App() {
                 </div>
 
                 <div className="space-y-4 md:border-l md:border-slate-800 md:pl-8">
-                  <div className="text-xs font-mono text-emerald-400">
+                  <div className="text-sm font-bold font-mono text-emerald-400">
                     How PostWipe Works
                   </div>
-                  <h3 className="font-display text-xl font-bold text-white">
+                  <h3 className="font-display text-2xl font-bold text-white">
                     Permanent Removal Starting from $300. Zero Retainers.
                   </h3>
-                  <ul className="space-y-3 text-sm text-slate-200">
+                  <ul className="space-y-3.5 text-base font-medium text-slate-200">
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <Check className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                       <span>
                         100% Pay on Results: Pricing starts from $300, and you pay nothing unless the post is permanently gone.
                       </span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <Check className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                       <span>
                         Escalates directly to Reddit’s internal policy and legal teams, never begging biased subreddit mods.
                       </span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <Check className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                       <span>
                         Purges the dead link from Google and Bing caches so AI search tools drop it within days.
                       </span>
@@ -561,20 +561,20 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
               <div className="md:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-8 flex flex-col justify-between space-y-6">
                 <div className="space-y-3">
-                  <div className="text-xs font-mono text-emerald-400">
+                  <div className="text-sm font-bold font-mono text-emerald-400">
                     01. Zero Financial Risk
                   </div>
-                  <h3 className="font-display text-2xl font-bold text-white">
+                  <h3 className="font-display text-2xl sm:text-[26px] font-bold text-white">
                     100% Pay on Results. Starting from $300.
                   </h3>
-                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
+                  <p className="text-base sm:text-lg font-medium text-slate-300 leading-relaxed">
                     You shouldn’t have to pay a $5,000 retainer just to see if an agency can do its job. Our removals start from $300 with zero setup fees, zero audit fees, and zero monthly retainers. After checking your link, we give you an exact flat price. If we don’t get the post removed, you owe us $0.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
-                  <span className="text-emerald-400 font-medium">Starts from $300</span>
+                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold text-slate-300">
+                  <span className="text-emerald-400 font-bold">Starts from $300</span>
                   <span aria-hidden="true">·</span>
-                  <span className="text-white font-medium">$0 Upfront</span>
+                  <span className="text-white font-bold">$0 Upfront</span>
                   <span aria-hidden="true">·</span>
                   <span>90 Day Repost Warranty</span>
                 </div>
@@ -582,18 +582,18 @@ export default function App() {
 
               <div className="md:col-span-5 bg-[#0F1623] border border-slate-800/90 rounded-xl p-8 flex flex-col justify-between space-y-6">
                 <div className="space-y-3">
-                  <div className="text-xs font-mono text-emerald-400">
+                  <div className="text-sm font-bold font-mono text-emerald-400">
                     02. Quiet Execution
                   </div>
-                  <h3 className="font-display text-2xl font-bold text-white">
+                  <h3 className="font-display text-2xl sm:text-[26px] font-bold text-white">
                     Strict Confidentiality &amp; NDAs
                   </h3>
-                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
+                  <p className="text-base sm:text-lg font-medium text-slate-300 leading-relaxed">
                     If you message a subreddit moderator or reply to a hater yourself, they will screenshot it and make an even bigger post accusing you of censorship. We never message the poster or volunteer mods, and every inquiry is covered by a Mutual NDA from day one.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
-                  <span className="text-white font-medium">Mutual NDA Included</span>
+                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold text-slate-300">
+                  <span className="text-white font-bold">Mutual NDA Included</span>
                   <span aria-hidden="true">·</span>
                   <span>Zero Backfire Risk</span>
                 </div>
@@ -601,18 +601,18 @@ export default function App() {
 
               <div className="md:col-span-5 bg-[#0F1623] border border-slate-800/90 rounded-xl p-8 flex flex-col justify-between space-y-6">
                 <div className="space-y-3">
-                  <div className="text-xs font-mono text-emerald-400">
+                  <div className="text-sm font-bold font-mono text-emerald-400">
                     03. Built for Speed
                   </div>
-                  <h3 className="font-display text-2xl font-bold text-white">
+                  <h3 className="font-display text-2xl sm:text-[26px] font-bold text-white">
                     Resolved in 1 to 2 Weeks
                   </h3>
-                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
+                  <p className="text-base sm:text-lg font-medium text-slate-300 leading-relaxed">
                     Every day a negative thread sits on page one of Google, it quietly kills demos and checkouts. We review your link within 12 hours and file our escalation immediately, with most removals wrapping up in 7 to 14 business days.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 tabular-nums">
-                  <span className="text-white font-medium">12 Hr Audit</span>
+                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold text-slate-300 tabular-nums">
+                  <span className="text-white font-bold">12 Hr Audit</span>
                   <span aria-hidden="true">·</span>
                   <span>9.4 Days Average Turnaround</span>
                 </div>
@@ -620,18 +620,18 @@ export default function App() {
 
               <div className="md:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-8 flex flex-col justify-between space-y-6">
                 <div className="space-y-3">
-                  <div className="text-xs font-mono text-emerald-400">
+                  <div className="text-sm font-bold font-mono text-emerald-400">
                     04. Clean Up Google &amp; AI Search
                   </div>
-                  <h3 className="font-display text-2xl font-bold text-white">
+                  <h3 className="font-display text-2xl sm:text-[26px] font-bold text-white">
                     Cleared from Google, ChatGPT, Perplexity &amp; Gemini
                   </h3>
-                  <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
+                  <p className="text-base sm:text-lg font-medium text-slate-300 leading-relaxed">
                     Google’s partnership with Reddit pushes forum threads to the top of search results, and AI tools like ChatGPT and Perplexity pull straight from those threads when buyers ask about your brand. As soon as the post is deleted on Reddit, we clear the cached snippets so it disappears from Google and AI answers within 24 to 72 hours.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
-                  <span className="text-white font-medium">Google Cache Purge</span>
+                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold text-slate-300">
+                  <span className="text-white font-bold">Google Cache Purge</span>
                   <span aria-hidden="true">·</span>
                   <span>ChatGPT &amp; Perplexity Cleanup</span>
                   <span aria-hidden="true">·</span>
@@ -646,13 +646,13 @@ export default function App() {
         <section id="process" className="py-20 lg:py-24 border-b border-slate-800/80">
           <div className="max-w-[1200px] mx-auto px-6 space-y-12">
             <div className="max-w-2xl space-y-3">
-              <p className="text-xs font-mono text-emerald-400">
+              <p className="text-sm sm:text-base font-bold font-mono text-emerald-400">
                 How It Works
               </p>
-              <h2 className="font-display text-3xl sm:text-4xl font-bold text-white">
+              <h2 className="font-display text-3xl sm:text-[42px] font-bold text-white leading-tight">
                 Three Simple Steps. Zero Upfront Commitment.
               </h2>
-              <p className="text-sm sm:text-base text-slate-400">
+              <p className="text-base sm:text-lg font-medium text-slate-300">
                 No pushy sales calls or long contracts. Here is exactly how we get a damaging thread taken down.
               </p>
             </div>
@@ -660,54 +660,54 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-8 flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center justify-between text-sm font-bold font-mono">
                     <span className="text-emerald-400">01. Free Audit</span>
-                    <span className="text-slate-400 tabular-nums">Within 12 Hours</span>
+                    <span className="text-slate-300 tabular-nums">Within 12 Hours</span>
                   </div>
-                  <h3 className="font-display text-xl font-bold text-white">
+                  <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
                     Send Us the Link &amp; Keywords
                   </h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">
+                  <p className="text-base font-medium text-slate-300 leading-relaxed">
                     Share the Reddit thread or comment URL and the search terms where it shows up. Within 12 hours, we’ll tell you honestly whether we can remove it and give you a flat quote starting from $300.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 text-xs text-slate-400">
+                <div className="pt-4 border-t border-slate-800/80 text-sm font-semibold text-slate-300">
                   You get: Honest feasibility check + fixed quote (from $300)
                 </div>
               </div>
 
               <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-8 flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center justify-between text-sm font-bold font-mono">
                     <span className="text-emerald-400">02. Platform Escalation</span>
-                    <span className="text-slate-400 tabular-nums">Days 1 to 10</span>
+                    <span className="text-slate-300 tabular-nums">Days 1 to 10</span>
                   </div>
-                  <h3 className="font-display text-xl font-bold text-white">
+                  <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
                     We Escalate Directly to Reddit
                   </h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">
+                  <p className="text-base font-medium text-slate-300 leading-relaxed">
                     We build a formal case around the exact sitewide rules the post violates, including defamation, fake competitor attacks, trademark misuse, harassment, or doxxing, and file it through Reddit’s internal policy channels.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 text-xs text-slate-400">
+                <div className="pt-4 border-t border-slate-800/80 text-sm font-semibold text-slate-300">
                   You get: Direct corporate review (no volunteer mods)
                 </div>
               </div>
 
               <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-8 flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center justify-between text-sm font-bold font-mono">
                     <span className="text-emerald-400">03. Removal &amp; Search Purge</span>
-                    <span className="text-slate-400 tabular-nums">Days 10 to 14</span>
+                    <span className="text-slate-300 tabular-nums">Days 10 to 14</span>
                   </div>
-                  <h3 className="font-display text-xl font-bold text-white">
+                  <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
                     The Post Disappears &amp; You Pay
                   </h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">
+                  <p className="text-base font-medium text-slate-300 leading-relaxed">
                     Once Reddit permanently deletes the post, we clear the cached snippets from Google Search and verify it’s gone from ChatGPT, Perplexity, and Gemini. You only pay after you confirm it’s gone.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 text-xs text-slate-400">
+                <div className="pt-4 border-t border-slate-800/80 text-sm font-semibold text-slate-300">
                   You get: Permanent deletion + clean search results
                 </div>
               </div>
@@ -720,18 +720,18 @@ export default function App() {
           <div className="max-w-[1200px] mx-auto px-6 space-y-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div className="max-w-2xl space-y-3">
-                <p className="text-xs font-mono text-emerald-400">
+                <p className="text-sm sm:text-base font-bold font-mono text-emerald-400">
                   Proven Results
                 </p>
-                <h2 className="font-display text-3xl sm:text-4xl font-bold text-white">
+                <h2 className="font-display text-3xl sm:text-[42px] font-bold text-white leading-tight">
                   Recent Removals &amp; Client Reviews
                 </h2>
-                <p className="text-sm sm:text-base text-slate-400">
+                <p className="text-base sm:text-lg font-medium text-slate-300">
                   Real results for SaaS founders, ecommerce brands, and executives. Company names are kept private under our standard NDA.
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-1 p-1 bg-[#0F1623] border border-slate-800 rounded-lg self-start">
+              <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-[#0F1623] border border-slate-800 rounded-lg self-start">
                 {[
                   { id: 'all', label: 'All Cases' },
                   { id: 'saas', label: 'B2B SaaS' },
@@ -744,10 +744,10 @@ export default function App() {
                     onClick={() =>
                       setCaseFilter(tab.id as 'all' | 'saas' | 'ecommerce' | 'executive')
                     }
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                    className={`px-3.5 py-2 text-sm font-bold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                       caseFilter === tab.id
                         ? 'bg-emerald-400 text-slate-950'
-                        : 'text-slate-400 hover:text-white'
+                        : 'text-slate-300 hover:text-white'
                     }`}
                   >
                     {tab.label}
@@ -765,27 +765,27 @@ export default function App() {
                     className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-7 flex flex-col justify-between space-y-6"
                   >
                     <div className="space-y-4">
-                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
-                        <span className="text-white font-medium">{cs.categoryLabel}</span>
+                      <div className="flex flex-wrap items-center gap-1.5 text-sm font-semibold text-slate-300">
+                        <span className="text-white font-bold">{cs.categoryLabel}</span>
                         <span aria-hidden="true">·</span>
                         <span className="font-mono">{cs.subreddit}</span>
                         <span aria-hidden="true">·</span>
-                        <span className="font-mono text-emerald-400 tabular-nums">
+                        <span className="font-mono text-emerald-400 font-bold tabular-nums">
                           {cs.turnaround}
                         </span>
                       </div>
 
-                      <h3 className="font-display text-xl font-bold text-white leading-snug">
+                      <h3 className="font-display text-xl sm:text-2xl font-bold text-white leading-snug">
                         {cs.title}
                       </h3>
 
-                      <div className="space-y-3 text-sm text-slate-400 leading-relaxed">
+                      <div className="space-y-3 text-base font-medium text-slate-300 leading-relaxed">
                         <p>
-                          <strong className="text-slate-200 font-medium">The Problem: </strong>
+                          <strong className="text-white font-bold">The Problem: </strong>
                           {cs.problem}
                         </p>
                         <p>
-                          <strong className="text-slate-200 font-medium">What We Did: </strong>
+                          <strong className="text-white font-bold">What We Did: </strong>
                           {cs.action}
                         </p>
                       </div>
@@ -796,7 +796,7 @@ export default function App() {
                           onClick={() =>
                             setExpandedCaseId(isExpanded ? null : cs.id)
                           }
-                          className="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 cursor-pointer"
+                          className="text-sm font-bold font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 cursor-pointer"
                         >
                           <span>
                             {isExpanded
@@ -804,7 +804,7 @@ export default function App() {
                               : 'See Daily Timeline'}
                           </span>
                           <ChevronDown
-                            className={`w-3.5 h-3.5 transition-transform ${
+                            className={`w-4 h-4 transition-transform ${
                               isExpanded ? 'rotate-180' : ''
                             }`}
                           />
@@ -813,11 +813,11 @@ export default function App() {
                         {isExpanded && (
                           <div className="mt-3 p-4 bg-[#080C14] border border-slate-800 rounded-lg space-y-2.5">
                             {cs.timeline.map((step, i) => (
-                              <div key={i} className="text-xs flex items-start gap-2.5">
-                                <span className="font-mono text-emerald-400 shrink-0 w-12 tabular-nums">
+                              <div key={i} className="text-sm font-medium flex items-start gap-2.5">
+                                <span className="font-mono font-bold text-emerald-400 shrink-0 w-14 tabular-nums">
                                   {step.day}
                                 </span>
-                                <span className="text-slate-300">{step.event}</span>
+                                <span className="text-slate-200">{step.event}</span>
                               </div>
                             ))}
                           </div>
@@ -826,14 +826,14 @@ export default function App() {
                     </div>
 
                     <div className="pt-5 border-t border-slate-800/80 space-y-3">
-                      <div className="text-xs font-mono text-emerald-400 tabular-nums">
+                      <div className="text-sm font-bold font-mono text-emerald-400 tabular-nums">
                         Result: {cs.outcomeMetric}
                       </div>
-                      <blockquote className="text-xs text-slate-300 italic leading-relaxed">
+                      <blockquote className="text-sm sm:text-base font-medium text-slate-200 italic leading-relaxed">
                         &ldquo;{cs.quote}&rdquo;
                       </blockquote>
-                      <div className="text-xs text-slate-400">
-                        <span className="text-white font-medium">{cs.author}</span> · {cs.role}
+                      <div className="text-sm font-semibold text-slate-300">
+                        <span className="text-white font-bold">{cs.author}</span> · {cs.role}
                       </div>
                     </div>
                   </article>
@@ -852,31 +852,31 @@ export default function App() {
           <div className="max-w-[1200px] mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
               <div className="lg:col-span-5 space-y-6">
-                <p className="text-xs font-mono text-emerald-400">
+                <p className="text-sm sm:text-base font-bold font-mono text-emerald-400">
                   Free Confidential Audit
                 </p>
-                <h2 className="font-display text-3xl sm:text-4xl font-bold text-white">
+                <h2 className="font-display text-3xl sm:text-[42px] font-bold text-white leading-tight">
                   Send Us the Link. We’ll Tell You If We Can Remove It.
                 </h2>
-                <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
+                <p className="text-base sm:text-lg font-medium text-slate-300 leading-relaxed">
                   Drop the Reddit URL in the form. Within 12 hours, our team will review the post, let you know if it qualifies for removal, and give you a flat quote starting from $300.
                 </p>
 
                 <div className="space-y-4 pt-2">
-                  <div className="p-4 bg-[#0F1623] border border-slate-800/90 rounded-xl space-y-1">
-                    <div className="text-sm font-semibold text-white">
+                  <div className="p-5 bg-[#0F1623] border border-slate-800/90 rounded-xl space-y-1.5">
+                    <div className="text-base font-bold text-white">
                       Starts from $300 · Zero Upfront Risk
                     </div>
-                    <p className="text-xs text-slate-400 leading-relaxed">
+                    <p className="text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
                       We never ask for a deposit or credit card upfront. You only pay after the Reddit thread or comment is permanently removed.
                     </p>
                   </div>
 
-                  <div className="p-4 bg-[#0F1623] border border-slate-800/90 rounded-xl space-y-1">
-                    <div className="text-sm font-semibold text-white">
+                  <div className="p-5 bg-[#0F1623] border border-slate-800/90 rounded-xl space-y-1.5">
+                    <div className="text-base font-bold text-white">
                       What Happens Next?
                     </div>
-                    <p className="text-xs text-slate-400 leading-relaxed">
+                    <p className="text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
                       1. We check the post against Reddit’s sitewide rules.
                       <br />
                       2. We email you an honest assessment and flat price within 12 hours.
@@ -886,11 +886,11 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="pt-2 text-xs text-slate-400">
+                <div className="pt-2 text-sm sm:text-base font-semibold text-slate-300">
                   Support Email:{' '}
                   <a
                     href="mailto:support@postwipe.com"
-                    className="text-emerald-400 font-mono hover:text-emerald-300 transition-colors"
+                    className="text-emerald-400 font-bold font-mono hover:text-emerald-300 transition-colors"
                   >
                     support@postwipe.com
                   </a>
@@ -903,7 +903,7 @@ export default function App() {
                   <div className="space-y-6">
                     <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                       <div>
-                        <span className="text-xs font-mono text-emerald-400">
+                        <span className="text-sm font-bold font-mono text-emerald-400">
                           Audit Request Received
                         </span>
                         <h3 className="font-display text-2xl font-bold text-white mt-1">
@@ -913,29 +913,29 @@ export default function App() {
                       <ShieldCheck className="w-8 h-8 text-emerald-400 shrink-0" />
                     </div>
 
-                    <p className="text-sm text-slate-300 leading-relaxed">
-                      Thanks, <span className="text-white font-semibold">{submittedDossier.name}</span>. Your audit request has been received under Mutual NDA protection. We will review the thread and send your feasibility assessment and flat quote to <span className="text-white font-mono">{submittedDossier.email}</span> within 12 hours.
+                    <p className="text-base font-medium text-slate-200 leading-relaxed">
+                      Thanks, <span className="text-white font-bold">{submittedDossier.name}</span>. Your audit request has been received under Mutual NDA protection. We will review the thread and send your feasibility assessment and flat quote to <span className="text-white font-mono">{submittedDossier.email}</span> within 12 hours.
                     </p>
 
-                    <div className="p-4 bg-[#080C14] border border-slate-800 rounded-lg space-y-2 text-xs">
+                    <div className="p-4 bg-[#080C14] border border-slate-800 rounded-lg space-y-2 text-sm font-medium">
                       <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-400">Reddit URL:</span>
+                        <span className="text-slate-300">Reddit URL:</span>
                         <span className="text-white font-mono truncate max-w-[280px]">
                           {submittedDossier.redditUrl}
                         </span>
                       </div>
                       <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-400">Search Keywords:</span>
+                        <span className="text-slate-300">Search Keywords:</span>
                         <span className="text-white">{submittedDossier.keywords}</span>
                       </div>
                       <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-400">Terms:</span>
-                        <span className="text-emerald-400 font-mono">
+                        <span className="text-slate-300">Terms:</span>
+                        <span className="text-emerald-400 font-bold font-mono">
                           Starts from $300 · 100% Pay on Results
                         </span>
                       </div>
                       <div className="flex justify-between py-1">
-                        <span className="text-slate-400">Submitted At:</span>
+                        <span className="text-slate-300">Submitted At:</span>
                         <span className="text-white font-mono tabular-nums">
                           {submittedDossier.submittedAt}
                         </span>
@@ -957,7 +957,7 @@ export default function App() {
                             details: '',
                           });
                         }}
-                        className="px-5 py-2.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+                        className="px-6 py-3 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-sm font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap"
                       >
                         Audit Another Link
                       </button>
@@ -967,10 +967,10 @@ export default function App() {
                   <form onSubmit={handleLeadSubmit} className="space-y-5" noValidate>
                     <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                       <div>
-                        <h3 className="font-display text-xl font-bold text-white">
+                        <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
                           Request Your Free Confidential Audit
                         </h3>
-                        <p className="text-xs text-slate-400 mt-0.5">
+                        <p className="text-sm font-medium text-slate-300 mt-0.5">
                           Takes 60 seconds. Pricing starts from $300, paid only upon removal.
                         </p>
                       </div>
@@ -989,14 +989,14 @@ export default function App() {
                               'Competitor planted thread ranking #2 on Google for our brand name and showing up in ChatGPT answers.',
                           })
                         }
-                        className="text-xs font-mono text-slate-400 hover:text-emerald-400 underline underline-offset-4 cursor-pointer whitespace-nowrap"
+                        className="text-xs sm:text-sm font-semibold font-mono text-slate-300 hover:text-emerald-400 underline underline-offset-4 cursor-pointer whitespace-nowrap"
                       >
                         Fill Sample Data
                       </button>
                     </div>
 
                     {formError && (
-                      <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-xs text-rose-300">
+                      <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-lg text-sm font-semibold text-rose-300">
                         {formError}
                       </div>
                     )}
@@ -1005,7 +1005,7 @@ export default function App() {
                       <div>
                         <label
                           htmlFor="audit-name"
-                          className="block text-xs font-medium text-slate-300 mb-2"
+                          className="block text-sm font-semibold text-slate-200 mb-2"
                         >
                           Your Name *
                         </label>
@@ -1018,14 +1018,14 @@ export default function App() {
                             setFormData({ ...formData, name: e.target.value })
                           }
                           placeholder="Alex Morgan"
-                          className="w-full px-4 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none transition-colors"
+                          className="w-full px-4 py-3.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-base font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
                         />
                       </div>
 
                       <div>
                         <label
                           htmlFor="audit-email"
-                          className="block text-xs font-medium text-slate-300 mb-2"
+                          className="block text-sm font-semibold text-slate-200 mb-2"
                         >
                           Work Email *
                         </label>
@@ -1038,7 +1038,7 @@ export default function App() {
                             setFormData({ ...formData, email: e.target.value })
                           }
                           placeholder="alex@company.com"
-                          className="w-full px-4 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none transition-colors"
+                          className="w-full px-4 py-3.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-base font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
                         />
                       </div>
                     </div>
@@ -1046,7 +1046,7 @@ export default function App() {
                     <div>
                       <label
                         htmlFor="audit-url"
-                        className="block text-xs font-medium text-slate-300 mb-2"
+                        className="block text-sm font-semibold text-slate-200 mb-2"
                       >
                         Reddit URL to Audit *
                       </label>
@@ -1060,7 +1060,7 @@ export default function App() {
                           setFormData({ ...formData, redditUrl: e.target.value })
                         }
                         placeholder="https://www.reddit.com/r/subreddit/comments/..."
-                        className="w-full px-4 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm text-white placeholder-slate-500 font-mono focus:outline-none transition-colors"
+                        className="w-full px-4 py-3.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-base font-medium text-white placeholder-slate-500 font-mono focus:outline-none transition-colors"
                       />
                     </div>
 
@@ -1068,7 +1068,7 @@ export default function App() {
                       <div>
                         <label
                           htmlFor="audit-keywords"
-                          className="block text-xs font-medium text-slate-300 mb-2"
+                          className="block text-sm font-semibold text-slate-200 mb-2"
                         >
                           Target Search Keywords (Optional)
                         </label>
@@ -1080,14 +1080,14 @@ export default function App() {
                             setFormData({ ...formData, keywords: e.target.value })
                           }
                           placeholder="e.g., [Brand] reviews, [Brand] reddit"
-                          className="w-full px-4 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none transition-colors"
+                          className="w-full px-4 py-3.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-base font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
                         />
                       </div>
 
                       <div>
                         <label
                           htmlFor="audit-scope"
-                          className="block text-xs font-medium text-slate-300 mb-2"
+                          className="block text-sm font-semibold text-slate-200 mb-2"
                         >
                           What Needs to Be Removed?
                         </label>
@@ -1097,7 +1097,7 @@ export default function App() {
                           onChange={(e) =>
                             setFormData({ ...formData, scopeType: e.target.value })
                           }
-                          className="w-full px-4 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm text-white focus:outline-none transition-colors"
+                          className="w-full px-4 py-3.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-base font-medium text-white focus:outline-none transition-colors"
                         >
                           <option value="full-thread">Entire Reddit Thread + Google Snippet</option>
                           <option value="specific-comments">Specific Comment(s) Inside a Thread</option>
@@ -1109,7 +1109,7 @@ export default function App() {
                     <div>
                       <label
                         htmlFor="audit-details"
-                        className="block text-xs font-medium text-slate-300 mb-2"
+                        className="block text-sm font-semibold text-slate-200 mb-2"
                       >
                         Additional Details (Optional)
                       </label>
@@ -1121,7 +1121,7 @@ export default function App() {
                           setFormData({ ...formData, details: e.target.value })
                         }
                         placeholder="Any helpful context (e.g., posted by a competitor or former employee, false claims, or showing up in ChatGPT)..."
-                        className="w-full px-4 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none transition-colors"
+                        className="w-full px-4 py-3.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-base font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
                       />
                     </div>
 
@@ -1137,7 +1137,7 @@ export default function App() {
                       />
                       <label
                         htmlFor="audit-nda"
-                        className="text-xs text-slate-400 cursor-pointer select-none"
+                        className="text-sm font-medium text-slate-300 cursor-pointer select-none"
                       >
                         Send a signed Mutual NDA along with my audit report
                       </label>
@@ -1146,7 +1146,7 @@ export default function App() {
                     <button
                       type="submit"
                       disabled={isSending}
-                      className="w-full py-3.5 px-6 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-60 text-slate-950 font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                      className="w-full py-4 px-6 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-60 text-slate-950 font-bold text-base rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
                     >
                       <Lock className="w-4 h-4" />
                       <span>
@@ -1156,7 +1156,7 @@ export default function App() {
                       </span>
                     </button>
 
-                    <div className="text-center text-xs text-slate-400">
+                    <div className="text-center text-sm font-semibold text-slate-300">
                       Starts from $300 · 100% Pay on Results · $0 Upfront
                     </div>
                   </form>
@@ -1170,18 +1170,18 @@ export default function App() {
         <section id="faq" className="py-20 lg:py-24">
           <div className="max-w-[900px] mx-auto px-6 space-y-10">
             <div className="space-y-3">
-              <p className="text-xs font-mono text-emerald-400">
+              <p className="text-sm sm:text-base font-bold font-mono text-emerald-400">
                 Straight Answers
               </p>
-              <h2 className="font-display text-3xl sm:text-4xl font-bold text-white">
+              <h2 className="font-display text-3xl sm:text-[42px] font-bold text-white leading-tight">
                 Frequently Asked Questions
               </h2>
-              <p className="text-sm sm:text-base text-slate-400">
+              <p className="text-base sm:text-lg font-medium text-slate-300">
                 Everything you need to know about how we remove posts, how long it takes, and how our pay on results guarantee works.
               </p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {FAQS.map((faq, index) => {
                 const isOpen = openFaqIndex === index;
                 return (
@@ -1195,17 +1195,17 @@ export default function App() {
                       aria-expanded={isOpen}
                       className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
                     >
-                      <span className="font-display text-base sm:text-lg font-semibold text-white">
+                      <span className="font-display text-lg sm:text-xl font-bold text-white">
                         {faq.question}
                       </span>
                       <ChevronDown
-                        className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-150 ${
+                        className={`w-5 h-5 text-slate-300 shrink-0 transition-transform duration-150 ${
                           isOpen ? 'rotate-180 text-emerald-400' : ''
                         }`}
                       />
                     </button>
                     {isOpen && (
-                      <div className="px-6 pb-6 pt-1 text-sm text-slate-400 leading-relaxed border-t border-slate-800/80">
+                      <div className="px-6 pb-6 pt-2 text-base font-medium text-slate-300 leading-relaxed border-t border-slate-800/80">
                         {faq.answer}
                       </div>
                     )}
@@ -1217,17 +1217,17 @@ export default function App() {
             {/* Bottom Callout */}
             <div className="mt-12 bg-[#0F1623] border border-slate-800/90 rounded-xl p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
               <div className="space-y-1.5">
-                <h3 className="font-display text-xl font-bold text-white">
+                <h3 className="font-display text-2xl font-bold text-white">
                   Ready to get that Reddit thread off page one of Google?
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-400">
+                <p className="text-sm sm:text-base font-medium text-slate-300">
                   Send us the link for a free 12 hour review. Removals start from $300, paid only after success.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => scrollToAuditForm()}
-                className="px-6 py-3 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs sm:text-sm font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                className="px-7 py-3.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-sm sm:text-base font-bold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
               >
                 Get a Free Confidential Audit
               </button>
@@ -1237,10 +1237,10 @@ export default function App() {
       </main>
 
       {/* Quiet Footer */}
-      <footer className="border-t border-slate-800/80 py-12 bg-[#080C14] text-xs text-slate-400">
+      <footer className="border-t border-slate-800/80 py-12 bg-[#080C14] text-sm font-medium text-slate-300">
         <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 font-display text-base font-bold text-white">
+            <div className="inline-flex items-center gap-2.5 font-display text-lg font-bold text-white">
               <img
                 src="/favicon.svg"
                 alt="PostWipe Logo"
@@ -1248,12 +1248,12 @@ export default function App() {
               />
               <span>PostWipe</span>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-sm font-medium text-slate-300">
               Reddit Post Removal Service &amp; Online Reputation Management · 100% Pay on Results
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-6">
+          <div className="flex flex-wrap items-center gap-6 font-semibold">
             <a href="#capabilities" className="hover:text-white transition-colors">
               Why Us
             </a>
@@ -1268,13 +1268,13 @@ export default function App() {
             </a>
             <a
               href="mailto:support@postwipe.com"
-              className="text-emerald-400 font-mono hover:text-emerald-300 transition-colors"
+              className="text-emerald-400 font-bold font-mono hover:text-emerald-300 transition-colors"
             >
               support@postwipe.com
             </a>
           </div>
 
-          <div className="text-xs text-slate-500">
+          <div className="text-sm text-slate-400">
             © {new Date().getFullYear()} PostWipe ORM LLC. All inquiries protected by Mutual NDA.
           </div>
         </div>
