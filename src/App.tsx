@@ -353,12 +353,12 @@ export default function App() {
           />
           <div className="relative max-w-[1200px] mx-auto px-6">
             <div className="max-w-3xl mx-auto flex flex-col items-center space-y-6">
-              <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-mono text-slate-400">
-                <span className="text-emerald-400">Reddit Post Removal Service</span>
-                <span aria-hidden="true">·</span>
-                <span>100% Pay on Results</span>
-                <span aria-hidden="true">·</span>
-                <span>Starting from $300</span>
+              <div className="flex flex-wrap items-center justify-center gap-3 text-sm sm:text-base font-mono text-slate-300">
+                <span className="text-emerald-400 font-bold text-sm sm:text-base">Reddit Post Removal Service</span>
+                <span aria-hidden="true" className="text-slate-500">·</span>
+                <span className="font-bold text-white text-sm sm:text-base">100% Pay on Results</span>
+                <span aria-hidden="true" className="text-slate-500">·</span>
+                <span className="font-bold text-white text-sm sm:text-base">Starting from $300</span>
               </div>
 
               <h1 className="font-display text-4xl sm:text-5xl lg:text-[54px] font-bold text-white leading-[1.1] mx-auto">
