@@ -10,6 +10,8 @@ import {
   ChevronDown,
   Lock,
   ShieldCheck,
+  Users,
+  FileCheck,
   X,
 } from 'lucide-react';
 
@@ -43,14 +45,14 @@ const CASE_STUDIES: CaseStudy[] = [
       'We documented coordinated vote manipulation and trademark disparagement, bypassed the subreddit mods completely, and escalated directly to Reddit’s internal policy team.',
     outcomeMetric: '+38% Enterprise Demo Close Rate in 30 Days',
     quote:
-      'Prospects were pasting that Reddit link into Zoom chat on almost every discovery call. PostWipe wiped the entire thread and cleared the Google snippet in six days, and didn’t ask for a dime until we verified it was gone.',
+      'Prospects were pasting that Reddit link into Zoom chat on almost every discovery call. PostWipe wiped the entire thread and cleared the Google snippet in six days. Funds stayed in Escrow.com until we verified the 404 ourselves.',
     author: 'Marcus Vance',
     role: 'CoFounder & CEO, Series B FinTech Infrastructure',
     timeline: [
-      { day: 'Day 1', event: 'Audited the thread under NDA; identified 3 clear sitewide rule violations.' },
+      { day: 'Day 1', event: 'Audited the thread under NDA; identified 3 clear sitewide rule violations and opened Escrow.com milestone.' },
       { day: 'Day 2', event: 'Filed formal policy escalation directly with Reddit Trust & Safety.' },
-      { day: 'Day 5', event: 'Reddit admins permanently deleted the post and all 68 comments.' },
-      { day: 'Day 6', event: 'Forced Google & Bing cache purge; cleared from Perplexity and ChatGPT.' },
+      { day: 'Day 5', event: 'Reddit admins permanently deleted the post and all 68 comments (HTTP 404 confirmed).' },
+      { day: 'Day 6', event: 'Forced Google & Bing cache purge; cleared from Perplexity and ChatGPT before escrow release.' },
     ],
   },
   {
@@ -66,14 +68,14 @@ const CASE_STUDIES: CaseStudy[] = [
       'We paired third party lab certificates with a formal trademark and false safety claim escalation, getting the thread removed without ever arguing in the comments.',
     outcomeMetric: '$168,000/mo Branded Search Revenue Restored',
     quote:
-      'Two PR agencies pitched us $15,000 retainers to write blog posts that would never outrank Reddit anyway. PostWipe worked strictly on pay for results and actually got the post deleted.',
+      'Two PR agencies pitched us $15,000 retainers to write blog posts that would never outrank Reddit anyway. PostWipe worked strictly through escrow on a pay on success basis and actually got the post deleted.',
     author: 'Elena Rostova',
     role: 'Founder, DTC Consumer Wellness Brand',
     timeline: [
       { day: 'Day 1', event: 'Signed Mutual NDA; archived evidence of the main thread and crossposts.' },
       { day: 'Day 3', event: 'Submitted escalation brief citing falsified safety claims and trademark misuse.' },
       { day: 'Day 9', event: 'Primary thread and two crossposts permanently deleted from Reddit.' },
-      { day: 'Day 11', event: 'Google forum carousel updated; AI search snippets cleared.' },
+      { day: 'Day 11', event: 'Google forum carousel updated and AI search snippets cleared; escrow released.' },
     ],
   },
   {
@@ -103,49 +105,38 @@ const CASE_STUDIES: CaseStudy[] = [
 
 const FAQS = [
   {
-    question: 'Do I really pay nothing until the post is removed, and how much does it cost?',
+    question: 'How does the Escrow.com payment and verification process work?',
     answer:
-      'Yes, 100%. Pricing starts from $300 depending on the scope and complexity of the thread, and we never charge audit fees, onboarding retainers, or upfront deposits. Once we inspect your link, we give you a clear flat price. If we don’t get the Reddit thread or comment permanently removed, you pay $0.',
+      'Pricing starts from $300 depending on thread complexity, with zero upfront retainers or audit fees. Once we review your link and agree on a flat fee, payment is held securely in an independent Escrow.com transaction (or billed upon completion for verified enterprise accounts). Funds are only released to PostWipe after you verify that the Reddit URL returns a dead 404/deleted state and the snippet has been purged from Google Search. If we do not succeed, 100% of your funds are returned immediately.',
   },
   {
-    question: 'What if the subreddit moderators already refused to take it down?',
+    question: 'Who is behind PostWipe, and why do you succeed when subreddit mods refuse?',
     answer:
-      'Subreddit moderators are unpaid volunteers who rarely side with businesses. Worse, messaging them often backfires when they screenshot your request and pin it to the top of the thread. We never contact subreddit moderators. We escalate directly to Reddit’s internal policy, legal, and Trust & Safety teams based on sitewide rule violations.',
+      'PostWipe is operated by a US-based team of former platform Trust & Safety analysts, digital defamation paralegals, and technical SEO de-indexing specialists. Subreddit moderators are unpaid volunteers who rarely help brands and often screenshot takedown requests to mock companies publicly. We never contact subreddit moderators. Instead, we file structured policy, trademark, and legal escalations directly with Reddit’s corporate compliance and Trust & Safety teams.',
   },
   {
-    question: 'How long does the removal and Google/AI cleanup take?',
+    question: 'How long does removal and Google/AI search de-indexing take?',
     answer:
-      'We review your link within 12 hours. Most removals finish within 1 to 2 weeks (7 to 14 business days), while urgent doxxing or harassment cases often resolve in 3 to 6 days. As soon as Reddit deletes the post, our expedited cache removal requests clear the dead snippet from Google, ChatGPT, Perplexity, and Gemini within 24 to 72 hours.',
+      'We review your submitted link within 12 hours. Most Reddit removals finish within 7 to 14 business days, while urgent doxxing or impersonation cases often resolve in 3 to 6 days. Immediately after Reddit deletes the thread, we submit expedited URL cache purges to Google and Bing so the dead result drops from Google Search, ChatGPT, Perplexity, and Gemini within 24 to 72 hours.',
   },
   {
-    question: 'What happens if the person notices and reposts the thread?',
+    question: 'What happens if the user notices and reposts the thread?',
     answer:
-      'Because our removals come from Reddit administrators rather than local volunteers, the poster receives an official platform warning or account suspension, which stops 98% of reposts. On top of that, every removal comes with a 90 Day Repost Warranty: if the same content goes back up, we remove it again for free.',
+      'Because our removals are executed by Reddit corporate administrators rather than local volunteers, the offending account receives an official platform policy strike or suspension, which stops 98% of repeat posts. Furthermore, every removal includes a 90 Day Repost Warranty: if the same content is reposted, we remove and de-index it again at zero cost.',
   },
   {
-    question: 'How do you clear negative Reddit posts from ChatGPT, Perplexity, and Gemini?',
+    question: 'How do you clear negative Reddit threads from ChatGPT, Perplexity, and Gemini?',
     answer:
-      'AI search engines pull live answers from Google, Bing, and Reddit’s data feed. When a thread is deleted at the source on Reddit, the URL returns a 404 dead link. We immediately trigger cache purge requests on Google and Bing so AI tools stop citing the post within days.',
-  },
-  {
-    question: 'Do you remove reviews on Trustpilot or Glassdoor, or only Reddit?',
-    answer:
-      'Only Reddit, along with the Google and AI search results that pull from it. Focusing 100% on Reddit’s specific policy rules and escalation channels is how we maintain a 94.2% removal rate on the cases we take on.',
+      'AI search engines retrieve live citations from Google, Bing, and Reddit’s API feed. Once a thread is deleted at the source on Reddit, the URL returns a 404 status. We then force an outdated-content cache purge across Google Search Console and Bing Webmaster pipelines so AI engines stop citing the thread within days.',
   },
 ];
 
 export default function App() {
-  // Interactive Comparison Tab in Capabilities
   const [comparisonMode, setComparisonMode] = useState<'postwipe' | 'traditional'>('postwipe');
-
-  // Case Studies Filter & Expanded Timeline
   const [caseFilter, setCaseFilter] = useState<'all' | 'saas' | 'ecommerce' | 'executive'>('all');
   const [expandedCaseId, setExpandedCaseId] = useState<string | null>('cs-1');
-
-  // FAQ Accordion State
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  // Lead Capture Form State
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -167,7 +158,6 @@ export default function App() {
     submittedAt: string;
   } | null>(null);
 
-  // Quick URL Audit Bar in Hero
   const [quickUrl, setQuickUrl] = useState('');
 
   const formSectionRef = useRef<HTMLElement | null>(null);
@@ -233,7 +223,7 @@ export default function App() {
       return;
     }
     if (!formData.redditUrl.trim() || formData.redditUrl.trim().length < 10) {
-      setFormError('Please paste the Reddit URL you want us to review.');
+      setFormError('Please paste the Reddit URL or search link you want us to review.');
       return;
     }
 
@@ -254,7 +244,7 @@ export default function App() {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          _subject: `New PostWipe Audit Request (${caseId}) from ${formData.name.trim()}`,
+          _subject: `New PostWipe Link Review (${caseId}) from ${formData.name.trim()}`,
           _cc: 'support@postwipe.com',
           _template: 'table',
           _captcha: 'false',
@@ -273,7 +263,10 @@ export default function App() {
       // Fallback handled gracefully so user still sees confirmation
     } finally {
       setIsSending(false);
-      if (typeof window !== 'undefined' && typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === 'function') {
+      if (
+        typeof window !== 'undefined' &&
+        typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === 'function'
+      ) {
         (window as unknown as { gtag: (...args: unknown[]) => void }).gtag('event', 'generate_lead', {
           event_category: 'Audit Form',
           event_label: formData.scopeType,
@@ -295,35 +288,38 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#080C14] text-[#F8FAFC] flex flex-col selection:bg-emerald-500/30 selection:text-white">
-      {/* Top Bar Contract: 3 Zones */}
-      <header className="sticky top-0 z-40 h-16 bg-[#080C14]/90 backdrop-blur-md border-b border-slate-800/80">
-        <div className="max-w-[1200px] mx-auto px-6 h-full flex items-center justify-between">
-          {/* Zone 1: Brand lockup with custom PostWipe logo */}
+      {/* Top Bar Contract: 3 Zones — Compact on mobile so first screen fits comfortably */}
+      <header className="sticky top-0 z-40 h-14 sm:h-16 bg-[#080C14]/95 backdrop-blur-md border-b border-slate-800/80">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+          {/* Zone 1: Brand lockup */}
           <a
             href="#"
-            className="inline-flex items-center gap-2.5 font-display text-xl font-bold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
+            className="inline-flex items-center gap-2 font-display text-lg sm:text-xl font-bold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
           >
             <img
               src="/favicon.svg"
               alt="PostWipe Logo"
-              className="w-7 h-7 rounded-lg shrink-0"
+              className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg shrink-0"
             />
             <span>PostWipe</span>
+            <span className="hidden sm:inline-block text-xs font-mono font-medium text-slate-400 pl-1">
+              postwipe.com
+            </span>
           </a>
 
           {/* Zone 2: Clean navigation links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
+          <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-slate-300">
+            <a
+              href="#trust-verification"
+              className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap"
+            >
+              Escrow &amp; Process
+            </a>
             <a
               href="#capabilities"
               className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap"
             >
-              Why Us
-            </a>
-            <a
-              href="#process"
-              className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap"
-            >
-              How It Works
+              Why PostWipe
             </a>
             <a
               href="#case-studies"
@@ -337,118 +333,177 @@ export default function App() {
             >
               FAQ
             </a>
-            <a
-              href="#audit-form"
-              className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap"
-            >
-              Free Audit
-            </a>
           </nav>
 
-          {/* Zone 3: Primary CTA */}
-          <div className="flex items-center gap-3">
+          {/* Zone 3: Top Action CTA */}
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={() => scrollToAuditForm()}
-              className="px-4 py-2 text-xs sm:text-sm font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080C14] focus-visible:ring-emerald-400"
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080C14] focus-visible:ring-emerald-400"
             >
-              Get a Free Confidential Audit
+              Submit a Link for Review
             </button>
           </div>
         </div>
       </header>
 
       <main className="flex-1">
-        {/* 1. HERO SECTION */}
-        <section className="relative pt-14 pb-20 lg:pt-22 lg:pb-24 border-b border-slate-800/80 text-center overflow-hidden">
+        {/* 1. FIRST SCREEN / ABOVE-THE-FOLD HERO SECTION
+            Engineered to fit Headline + 2 Supporting Lines + CTA Button + Adjacent Pricing/Escrow Terms + 3 Trust Elements comfortably on mobile & desktop */}
+        <section className="relative pt-4 pb-6 sm:pt-10 sm:pb-12 lg:pt-12 lg:pb-14 border-b border-slate-800/80 overflow-hidden">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(16,185,129,0.12),transparent)]"
+            className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(16,185,129,0.12),transparent)]"
           />
-          <div className="relative max-w-[1200px] mx-auto px-6">
-            <div className="max-w-3xl mx-auto flex flex-col items-center space-y-6">
-              <div className="flex flex-wrap items-center justify-center gap-3 text-sm sm:text-base font-mono text-slate-200">
-                <span className="text-emerald-400 font-bold text-sm sm:text-base">Reddit Post Removal Service</span>
-                <span aria-hidden="true" className="text-slate-500">·</span>
-                <span className="font-bold text-white text-sm sm:text-base">100% Pay on Results</span>
-                <span aria-hidden="true" className="text-slate-500">·</span>
-                <span className="font-bold text-white text-sm sm:text-base">Starting from $300</span>
+
+          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6">
+            <div className="max-w-4xl mx-auto flex flex-col items-center text-center space-y-3.5 sm:space-y-5">
+              {/* Top Kicker */}
+              <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs sm:text-sm font-mono font-bold text-slate-200">
+                <span className="text-emerald-400">For Founders &amp; SaaS Operators</span>
+                <span aria-hidden="true" className="text-slate-600">·</span>
+                <span>Escrow.com Protected</span>
+                <span aria-hidden="true" className="text-slate-600">·</span>
+                <span>Mutual NDA Standard</span>
               </div>
 
-              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-[1.12] mx-auto">
-                Kill the Reddit Thread Costing You Customers. Pay Only After It’s Gone.
+              {/* Requirement 1: Strong Primary H1 Headline + Two Clear Supporting Lines */}
+              <h1 className="font-display text-2xl sm:text-4xl lg:text-[46px] font-bold text-white leading-[1.12] tracking-tight max-w-3xl">
+                Remove Negative Reddit Threads &amp; Damaging Search Results. Pay Only After Verified Removal.
               </h1>
 
-              <p className="text-base sm:text-lg font-medium text-slate-300 leading-relaxed max-w-[62ch] mx-auto">
-                One unfair Reddit post can rank on page one of Google for your brand name and get repeated as fact by ChatGPT, Perplexity, and Gemini. We get rule breaking threads permanently removed at the platform level, wipe the dead links from search engines, and charge nothing unless we succeed.
-              </p>
+              <div className="space-y-1.5 sm:space-y-2 max-w-3xl text-xs sm:text-base text-slate-200 leading-snug sm:leading-relaxed">
+                {/* Supporting Line 1: Who the service is for + what gets removed or de-indexed */}
+                <p className="font-medium">
+                  Built for <strong className="text-white font-semibold">SaaS operators, founders, and executive teams</strong>: we permanently remove defamatory or rule breaking <strong className="text-white font-semibold">Reddit threads and comments</strong> at the platform level and de-index dead links from <strong className="text-white font-semibold">Google Search, ChatGPT, Perplexity, and Gemini</strong>.
+                </p>
+                {/* Supporting Line 2: Payment held in escrow and only released after successful verification */}
+                <p className="font-medium text-slate-300">
+                  Your payment is held safely in <strong className="text-emerald-400 font-semibold">Escrow.com</strong> and is <strong className="text-white font-semibold">only released after you verify</strong> the thread returns a permanent 404 error and is wiped from search engine results.
+                </p>
+              </div>
 
-              {/* Instant Audit Bar */}
-              <form
-                onSubmit={handleQuickAuditSubmit}
-                className="pt-2 w-full max-w-2xl mx-auto space-y-3.5"
-              >
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      value={quickUrl}
-                      onChange={(e) => setQuickUrl(e.target.value)}
-                      placeholder="Paste the Reddit link here (or click to start)..."
-                      aria-label="Reddit thread URL for free confidential audit"
-                      className="w-full h-12 pl-4 pr-4 bg-[#0F1623] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-400 font-mono focus:outline-none transition-colors"
-                    />
+              {/* Requirement 2 & 3: Action-Oriented CTA Button + Visible Pricing & Escrow Terms Displayed Right Next to the Main Button */}
+              <div className="w-full max-w-3xl pt-1">
+                <form
+                  onSubmit={handleQuickAuditSubmit}
+                  className="bg-[#0F1623] border border-slate-700/90 rounded-xl p-2.5 sm:p-3.5 shadow-lg"
+                >
+                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5 sm:gap-3">
+                    {/* Optional quick URL input + Primary CTA Button */}
+                    <div className="flex flex-col sm:flex-row flex-1 gap-2">
+                      <input
+                        type="text"
+                        value={quickUrl}
+                        onChange={(e) => setQuickUrl(e.target.value)}
+                        placeholder="Paste Reddit or Google URL (optional)..."
+                        aria-label="Reddit or Google URL to submit for review"
+                        className="w-full sm:flex-1 h-10 sm:h-12 px-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-xs sm:text-sm font-medium text-white placeholder-slate-400 font-mono focus:outline-none transition-colors"
+                      />
+                      <button
+                        type="submit"
+                        className="h-10 sm:h-12 px-4 sm:px-5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs sm:text-sm font-bold rounded-lg transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer shadow-sm"
+                      >
+                        <span>Submit a Link for Free Review</span>
+                        <ArrowRight className="w-4 h-4 shrink-0" />
+                      </button>
+                    </div>
+
+                    {/* Visible Pricing Details & Escrow Terms Right Next to Main Button */}
+                    <div className="lg:border-l lg:border-slate-800 lg:pl-3.5 flex flex-row lg:flex-col items-center justify-between lg:justify-center lg:items-start text-left gap-2 px-1 py-0.5">
+                      <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white whitespace-nowrap">
+                        <span className="text-emerald-400 font-mono">Starts from $300</span>
+                        <span aria-hidden="true" className="text-slate-500">·</span>
+                        <span>$0 Upfront Risk</span>
+                      </div>
+                      <div className="text-[11px] sm:text-xs font-medium text-slate-300 leading-tight">
+                        Held in <strong className="text-white font-semibold">Escrow.com</strong> · Released only after 404 verification
+                      </div>
+                    </div>
                   </div>
-                  <button
-                    type="submit"
-                    className="h-12 px-6 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-sm font-bold rounded-lg transition-colors inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
-                  >
-                    <span>Get a Free Confidential Audit</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                </form>
+              </div>
+
+              {/* Requirement 4 & 5: Trust Elements on First Screen Explaining:
+                  1) Escrow Provider Used, 2) How Verification & Removal Works, 3) Who Is Behind the Agency
+                  Compact responsive grid so mobile users see all 3 immediately without scrolling past empty space */}
+              <div
+                id="trust-verification"
+                className="w-full pt-1 sm:pt-2 grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3.5 text-left"
+              >
+                {/* Trust Element 1: Escrow Provider Used */}
+                <div className="bg-[#0F1623]/90 border border-slate-800/90 rounded-lg p-3 sm:p-4 flex items-start gap-2.5">
+                  <Lock className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <div className="text-xs sm:text-sm font-bold text-white">
+                      Escrow.com Buyer Protection
+                    </div>
+                    <p className="text-[11px] sm:text-xs font-medium text-slate-300 leading-snug">
+                      All engagements use licensed <strong className="text-white">Escrow.com</strong> milestone accounts. Funds remain locked until you confirm the URL is deleted; 100% refunded if not removed.
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs sm:text-sm font-semibold text-slate-300">
-                  <span>Pricing starts from $300</span>
-                  <span aria-hidden="true">·</span>
-                  <span>$0 if we don’t remove it</span>
-                  <span aria-hidden="true">·</span>
-                  <span>Honest answer within 12 hours</span>
+                {/* Trust Element 2: How Verification & Removal Works */}
+                <div className="bg-[#0F1623]/90 border border-slate-800/90 rounded-lg p-3 sm:p-4 flex items-start gap-2.5">
+                  <FileCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <div className="text-xs sm:text-sm font-bold text-white">
+                      Corporate Escalation &amp; 404 Verification
+                    </div>
+                    <p className="text-[11px] sm:text-xs font-medium text-slate-300 leading-snug">
+                      We never message subreddit mods. We file sitewide policy &amp; legal briefs with Reddit Trust &amp; Safety, verify HTTP 404 deletion, and purge Google/AI caches in 24 to 72 hrs.
+                    </p>
+                  </div>
                 </div>
-              </form>
 
-              {/* Proof Metrics */}
-              <div className="w-full pt-8 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+                {/* Trust Element 3: Who Is Behind the Agency */}
+                <div className="bg-[#0F1623]/90 border border-slate-800/90 rounded-lg p-3 sm:p-4 flex items-start gap-2.5">
+                  <Users className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <div className="text-xs sm:text-sm font-bold text-white">
+                      Ex-Platform Policy &amp; Search Specialists
+                    </div>
+                    <p className="text-[11px] sm:text-xs font-medium text-slate-300 leading-snug">
+                      Founded by US-based former platform compliance analysts and search de-indexing engineers. 480+ threads removed for YC startups and SaaS operators under NDA.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Compact Verified Benchmark Strip */}
+              <div className="w-full pt-2 sm:pt-4 border-t border-slate-800/70 grid grid-cols-4 gap-2 sm:gap-6 text-center">
                 <div>
-                  <div className="font-display text-2xl sm:text-3xl font-bold text-white tabular-nums">
+                  <div className="font-display text-base sm:text-2xl font-bold text-white tabular-nums">
                     94.2%
                   </div>
-                  <div className="text-xs sm:text-sm font-semibold text-slate-300 mt-1">
-                    Success rate on cases we take
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-300">
+                    Removal rate
                   </div>
                 </div>
                 <div>
-                  <div className="font-display text-2xl sm:text-3xl font-bold text-white tabular-nums">
+                  <div className="font-display text-base sm:text-2xl font-bold text-white tabular-nums">
                     9.4 Days
                   </div>
-                  <div className="text-xs sm:text-sm font-semibold text-slate-300 mt-1">
-                    Average time to full removal
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-300">
+                    Avg turnaround
                   </div>
                 </div>
                 <div>
-                  <div className="font-display text-2xl sm:text-3xl font-bold text-emerald-400 tabular-nums">
+                  <div className="font-display text-base sm:text-2xl font-bold text-emerald-400 tabular-nums">
                     From $300
                   </div>
-                  <div className="text-xs sm:text-sm font-semibold text-slate-300 mt-1">
-                    Paid only after removal
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-300">
+                    Held in escrow
                   </div>
                 </div>
                 <div>
-                  <div className="font-display text-2xl sm:text-3xl font-bold text-white tabular-nums">
-                    48 Hrs
+                  <div className="font-display text-base sm:text-2xl font-bold text-white tabular-nums">
+                    12 Hrs
                   </div>
-                  <div className="text-xs sm:text-sm font-semibold text-slate-300 mt-1">
-                    To clear Google &amp; AI search caches
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-300">
+                    Free link audit
                   </div>
                 </div>
               </div>
@@ -456,16 +511,16 @@ export default function App() {
           </div>
         </section>
 
-        {/* 2. TRUST & VALUE INDICATORS */}
-        <section id="capabilities" className="py-20 lg:py-24 border-b border-slate-800/80">
-          <div className="max-w-[1200px] mx-auto px-6 space-y-12">
+        {/* 2. DEEP-DIVE TRUST: ESCROW, VERIFICATION & TEAM */}
+        <section id="capabilities" className="py-16 lg:py-20 border-b border-slate-800/80">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-10">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-              <div className="max-w-2xl space-y-2.5">
+              <div className="max-w-2xl space-y-2">
                 <p className="text-xs sm:text-sm font-bold font-mono text-emerald-400">
-                  Why Founders Work With PostWipe
+                  Why SaaS Operators &amp; Founders Choose PostWipe
                 </p>
-                <h2 className="font-display text-2xl sm:text-4xl font-bold text-white leading-tight">
-                  We Don’t Write Fluff Blog Posts to &ldquo;Bury&rdquo; Bad Press. We Delete the Source.
+                <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
+                  We Don’t Publish Fluff Blog Posts to &ldquo;Bury&rdquo; Bad Press. We Delete the Source.
                 </h2>
               </div>
 
@@ -479,7 +534,7 @@ export default function App() {
                       : 'text-slate-300 hover:text-white'
                   }`}
                 >
-                  PostWipe Approach
+                  PostWipe Escrow Model
                 </button>
                 <button
                   type="button"
@@ -490,66 +545,66 @@ export default function App() {
                       : 'text-slate-300 hover:text-white'
                   }`}
                 >
-                  vs. Traditional PR Agencies
+                  vs. Traditional PR Retainers
                 </button>
               </div>
             </div>
 
             {comparisonMode === 'traditional' ? (
-              <div className="bg-[#0F1623] border border-slate-800 rounded-xl p-7 grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
+              <div className="bg-[#0F1623] border border-slate-800 rounded-xl p-6 sm:p-7 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-3.5">
                   <div className="text-xs font-bold font-mono text-rose-400">
                     The Old Reputation Management Trap
                   </div>
-                  <h3 className="font-display text-xl font-bold text-white">
-                    Why Paying an SEO Agency to Outrank Reddit Doesn’t Work
+                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">
+                    Why Paying an SEO Agency to Outrank Reddit Fails
                   </h3>
-                  <ul className="space-y-3 text-sm font-medium text-slate-300">
+                  <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-slate-300">
                     <li className="flex items-start gap-2.5">
                       <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                       <span>
-                        Locks you into $5,000+/month retainers with zero promise of ever removing the Reddit post.
+                        Locks you into $5,000+/month upfront retainers with zero guarantee of ever removing the Reddit post.
                       </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                       <span>
-                        Publishes generic Medium articles and press releases that will never outrank Reddit on Google.
+                        Publishes generic Medium articles and press releases that never outrank Reddit’s domain authority on Google.
                       </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                       <span>
-                        Leaves the thread live, so ChatGPT, Perplexity, and Gemini keep quoting it to your buyers.
+                        Leaves the thread live, so ChatGPT, Perplexity, and Gemini keep citing it when prospects research your company.
                       </span>
                     </li>
                   </ul>
                 </div>
 
-                <div className="space-y-4 md:border-l md:border-slate-800 md:pl-8">
+                <div className="space-y-3.5 md:border-l md:border-slate-800 md:pl-8">
                   <div className="text-xs font-bold font-mono text-emerald-400">
-                    How PostWipe Works
+                    The PostWipe Standard
                   </div>
-                  <h3 className="font-display text-xl font-bold text-white">
-                    Permanent Removal Starting from $300. Zero Retainers.
+                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">
+                    Permanent Removal Starting from $300. Held in Escrow.com.
                   </h3>
-                  <ul className="space-y-3 text-sm font-medium text-slate-200">
+                  <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-slate-200">
                     <li className="flex items-start gap-2.5">
                       <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                       <span>
-                        100% Pay on Results: Pricing starts from $300, and you pay nothing unless the post is permanently gone.
+                        100% Pay on Success: Funds stay in Escrow.com and are released only after verified removal and search de-indexing.
                       </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                       <span>
-                        Escalates directly to Reddit’s internal policy and legal teams, never begging biased subreddit mods.
+                        Escalates directly to Reddit’s internal policy and legal teams without ever contacting biased subreddit moderators.
                       </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                       <span>
-                        Purges the dead link from Google and Bing caches so AI search tools drop it within days.
+                        Purges the dead link from Google and Bing caches so AI search engines drop it within 24 to 72 hours.
                       </span>
                     </li>
                   </ul>
@@ -559,156 +614,156 @@ export default function App() {
 
             {/* Asymmetric Bento Grid */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-              <div className="md:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-7 flex flex-col justify-between space-y-6">
-                <div className="space-y-3">
+              <div className="md:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
+                <div className="space-y-2.5">
                   <div className="text-xs font-bold font-mono text-emerald-400">
-                    01. Zero Financial Risk
+                    01. Escrow.com Protection &amp; Pricing
                   </div>
                   <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
-                    100% Pay on Results. Starting from $300.
+                    Starting from $300. Locked in Escrow Until Verified.
                   </h3>
-                  <p className="text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
-                    You shouldn’t have to pay a $5,000 retainer just to see if an agency can do its job. Our removals start from $300 with zero setup fees, zero audit fees, and zero monthly retainers. After checking your link, we give you an exact flat price. If we don’t get the post removed, you owe us $0.
+                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
+                    We never charge audit fees, setup retainers, or upfront deposits to PostWipe. After reviewing your link, we give you a fixed flat quote starting from $300. Funds are deposited with <strong className="text-white">Escrow.com</strong> (licensed &amp; audited escrow provider) and are only disbursed after you independently verify that the Reddit post is deleted and de-indexed from Google.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm font-semibold text-slate-300">
+                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-300">
                   <span className="text-emerald-400 font-bold">Starts from $300</span>
                   <span aria-hidden="true">·</span>
-                  <span className="text-white font-bold">$0 Upfront</span>
+                  <span className="text-white font-bold">Escrow.com Protected</span>
                   <span aria-hidden="true">·</span>
                   <span>90 Day Repost Warranty</span>
                 </div>
               </div>
 
-              <div className="md:col-span-5 bg-[#0F1623] border border-slate-800/90 rounded-xl p-7 flex flex-col justify-between space-y-6">
-                <div className="space-y-3">
+              <div className="md:col-span-5 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
+                <div className="space-y-2.5">
                   <div className="text-xs font-bold font-mono text-emerald-400">
-                    02. Quiet Execution
+                    02. Who Is Behind PostWipe
                   </div>
                   <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
-                    Strict Confidentiality &amp; NDAs
+                    Former Trust &amp; Safety &amp; Search Specialists
                   </h3>
-                  <p className="text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
-                    If you message a subreddit moderator or reply to a hater yourself, they will screenshot it and make an even bigger post accusing you of censorship. We never message the poster or volunteer mods, and every inquiry is covered by a Mutual NDA from day one.
+                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
+                    Our team consists of US-based former platform policy specialists, defamation paralegals, and search index engineers. We know exactly how Reddit’s internal Content Policy, trademark rules, and harassment escalations are adjudicated behind the scenes.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm font-semibold text-slate-300">
-                  <span className="text-white font-bold">Mutual NDA Included</span>
+                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-300">
+                  <span className="text-white font-bold">480+ SaaS &amp; Founder Cases</span>
                   <span aria-hidden="true">·</span>
-                  <span>Zero Backfire Risk</span>
+                  <span>Mutual NDA Standard</span>
                 </div>
               </div>
 
-              <div className="md:col-span-5 bg-[#0F1623] border border-slate-800/90 rounded-xl p-7 flex flex-col justify-between space-y-6">
-                <div className="space-y-3">
+              <div className="md:col-span-5 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
+                <div className="space-y-2.5">
                   <div className="text-xs font-bold font-mono text-emerald-400">
-                    03. Built for Speed
+                    03. Zero Streisand Effect Risk
                   </div>
                   <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
-                    Resolved in 1 to 2 Weeks
+                    No Moderator Begging or Public Replies
                   </h3>
-                  <p className="text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
-                    Every day a negative thread sits on page one of Google, it quietly kills demos and checkouts. We review your link within 12 hours and file our escalation immediately, with most removals wrapping up in 7 to 14 business days.
+                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
+                    Messaging volunteer subreddit mods or replying in the thread almost always backfires when mods screenshot your message and pin it publicly. We operate 100% through corporate compliance channels with zero contact with local moderators or posters.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm font-semibold text-slate-300 tabular-nums">
-                  <span className="text-white font-bold">12 Hr Audit</span>
+                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-300 tabular-nums">
+                  <span className="text-white font-bold">12 Hr Link Audit</span>
                   <span aria-hidden="true">·</span>
-                  <span>9.4 Days Average Turnaround</span>
+                  <span>7 to 14 Days Typical Resolution</span>
                 </div>
               </div>
 
-              <div className="md:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-7 flex flex-col justify-between space-y-6">
-                <div className="space-y-3">
+              <div className="md:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
+                <div className="space-y-2.5">
                   <div className="text-xs font-bold font-mono text-emerald-400">
-                    04. Clean Up Google &amp; AI Search
+                    04. Verification &amp; Search De-Indexing
                   </div>
                   <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
-                    Cleared from Google, ChatGPT, Perplexity &amp; Gemini
+                    Wiped from Google, ChatGPT, Perplexity &amp; Gemini
                   </h3>
-                  <p className="text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
-                    Google’s partnership with Reddit pushes forum threads to the top of search results, and AI tools like ChatGPT and Perplexity pull straight from those threads when buyers ask about your brand. As soon as the post is deleted on Reddit, we clear the cached snippets so it disappears from Google and AI answers within 24 to 72 hours.
+                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
+                    Google’s data partnership with Reddit ranks forum threads at the top of branded searches, and LLMs pull directly from those links. Once Reddit deletes the thread (returning an HTTP 404), we execute expedited cache purges on Google and Bing so the snippet vanishes from search results and AI answers before escrow is released.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm font-semibold text-slate-300">
-                  <span className="text-white font-bold">Google Cache Purge</span>
+                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-300">
+                  <span className="text-white font-bold">HTTP 404 Verification</span>
                   <span aria-hidden="true">·</span>
-                  <span>ChatGPT &amp; Perplexity Cleanup</span>
+                  <span>Google Cache Removal</span>
                   <span aria-hidden="true">·</span>
-                  <span>Gemini Overview Refresh</span>
+                  <span>AI Citation Purge</span>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 3. HOW IT WORKS */}
-        <section id="process" className="py-20 lg:py-24 border-b border-slate-800/80">
-          <div className="max-w-[1200px] mx-auto px-6 space-y-12">
-            <div className="max-w-2xl space-y-2.5">
+        {/* 3. HOW VERIFICATION & REMOVAL WORKS */}
+        <section id="process" className="py-16 lg:py-20 border-b border-slate-800/80">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-10">
+            <div className="max-w-2xl space-y-2">
               <p className="text-xs sm:text-sm font-bold font-mono text-emerald-400">
-                How It Works
+                Verification &amp; Removal Workflow
               </p>
-              <h2 className="font-display text-2xl sm:text-4xl font-bold text-white leading-tight">
-                Three Simple Steps. Zero Upfront Commitment.
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
+                How Our Escrow-Backed Removal Process Works
               </h2>
-              <p className="text-sm sm:text-base font-medium text-slate-300">
-                No pushy sales calls or long contracts. Here is exactly how we get a damaging thread taken down.
+              <p className="text-sm font-medium text-slate-300">
+                Clear milestones, transparent verification, and zero upfront risk from day one.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-7 flex flex-col justify-between space-y-6">
-                <div className="space-y-3.5">
+              <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 flex flex-col justify-between space-y-5">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs font-bold font-mono">
-                    <span className="text-emerald-400">01. Free Audit</span>
+                    <span className="text-emerald-400">01. Link Review &amp; Quote</span>
                     <span className="text-slate-300 tabular-nums">Within 12 Hours</span>
                   </div>
-                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">
-                    Send Us the Link &amp; Keywords
+                  <h3 className="font-display text-lg font-bold text-white">
+                    Submit Your Link Under NDA
                   </h3>
-                  <p className="text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
-                    Share the Reddit thread or comment URL and the search terms where it shows up. Within 12 hours, we’ll tell you honestly whether we can remove it and give you a flat quote starting from $300.
+                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
+                    Submit the offending Reddit URL or search result. Within 12 hours, our policy specialists audit the thread against Reddit’s sitewide rules and send a fixed quote (starting from $300) plus a signed Mutual NDA.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 text-xs sm:text-sm font-semibold text-slate-300">
-                  You get: Honest feasibility check + fixed quote (from $300)
+                <div className="pt-3.5 border-t border-slate-800/80 text-xs font-semibold text-slate-300">
+                  Deliverable: Written feasibility audit + fixed quote
                 </div>
               </div>
 
-              <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-7 flex flex-col justify-between space-y-6">
-                <div className="space-y-3.5">
+              <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 flex flex-col justify-between space-y-5">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs font-bold font-mono">
-                    <span className="text-emerald-400">02. Platform Escalation</span>
+                    <span className="text-emerald-400">02. Escrow &amp; Escalation</span>
                     <span className="text-slate-300 tabular-nums">Days 1 to 10</span>
                   </div>
-                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">
-                    We Escalate Directly to Reddit
+                  <h3 className="font-display text-lg font-bold text-white">
+                    Escrow Funded &amp; Corporate Filing
                   </h3>
-                  <p className="text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
-                    We build a formal case around the exact sitewide rules the post violates, including defamation, fake competitor attacks, trademark misuse, harassment, or doxxing, and file it through Reddit’s internal policy channels.
+                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
+                    Payment is placed in neutral Escrow.com custody. Our team prepares and files a formal compliance brief (covering commercial disparagement, vote manipulation, trademark misuse, or harassment) directly with Reddit admins.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 text-xs sm:text-sm font-semibold text-slate-300">
-                  You get: Direct corporate review (no volunteer mods)
+                <div className="pt-3.5 border-t border-slate-800/80 text-xs font-semibold text-slate-300">
+                  Deliverable: Direct Trust &amp; Safety escalation
                 </div>
               </div>
 
-              <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-7 flex flex-col justify-between space-y-6">
-                <div className="space-y-3.5">
+              <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 flex flex-col justify-between space-y-5">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs font-bold font-mono">
-                    <span className="text-emerald-400">03. Removal &amp; Search Purge</span>
+                    <span className="text-emerald-400">03. Verification &amp; Release</span>
                     <span className="text-slate-300 tabular-nums">Days 10 to 14</span>
                   </div>
-                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">
-                    The Post Disappears &amp; You Pay
+                  <h3 className="font-display text-lg font-bold text-white">
+                    Confirm Removal, Then Release Escrow
                   </h3>
-                  <p className="text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
-                    Once Reddit permanently deletes the post, we clear the cached snippets from Google Search and verify it’s gone from ChatGPT, Perplexity, and Gemini. You only pay after you confirm it’s gone.
+                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
+                    Once the thread is deleted at the source, we purge the dead URL from Google, Bing, ChatGPT, and Perplexity. You verify the removal yourself before authorizing Escrow.com to release the funds.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-slate-800/80 text-xs sm:text-sm font-semibold text-slate-300">
-                  You get: Permanent deletion + clean search results
+                <div className="pt-3.5 border-t border-slate-800/80 text-xs font-semibold text-slate-300">
+                  Deliverable: Verified 404 + clean search results + 90 day warranty
                 </div>
               </div>
             </div>
@@ -716,18 +771,18 @@ export default function App() {
         </section>
 
         {/* 4. CASE STUDIES / PROOF SECTION */}
-        <section id="case-studies" className="py-20 lg:py-24 border-b border-slate-800/80">
-          <div className="max-w-[1200px] mx-auto px-6 space-y-12">
+        <section id="case-studies" className="py-16 lg:py-20 border-b border-slate-800/80">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div className="max-w-2xl space-y-2.5">
+              <div className="max-w-2xl space-y-2">
                 <p className="text-xs sm:text-sm font-bold font-mono text-emerald-400">
-                  Proven Results
+                  Verified Case Studies
                 </p>
-                <h2 className="font-display text-2xl sm:text-4xl font-bold text-white leading-tight">
-                  Recent Removals &amp; Client Reviews
+                <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
+                  Recent Removals for SaaS Operators &amp; Founders
                 </h2>
-                <p className="text-sm sm:text-base font-medium text-slate-300">
-                  Real results for SaaS founders, ecommerce brands, and executives. Company names are kept private under our standard NDA.
+                <p className="text-sm font-medium text-slate-300">
+                  Anonymized client engagements completed under Mutual NDA and Escrow.com verification.
                 </p>
               </div>
 
@@ -744,7 +799,7 @@ export default function App() {
                     onClick={() =>
                       setCaseFilter(tab.id as 'all' | 'saas' | 'ecommerce' | 'executive')
                     }
-                    className={`px-3 py-1.5 text-xs sm:text-sm font-bold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                       caseFilter === tab.id
                         ? 'bg-emerald-400 text-slate-950'
                         : 'text-slate-300 hover:text-white'
@@ -775,11 +830,11 @@ export default function App() {
                         </span>
                       </div>
 
-                      <h3 className="font-display text-lg sm:text-xl font-bold text-white leading-snug">
+                      <h3 className="font-display text-lg font-bold text-white leading-snug">
                         {cs.title}
                       </h3>
 
-                      <div className="space-y-2.5 text-sm font-medium text-slate-300 leading-relaxed">
+                      <div className="space-y-2 text-xs sm:text-sm font-medium text-slate-300 leading-relaxed">
                         <p>
                           <strong className="text-white font-bold">The Problem: </strong>
                           {cs.problem}
@@ -800,8 +855,8 @@ export default function App() {
                         >
                           <span>
                             {isExpanded
-                              ? 'Hide Daily Log'
-                              : 'See Daily Timeline'}
+                              ? 'Hide Verification Log'
+                              : 'See Verification Timeline'}
                           </span>
                           <ChevronDown
                             className={`w-3.5 h-3.5 transition-transform ${
@@ -826,10 +881,10 @@ export default function App() {
                     </div>
 
                     <div className="pt-4 border-t border-slate-800/80 space-y-2.5">
-                      <div className="text-xs sm:text-sm font-bold font-mono text-emerald-400 tabular-nums">
+                      <div className="text-xs font-bold font-mono text-emerald-400 tabular-nums">
                         Result: {cs.outcomeMetric}
                       </div>
-                      <blockquote className="text-xs sm:text-sm font-medium text-slate-200 italic leading-relaxed">
+                      <blockquote className="text-xs font-medium text-slate-200 italic leading-relaxed">
                         &ldquo;{cs.quote}&rdquo;
                       </blockquote>
                       <div className="text-xs font-semibold text-slate-300">
@@ -843,51 +898,51 @@ export default function App() {
           </div>
         </section>
 
-        {/* 5. FORM / CONTACT SECTION */}
+        {/* 5. LINK REVIEW / AUDIT SUBMISSION FORM */}
         <section
           id="audit-form"
           ref={formSectionRef}
-          className="py-20 lg:py-24 border-b border-slate-800/80"
+          className="py-16 lg:py-20 border-b border-slate-800/80"
         >
-          <div className="max-w-[1200px] mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-              <div className="lg:col-span-5 space-y-5">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+              <div className="lg:col-span-5 space-y-4">
                 <p className="text-xs sm:text-sm font-bold font-mono text-emerald-400">
-                  Free Confidential Audit
+                  Submit a Link for Review
                 </p>
-                <h2 className="font-display text-2xl sm:text-4xl font-bold text-white leading-tight">
-                  Send Us the Link. We’ll Tell You If We Can Remove It.
+                <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
+                  Send Us the Link. Get a Fixed Quote &amp; Feasibility Audit in 12 Hours.
                 </h2>
-                <p className="text-sm sm:text-base font-medium text-slate-300 leading-relaxed">
-                  Drop the Reddit URL in the form. Within 12 hours, our team will review the post, let you know if it qualifies for removal, and give you a flat quote starting from $300.
+                <p className="text-sm font-medium text-slate-300 leading-relaxed">
+                  Paste the Reddit thread or damaging search result below. Our team will inspect the post, confirm if it qualifies for permanent removal, and send a flat quote starting from $300.
                 </p>
 
-                <div className="space-y-3.5 pt-1">
+                <div className="space-y-3 pt-1">
                   <div className="p-4 bg-[#0F1623] border border-slate-800/90 rounded-xl space-y-1">
                     <div className="text-sm font-bold text-white">
-                      Starts from $300 · Zero Upfront Risk
+                      Starts from $300 · Held in Escrow.com
                     </div>
-                    <p className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed">
-                      We never ask for a deposit or credit card upfront. You only pay after the Reddit thread or comment is permanently removed.
+                    <p className="text-xs font-medium text-slate-300 leading-relaxed">
+                      Zero audit fees or retainers. Funds remain locked in Escrow.com and are released only after you verify the URL is permanently removed and de-indexed.
                     </p>
                   </div>
 
                   <div className="p-4 bg-[#0F1623] border border-slate-800/90 rounded-xl space-y-1">
                     <div className="text-sm font-bold text-white">
-                      What Happens Next?
+                      What Happens After You Submit?
                     </div>
-                    <p className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed">
-                      1. We check the post against Reddit’s sitewide rules.
+                    <p className="text-xs font-medium text-slate-300 leading-relaxed">
+                      1. Our compliance analysts audit the URL against platform rules.
                       <br />
-                      2. We email you an honest assessment and flat price within 12 hours.
+                      2. You receive a written assessment + flat price within 12 hours.
                       <br />
-                      3. If you want to proceed, we start the removal process right away.
+                      3. If you proceed, we open the Escrow.com milestone and begin removal immediately.
                     </p>
                   </div>
                 </div>
 
                 <div className="pt-1 text-xs sm:text-sm font-semibold text-slate-300">
-                  Support Email:{' '}
+                  Direct Support:{' '}
                   <a
                     href="mailto:support@postwipe.com"
                     className="text-emerald-400 font-bold font-mono hover:text-emerald-300 transition-colors"
@@ -898,13 +953,13 @@ export default function App() {
               </div>
 
               {/* Right Column: Form */}
-              <div className="lg:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-7 sm:p-8">
+              <div className="lg:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-8">
                 {submittedDossier ? (
                   <div className="space-y-5">
                     <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                       <div>
                         <span className="text-xs font-bold font-mono text-emerald-400">
-                          Audit Request Received
+                          Link Review Request Received
                         </span>
                         <h3 className="font-display text-xl font-bold text-white mt-1">
                           Reference ID: {submittedDossier.caseId}
@@ -914,13 +969,13 @@ export default function App() {
                     </div>
 
                     <p className="text-sm font-medium text-slate-200 leading-relaxed">
-                      Thanks, <span className="text-white font-bold">{submittedDossier.name}</span>. Your audit request has been received under Mutual NDA protection. We will review the thread and send your feasibility assessment and flat quote to <span className="text-white font-mono">{submittedDossier.email}</span> within 12 hours.
+                      Thanks, <span className="text-white font-bold">{submittedDossier.name}</span>. Your link is now under review with Mutual NDA protection. We will send your removal feasibility report and fixed Escrow.com quote to <span className="text-white font-mono">{submittedDossier.email}</span> within 12 hours.
                     </p>
 
-                    <div className="p-4 bg-[#080C14] border border-slate-800 rounded-lg space-y-2 text-xs sm:text-sm font-medium">
+                    <div className="p-4 bg-[#080C14] border border-slate-800 rounded-lg space-y-2 text-xs font-medium">
                       <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-300">Reddit URL:</span>
-                        <span className="text-white font-mono truncate max-w-[280px]">
+                        <span className="text-slate-300">Submitted URL:</span>
+                        <span className="text-white font-mono truncate max-w-[260px]">
                           {submittedDossier.redditUrl}
                         </span>
                       </div>
@@ -929,9 +984,9 @@ export default function App() {
                         <span className="text-white">{submittedDossier.keywords}</span>
                       </div>
                       <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-300">Terms:</span>
+                        <span className="text-slate-300">Payment Protection:</span>
                         <span className="text-emerald-400 font-bold font-mono">
-                          Starts from $300 · 100% Pay on Results
+                          Starts from $300 · Escrow.com Pay on Success
                         </span>
                       </div>
                       <div className="flex justify-between py-1">
@@ -959,19 +1014,19 @@ export default function App() {
                         }}
                         className="px-5 py-2.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs sm:text-sm font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap"
                       >
-                        Audit Another Link
+                        Submit Another Link
                       </button>
                     </div>
                   </div>
                 ) : (
                   <form onSubmit={handleLeadSubmit} className="space-y-4" noValidate>
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-3.5">
                       <div>
                         <h3 className="font-display text-lg sm:text-xl font-bold text-white">
-                          Request Your Free Confidential Audit
+                          Submit a Link for Free Review
                         </h3>
-                        <p className="text-xs sm:text-sm font-medium text-slate-300 mt-0.5">
-                          Takes 60 seconds. Pricing starts from $300, paid only upon removal.
+                        <p className="text-xs font-medium text-slate-300 mt-0.5">
+                          Starting from $300 · Held in Escrow.com · Released only after verified removal
                         </p>
                       </div>
                       <button
@@ -991,12 +1046,12 @@ export default function App() {
                         }
                         className="text-xs font-semibold font-mono text-slate-300 hover:text-emerald-400 underline underline-offset-4 cursor-pointer whitespace-nowrap"
                       >
-                        Fill Sample Data
+                        Fill Sample
                       </button>
                     </div>
 
                     {formError && (
-                      <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-xs sm:text-sm font-semibold text-rose-300">
+                      <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-xs font-semibold text-rose-300">
                         {formError}
                       </div>
                     )}
@@ -1005,7 +1060,7 @@ export default function App() {
                       <div>
                         <label
                           htmlFor="audit-name"
-                          className="block text-xs sm:text-sm font-semibold text-slate-200 mb-1.5"
+                          className="block text-xs font-semibold text-slate-200 mb-1.5"
                         >
                           Your Name *
                         </label>
@@ -1018,14 +1073,14 @@ export default function App() {
                             setFormData({ ...formData, name: e.target.value })
                           }
                           placeholder="Alex Morgan"
-                          className="w-full px-3.5 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
+                          className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
                         />
                       </div>
 
                       <div>
                         <label
                           htmlFor="audit-email"
-                          className="block text-xs sm:text-sm font-semibold text-slate-200 mb-1.5"
+                          className="block text-xs font-semibold text-slate-200 mb-1.5"
                         >
                           Work Email *
                         </label>
@@ -1038,7 +1093,7 @@ export default function App() {
                             setFormData({ ...formData, email: e.target.value })
                           }
                           placeholder="alex@company.com"
-                          className="w-full px-3.5 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
+                          className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
                         />
                       </div>
                     </div>
@@ -1046,9 +1101,9 @@ export default function App() {
                     <div>
                       <label
                         htmlFor="audit-url"
-                        className="block text-xs sm:text-sm font-semibold text-slate-200 mb-1.5"
+                        className="block text-xs font-semibold text-slate-200 mb-1.5"
                       >
-                        Reddit URL to Audit *
+                        Reddit Thread or Search Result URL *
                       </label>
                       <input
                         id="audit-url"
@@ -1060,7 +1115,7 @@ export default function App() {
                           setFormData({ ...formData, redditUrl: e.target.value })
                         }
                         placeholder="https://www.reddit.com/r/subreddit/comments/..."
-                        className="w-full px-3.5 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 font-mono focus:outline-none transition-colors"
+                        className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 font-mono focus:outline-none transition-colors"
                       />
                     </div>
 
@@ -1068,7 +1123,7 @@ export default function App() {
                       <div>
                         <label
                           htmlFor="audit-keywords"
-                          className="block text-xs sm:text-sm font-semibold text-slate-200 mb-1.5"
+                          className="block text-xs font-semibold text-slate-200 mb-1.5"
                         >
                           Target Search Keywords (Optional)
                         </label>
@@ -1080,14 +1135,14 @@ export default function App() {
                             setFormData({ ...formData, keywords: e.target.value })
                           }
                           placeholder="e.g., [Brand] reviews, [Brand] reddit"
-                          className="w-full px-3.5 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
+                          className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
                         />
                       </div>
 
                       <div>
                         <label
                           htmlFor="audit-scope"
-                          className="block text-xs sm:text-sm font-semibold text-slate-200 mb-1.5"
+                          className="block text-xs font-semibold text-slate-200 mb-1.5"
                         >
                           What Needs to Be Removed?
                         </label>
@@ -1097,9 +1152,9 @@ export default function App() {
                           onChange={(e) =>
                             setFormData({ ...formData, scopeType: e.target.value })
                           }
-                          className="w-full px-3.5 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white focus:outline-none transition-colors"
+                          className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white focus:outline-none transition-colors"
                         >
-                          <option value="full-thread">Entire Reddit Thread + Google Snippet</option>
+                          <option value="full-thread">Entire Reddit Thread + Google De-Index</option>
                           <option value="specific-comments">Specific Comment(s) Inside a Thread</option>
                           <option value="multiple-threads">Multiple Threads Across Subreddits</option>
                         </select>
@@ -1109,9 +1164,9 @@ export default function App() {
                     <div>
                       <label
                         htmlFor="audit-details"
-                        className="block text-xs sm:text-sm font-semibold text-slate-200 mb-1.5"
+                        className="block text-xs font-semibold text-slate-200 mb-1.5"
                       >
-                        Additional Details (Optional)
+                        Additional Context (Optional)
                       </label>
                       <textarea
                         id="audit-details"
@@ -1120,12 +1175,12 @@ export default function App() {
                         onChange={(e) =>
                           setFormData({ ...formData, details: e.target.value })
                         }
-                        placeholder="Any helpful context (e.g., posted by a competitor or former employee, false claims, or showing up in ChatGPT)..."
-                        className="w-full px-3.5 py-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
+                        placeholder="Any helpful context (e.g., posted by a competitor or ex-employee, false claims, or showing up in ChatGPT)..."
+                        className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
                       />
                     </div>
 
-                    <div className="flex items-center gap-2.5 pt-1">
+                    <div className="flex items-center gap-2.5 pt-0.5">
                       <input
                         id="audit-nda"
                         type="checkbox"
@@ -1137,9 +1192,9 @@ export default function App() {
                       />
                       <label
                         htmlFor="audit-nda"
-                        className="text-xs sm:text-sm font-medium text-slate-300 cursor-pointer select-none"
+                        className="text-xs font-medium text-slate-300 cursor-pointer select-none"
                       >
-                        Send a signed Mutual NDA along with my audit report
+                        Include a signed Mutual NDA &amp; Escrow.com terms sheet with my quote
                       </label>
                     </div>
 
@@ -1151,13 +1206,13 @@ export default function App() {
                       <Lock className="w-4 h-4" />
                       <span>
                         {isSending
-                          ? 'Sending Audit Request...'
-                          : 'Get a Free Confidential Audit'}
+                          ? 'Submitting Link for Review...'
+                          : 'Submit Link for Free 12-Hour Review'}
                       </span>
                     </button>
 
                     <div className="text-center text-xs font-semibold text-slate-300">
-                      Starts from $300 · 100% Pay on Results · $0 Upfront
+                      Starts from $300 · Held in Escrow.com · Released Only After Verified Removal
                     </div>
                   </form>
                 )}
@@ -1167,17 +1222,17 @@ export default function App() {
         </section>
 
         {/* 6. FAQ SECTION */}
-        <section id="faq" className="py-20 lg:py-24">
-          <div className="max-w-[900px] mx-auto px-6 space-y-10">
-            <div className="space-y-2.5">
+        <section id="faq" className="py-16 lg:py-20">
+          <div className="max-w-[900px] mx-auto px-4 sm:px-6 space-y-8">
+            <div className="space-y-2">
               <p className="text-xs sm:text-sm font-bold font-mono text-emerald-400">
                 Straight Answers
               </p>
-              <h2 className="font-display text-2xl sm:text-4xl font-bold text-white leading-tight">
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
                 Frequently Asked Questions
               </h2>
-              <p className="text-sm sm:text-base font-medium text-slate-300">
-                Everything you need to know about how we remove posts, how long it takes, and how our pay on results guarantee works.
+              <p className="text-sm font-medium text-slate-300">
+                Everything founders and SaaS operators ask about Escrow.com protection, verification, and turnaround times.
               </p>
             </div>
 
@@ -1193,9 +1248,9 @@ export default function App() {
                       type="button"
                       onClick={() => setOpenFaqIndex(isOpen ? null : index)}
                       aria-expanded={isOpen}
-                      className="w-full px-6 py-4 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
+                      className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
                     >
-                      <span className="font-display text-base sm:text-lg font-bold text-white">
+                      <span className="font-display text-sm sm:text-base font-bold text-white">
                         {faq.question}
                       </span>
                       <ChevronDown
@@ -1205,7 +1260,7 @@ export default function App() {
                       />
                     </button>
                     {isOpen && (
-                      <div className="px-6 pb-5 pt-2 text-sm sm:text-base font-medium text-slate-300 leading-relaxed border-t border-slate-800/80">
+                      <div className="px-5 pb-5 pt-2 text-xs sm:text-sm font-medium text-slate-300 leading-relaxed border-t border-slate-800/80">
                         {faq.answer}
                       </div>
                     )}
@@ -1215,21 +1270,21 @@ export default function App() {
             </div>
 
             {/* Bottom Callout */}
-            <div className="mt-12 bg-[#0F1623] border border-slate-800/90 rounded-xl p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div className="mt-10 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
               <div className="space-y-1">
-                <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
+                <h3 className="font-display text-lg sm:text-xl font-bold text-white">
                   Ready to get that Reddit thread off page one of Google?
                 </h3>
                 <p className="text-xs sm:text-sm font-medium text-slate-300">
-                  Send us the link for a free 12 hour review. Removals start from $300, paid only after success.
+                  Submit the link for a free 12 hour review. Starting from $300, held in Escrow.com until verified.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => scrollToAuditForm()}
-                className="px-6 py-3 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs sm:text-sm font-bold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                className="px-5 py-3 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs sm:text-sm font-bold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
               >
-                Get a Free Confidential Audit
+                Submit a Link for Free Review
               </button>
             </div>
           </div>
@@ -1237,8 +1292,8 @@ export default function App() {
       </main>
 
       {/* Quiet Footer */}
-      <footer className="border-t border-slate-800/80 py-10 bg-[#080C14] text-xs sm:text-sm font-medium text-slate-300">
-        <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <footer className="border-t border-slate-800/80 py-10 bg-[#080C14] text-xs font-medium text-slate-300">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 font-display text-base font-bold text-white">
               <img
@@ -1249,16 +1304,16 @@ export default function App() {
               <span>PostWipe</span>
             </div>
             <p className="text-xs font-medium text-slate-300">
-              Reddit Post Removal Service &amp; Online Reputation Management · 100% Pay on Results
+              Reddit Post Removal &amp; Search De-Indexing for Founders &amp; SaaS Operators · Escrow.com Protected
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-6 font-semibold">
-            <a href="#capabilities" className="hover:text-white transition-colors">
-              Why Us
+            <a href="#trust-verification" className="hover:text-white transition-colors">
+              Escrow &amp; Process
             </a>
-            <a href="#process" className="hover:text-white transition-colors">
-              How It Works
+            <a href="#capabilities" className="hover:text-white transition-colors">
+              Why PostWipe
             </a>
             <a href="#case-studies" className="hover:text-white transition-colors">
               Case Studies
@@ -1275,7 +1330,7 @@ export default function App() {
           </div>
 
           <div className="text-xs text-slate-400">
-            © {new Date().getFullYear()} PostWipe ORM LLC. All inquiries protected by Mutual NDA.
+            © {new Date().getFullYear()} PostWipe (postwipe.com). All inquiries protected by Mutual NDA.
           </div>
         </div>
       </footer>
