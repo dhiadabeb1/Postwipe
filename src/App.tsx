@@ -45,13 +45,13 @@ const CASE_STUDIES: CaseStudy[] = [
       'We documented coordinated vote manipulation and trademark disparagement, bypassed the subreddit mods completely, and escalated directly to Reddit’s internal policy team.',
     outcomeMetric: '+38% Enterprise Demo Close Rate in 30 Days',
     quote:
-      'Prospects were pasting that Reddit link into Zoom chat on almost every discovery call. PostWipe wiped the entire thread and cleared the Google snippet in six days. Funds stayed in Escrow.com until we verified the 404 ourselves.',
+      'Prospects were pasting that Reddit link into Zoom chat on almost every discovery call. PostWipe wiped the entire thread and cleared the Google snippet in six days. Funds stayed in Escrow.com until we verified the deletion ourselves.',
     author: 'Marcus Vance',
     role: 'CoFounder & CEO, Series B FinTech Infrastructure',
     timeline: [
       { day: 'Day 1', event: 'Audited the thread under NDA; identified 3 clear sitewide rule violations and opened Escrow.com milestone.' },
       { day: 'Day 2', event: 'Filed formal policy escalation directly with Reddit Trust & Safety.' },
-      { day: 'Day 5', event: 'Reddit admins permanently deleted the post and all 68 comments (HTTP 404 confirmed).' },
+      { day: 'Day 5', event: 'Reddit admins permanently deleted the post and all 68 comments (delete verification confirmed).' },
       { day: 'Day 6', event: 'Forced Google & Bing cache purge; cleared from Perplexity and ChatGPT before escrow release.' },
     ],
   },
@@ -107,7 +107,7 @@ const FAQS = [
   {
     question: 'How does the Escrow.com payment and verification process work?',
     answer:
-      'Pricing starts from $300 depending on thread complexity, with zero upfront retainers or audit fees. Once we review your link and agree on a flat fee, payment is held securely in an independent Escrow.com transaction (or billed upon completion for verified enterprise accounts). Funds are only released to PostWipe after you verify that the Reddit URL returns a dead 404/deleted state and the snippet has been purged from Google Search. If we do not succeed, 100% of your funds are returned immediately.',
+      'Pricing starts from $300 depending on thread complexity, with zero upfront retainers or audit fees. Once we review your link and agree on a flat fee, payment is held securely in an independent Escrow.com transaction (or billed upon completion for verified enterprise accounts). Funds are only released to PostWipe after delete verification confirms that the Reddit post is permanently deleted and the snippet has been purged from Google Search. If we do not succeed, 100% of your funds are returned immediately.',
   },
   {
     question: 'Who is behind PostWipe, and why do you succeed when subreddit mods refuse?',
@@ -127,7 +127,7 @@ const FAQS = [
   {
     question: 'How do you clear negative Reddit threads from ChatGPT, Perplexity, and Gemini?',
     answer:
-      'AI search engines retrieve live citations from Google, Bing, and Reddit’s API feed. Once a thread is deleted at the source on Reddit, the URL returns a 404 status. We then force an outdated-content cache purge across Google Search Console and Bing Webmaster pipelines so AI engines stop citing the thread within days.',
+      'AI search engines retrieve live citations from Google, Bing, and Reddit’s API feed. Once a thread is permanently deleted at the source on Reddit, the live link is dead. We then force an outdated-content cache purge across Google Search Console and Bing Webmaster pipelines so AI engines stop citing the thread within days.',
   },
 ];
 
@@ -380,7 +380,7 @@ export default function App() {
                 </p>
                 {/* Supporting Line 2: Payment held in escrow and only released after successful verification */}
                 <p className="font-medium text-slate-300">
-                  Your payment is held safely in <strong className="text-emerald-400 font-semibold">Escrow.com</strong> and is <strong className="text-white font-semibold">only released after you verify</strong> the thread returns a permanent 404 error and is wiped from search engine results.
+                  Your payment is held safely in <strong className="text-emerald-400 font-semibold">Escrow.com</strong> and is <strong className="text-white font-semibold">released only after delete verification</strong> once the thread is permanently deleted and wiped from search engine results.
                 </p>
               </div>
 
@@ -418,7 +418,7 @@ export default function App() {
                         <span>$0 Upfront Risk</span>
                       </div>
                       <div className="text-[11px] sm:text-xs font-medium text-slate-300 leading-tight">
-                        Held in <strong className="text-white font-semibold">Escrow.com</strong> · Released only after 404 verification
+                        Held in <strong className="text-white font-semibold">Escrow.com</strong> · Released only after delete verification
                       </div>
                     </div>
                   </div>
@@ -450,10 +450,10 @@ export default function App() {
                   <FileCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                   <div className="space-y-0.5">
                     <div className="text-xs sm:text-sm font-bold text-white">
-                      Corporate Escalation &amp; 404 Verification
+                      Corporate Escalation &amp; Delete Verification
                     </div>
                     <p className="text-[11px] sm:text-xs font-medium text-slate-300 leading-snug">
-                      We never message subreddit mods. We file sitewide policy &amp; legal briefs with Reddit Trust &amp; Safety, verify HTTP 404 deletion, and purge Google/AI caches in 24 to 72 hrs.
+                      We never message subreddit mods. We file sitewide policy &amp; legal briefs with Reddit Trust &amp; Safety, complete delete verification, and purge Google/AI caches in 24 to 72 hrs.
                     </p>
                   </div>
                 </div>
@@ -682,11 +682,11 @@ export default function App() {
                     Wiped from Google, ChatGPT, Perplexity &amp; Gemini
                   </h3>
                   <p className="text-sm font-medium text-slate-300 leading-relaxed">
-                    Google’s data partnership with Reddit ranks forum threads at the top of branded searches, and LLMs pull directly from those links. Once Reddit deletes the thread (returning an HTTP 404), we execute expedited cache purges on Google and Bing so the snippet vanishes from search results and AI answers before escrow is released.
+                    Google’s data partnership with Reddit ranks forum threads at the top of branded searches, and LLMs pull directly from those links. Once Reddit permanently deletes the thread, we complete delete verification and execute expedited cache purges on Google and Bing so the snippet vanishes from search results and AI answers before escrow is released.
                   </p>
                 </div>
                 <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-300">
-                  <span className="text-white font-bold">HTTP 404 Verification</span>
+                  <span className="text-white font-bold">Delete Verification</span>
                   <span aria-hidden="true">·</span>
                   <span>Google Cache Removal</span>
                   <span aria-hidden="true">·</span>
@@ -763,7 +763,7 @@ export default function App() {
                   </p>
                 </div>
                 <div className="pt-3.5 border-t border-slate-800/80 text-xs font-semibold text-slate-300">
-                  Deliverable: Verified 404 + clean search results + 90 day warranty
+                  Deliverable: Delete verification + clean search results + 90 day warranty
                 </div>
               </div>
             </div>
