@@ -322,12 +322,30 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
               <label class="block text-xs font-medium text-[#D1D5DB] mb-2">Anything Else We Should Know?</label>
               <textarea name="details" rows="3" placeholder="Optional context (e.g., posted by a competitor, former employee, false claims, or showing up in ChatGPT)..." class="w-full px-4 py-3 bg-[#0A0B0E] border border-white/[0.12] rounded-lg text-sm text-white focus:outline-none focus:border-[#EA580C]"></textarea>
             </div>
-            <button id="submitBtn" type="submit" class="w-full py-3.5 px-6 bg-[#EA580C] hover:bg-[#D9460F] text-white font-semibold text-sm rounded-lg transition-colors cursor-pointer">
-              Get My Free Confidential Audit
+            <button id="submitBtn" type="submit" class="w-full py-3.5 px-6 bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-bold text-sm rounded-lg transition-colors cursor-pointer">
+              Submit Link for Free 12-Hour Review
             </button>
-            <p id="formFeedback" class="hidden text-xs text-emerald-400 font-mono text-center pt-2">
-              Got it. Your audit request has been sent directly to xboxdhia089@gmail.com and we will reply within 12 hours.
-            </p>
+            <div id="formFeedback" class="hidden p-5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl space-y-3.5 text-left mt-4">
+              <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-lg bg-[#25D366] text-slate-950 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                  <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.34C9.33 7.34 9 7.42 8.72 7.72C8.44 8.03 7.65 8.77 7.65 10.27C7.65 11.76 8.74 13.2 8.89 13.41C9.05 13.62 11.02 16.65 14.04 17.95C14.76 18.26 15.32 18.45 15.76 18.59C16.49 18.82 17.15 18.79 17.67 18.71C18.26 18.62 19.47 17.98 19.72 17.27C19.97 16.57 19.97 15.96 19.9 15.84C19.82 15.72 19.62 15.65 19.31 15.5C19.01 15.34 17.53 14.61 17.25 14.51C16.98 14.41 16.78 14.36 16.58 14.66C16.37 14.97 15.79 15.65 15.61 15.85C15.44 16.06 15.26 16.08 14.96 15.93C14.65 15.78 13.67 15.46 12.51 14.42C11.61 13.62 11 12.63 10.85 12.37C10.7 12.12 10.83 11.98 10.99 11.83C11.12 11.7 11.29 11.47 11.44 11.3C11.59 11.12 11.64 11 11.74 10.79C11.84 10.59 11.79 10.41 11.72 10.26C11.64 10.11 11.03 8.62 10.78 8C10.53 7.41 10.28 7.49 10.09 7.48C9.91 7.47 9.71 7.34 9.53 7.34Z" />
+                  </svg>
+                </div>
+                <div class="space-y-1">
+                  <p class="text-sm font-semibold text-white leading-relaxed">
+                    Thank you for your submission. If you do not see our email reply within a few hours or if it lands in your spam folder, click below to chat with us instantly on WhatsApp.
+                  </p>
+                  <p id="refSummary" class="text-xs text-slate-300"></p>
+                </div>
+              </div>
+              <a id="waDirectBtn" href="https://wa.me/21695022973" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2.5 px-5 py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-bold text-sm rounded-lg transition-colors shadow-sm cursor-pointer whitespace-nowrap">
+                <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.34C9.33 7.34 9 7.42 8.72 7.72C8.44 8.03 7.65 8.77 7.65 10.27C7.65 11.76 8.74 13.2 8.89 13.41C9.05 13.62 11.02 16.65 14.04 17.95C14.76 18.26 15.32 18.45 15.76 18.59C16.49 18.82 17.15 18.79 17.67 18.71C18.26 18.62 19.47 17.98 19.72 17.27C19.97 16.57 19.97 15.96 19.9 15.84C19.82 15.72 19.62 15.65 19.31 15.5C19.01 15.34 17.53 14.61 17.25 14.51C16.98 14.41 16.78 14.36 16.58 14.66C16.37 14.97 15.79 15.65 15.61 15.85C15.44 16.06 15.26 16.08 14.96 15.93C14.65 15.78 13.67 15.46 12.51 14.42C11.61 13.62 11 12.63 10.85 12.37C10.7 12.12 10.83 11.98 10.99 11.83C11.12 11.7 11.29 11.47 11.44 11.3C11.59 11.12 11.64 11 11.74 10.79C11.84 10.59 11.79 10.41 11.72 10.26C11.64 10.11 11.03 8.62 10.78 8C10.53 7.41 10.28 7.49 10.09 7.48C9.91 7.47 9.71 7.34 9.53 7.34Z" />
+                </svg>
+                <span>Chat With Us Instantly on WhatsApp</span>
+              </a>
+            </div>
           </form>
         </div>
       </div>
@@ -336,7 +354,7 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
     <section id="faq" class="py-20">
       <div class="max-w-[900px] mx-auto px-6 space-y-10">
         <div class="space-y-3">
-          <p class="text-xs font-mono text-[#EA580C]">Straight Answers</p>
+          <p class="text-xs font-mono text-emerald-400">Straight Answers</p>
           <h2 class="font-display text-3xl font-bold text-white">Frequently Asked Questions</h2>
         </div>
         <div class="space-y-4">
@@ -355,7 +373,7 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
               <span class="text-[#9CA3AF] group-open:rotate-45 transition-transform">+</span>
             </summary>
             <p class="text-sm text-[#9CA3AF] mt-3 leading-relaxed">
-              Yes. There are no deposits, retainers, or audit fees. If we take on your case, we quote a flat fee upfront. If we don’t get the post removed, you owe us $0.
+              Yes. There are no deposits, retainers, or audit fees. If we take on your case, we quote a flat fee upfront starting from $300 held in Escrow.com. If we don’t get the post removed, you owe us $0.
             </p>
           </details>
           <details class="group bg-[#111318] border border-white/[0.08] rounded-xl p-6">
@@ -383,8 +401,9 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
 
   <footer class="border-t border-white/[0.08] py-12 text-xs text-[#9CA3AF]">
     <div class="max-w-[1200px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="font-display text-sm font-bold text-white">Reddera</div>
-      <div>© 2026 Reddera Reputation Defense LLC. All inquiries protected by Mutual NDA.</div>
+      <div class="font-display text-sm font-bold text-white">PostWipe</div>
+      <div>WhatsApp: <a href="https://wa.me/21695022973" target="_blank" rel="noopener noreferrer" class="text-[#25D366] font-mono hover:underline">+216 95 022 973</a> · Email: support@postwipe.com</div>
+      <div>© 2026 PostWipe. All inquiries protected by Mutual NDA.</div>
     </div>
   </footer>
 
@@ -394,22 +413,52 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
       const form = this;
       const btn = document.getElementById('submitBtn');
       const feedback = document.getElementById('formFeedback');
+      const waBtn = document.getElementById('waDirectBtn');
+      const refSummary = document.getElementById('refSummary');
+      
+      const clientName = form.elements['name'] ? form.elements['name'].value.trim() : 'Client';
+      const clientEmail = form.elements['email'] ? form.elements['email'].value.trim() : '';
+      const clientUrl = form.elements['reddit_url'] ? form.elements['reddit_url'].value.trim() : '';
+      const keywords = form.elements['keywords'] ? form.elements['keywords'].value.trim() : '';
+      const details = form.elements['details'] ? form.elements['details'].value.trim() : '';
+      const caseRef = 'PW' + Math.floor(100000 + Math.random() * 900000);
+
       btn.textContent = 'Sending Audit Request...';
       btn.disabled = true;
       try {
         const formData = new FormData(form);
+        formData.append('case_reference', caseRef);
         await fetch('https://formsubmit.co/ajax/xboxdhia089@gmail.com', {
           method: 'POST',
           headers: { 'Accept': 'application/json' },
           body: formData
         });
-        feedback.classList.remove('hidden');
-        form.reset();
       } catch (err) {
-        feedback.classList.remove('hidden');
+        // Continue to show feedback
       } finally {
-        btn.textContent = 'Get My Free Confidential Audit';
+        btn.textContent = 'Submit Link for Free 12-Hour Review';
         btn.disabled = false;
+        
+        refSummary.innerHTML = 'Client Name: <span class="text-white font-semibold">' + (clientName || 'Client') + '</span> · Case Reference: <span class="text-emerald-400 font-mono font-bold">' + caseRef + '</span>';
+        
+        const lines = [
+          '🛡️ *POSTWIPE CLIENT INQUIRY & REMOVAL REQUEST*',
+          '',
+          '• *Client Name:* ' + (clientName || 'Client Inquiry'),
+          '• *Case Reference:* ' + caseRef,
+          '• *Work Email:* ' + (clientEmail || 'Not specified'),
+          '• *Reddit / Search Link:* ' + (clientUrl || 'Not specified'),
+          '• *Target Keywords:* ' + (keywords || 'Branded Google & AI Search'),
+          '• *Removal Scope:* Entire Reddit Thread + Google De-Index',
+          '• *Mutual NDA:* Protected under Mutual NDA',
+          '• *Payment Model:* Starts from $300 (Held in Escrow.com · Released only after delete verification)',
+          '• *Case Details:* ' + (details || '12-hour feasibility audit requested'),
+          '',
+          '• *Client Note:* Please review my link and confirm feasibility and flat escrow quote.'
+        ];
+        waBtn.href = 'https://wa.me/21695022973?text=' + encodeURIComponent(lines.join('\n'));
+        
+        feedback.classList.remove('hidden');
       }
     });
   </script>

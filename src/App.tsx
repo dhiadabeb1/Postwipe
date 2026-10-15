@@ -137,6 +137,7 @@ export default function App() {
   const [expandedCaseId, setExpandedCaseId] = useState<string | null>('cs-1');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
+  const [activeCaseId, setActiveCaseId] = useState<string>(() => 'PW' + Math.floor(100000 + Math.random() * 900000));
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -154,14 +155,69 @@ export default function App() {
     email: string;
     redditUrl: string;
     keywords: string;
+    scopeType: string;
+    scopeLabel: string;
+    requireNda: boolean;
     details: string;
     submittedAt: string;
   } | null>(null);
 
   const [quickUrl, setQuickUrl] = useState('');
+  const [hasDismissedWaBubble, setHasDismissedWaBubble] = useState<boolean>(false);
 
   const formSectionRef = useRef<HTMLElement | null>(null);
   const urlInputRef = useRef<HTMLInputElement | null>(null);
+
+  const getScopeLabel = (scopeType: string) => {
+    const scopeLabels: Record<string, string> = {
+      'full-thread': 'Entire Reddit Thread + Google De-Index',
+      'specific-comments': 'Specific Comment(s) Inside a Thread',
+      'multiple-threads': 'Multiple Threads Across Subreddits',
+    };
+    return scopeLabels[scopeType] || scopeType;
+  };
+
+  const resetClientInquiry = () => {
+    const newCaseId = 'PW' + Math.floor(100000 + Math.random() * 900000);
+    setActiveCaseId(newCaseId);
+    setSubmittedDossier(null);
+    setFormData({
+      name: '',
+      email: '',
+      redditUrl: '',
+      keywords: '',
+      scopeType: 'full-thread',
+      requireNda: true,
+      details: '',
+    });
+    setQuickUrl('');
+    setFormError(null);
+  };
+
+  const buildWhatsAppUrl = () => {
+    const basePhone = '21695022973';
+
+    // Only include pre-filled details when the client has actually sent their link for review!
+    if (submittedDossier) {
+      const parts = [
+        '🛡️ *POSTWIPE - LINK REVIEW REQUEST*',
+        '',
+        `• *Client Name:* ${submittedDossier.name}`,
+        `• *Case Reference:* ${submittedDossier.caseId}`,
+        `• *Work Email:* ${submittedDossier.email}`,
+        `• *Submitted Link:* ${submittedDossier.redditUrl}`,
+        `• *Removal Scope:* ${submittedDossier.scopeLabel}`,
+        `• *Payment Terms:* Starts from $300 (Held in Escrow.com · Released only after delete verification)`,
+        '',
+        'Hello PostWipe, I just submitted this link for review. Please confirm feasibility and flat escrow quote if my email lands in spam.'
+      ];
+      return `https://wa.me/${basePhone}?text=${encodeURIComponent(parts.join('\n'))}`;
+    }
+
+    // When clicking the WhatsApp icon normally before sending a link for review:
+    // Direct clean WhatsApp chat with no prefilled dummy template
+    return `https://wa.me/${basePhone}`;
+  };
 
   useEffect(() => {
     const canonicalUrl = window.location.origin + window.location.pathname;
@@ -274,12 +330,22 @@ export default function App() {
           currency: 'USD',
         });
       }
+      const scopeLabels: Record<string, string> = {
+        'full-thread': 'Entire Reddit Thread + Google De-Index',
+        'specific-comments': 'Specific Comment(s) Inside a Thread',
+        'multiple-threads': 'Multiple Threads Across Subreddits',
+      };
+      const scopeLabel = scopeLabels[formData.scopeType] || formData.scopeType;
+
       setSubmittedDossier({
         caseId,
         name: formData.name.trim(),
         email: formData.email.trim(),
         redditUrl: formData.redditUrl.trim(),
         keywords: formData.keywords.trim() || 'Branded Google & AI Search',
+        scopeType: formData.scopeType,
+        scopeLabel,
+        requireNda: formData.requireNda,
         details: formData.details.trim(),
         submittedAt,
       });
@@ -941,14 +1007,27 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="pt-1 text-xs sm:text-sm font-semibold text-slate-300">
-                  Direct Support:{' '}
-                  <a
-                    href="mailto:support@postwipe.com"
-                    className="text-emerald-400 font-bold font-mono hover:text-emerald-300 transition-colors"
-                  >
-                    support@postwipe.com
-                  </a>
+                <div className="pt-1 text-xs sm:text-sm font-semibold text-slate-300 space-y-1">
+                  <div>
+                    Direct Support:{' '}
+                    <a
+                      href="mailto:support@postwipe.com"
+                      className="text-emerald-400 font-bold font-mono hover:text-emerald-300 transition-colors"
+                    >
+                      support@postwipe.com
+                    </a>
+                  </div>
+                  <div>
+                    WhatsApp:{' '}
+                    <a
+                      href={buildWhatsAppUrl()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#25D366] font-bold font-mono hover:underline transition-colors"
+                    >
+                      +216 95 022 973
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -968,11 +1047,46 @@ export default function App() {
                       <ShieldCheck className="w-7 h-7 text-emerald-400 shrink-0" />
                     </div>
 
-                    <p className="text-sm font-medium text-slate-200 leading-relaxed">
-                      Thanks, <span className="text-white font-bold">{submittedDossier.name}</span>. Your link is now under review with Mutual NDA protection. We will send your removal feasibility report and fixed Escrow.com quote to <span className="text-white font-mono">{submittedDossier.email}</span> within 12 hours.
-                    </p>
+                    {/* Required Explicit Confirmation Message & WhatsApp Action Button */}
+                    <div className="p-4 sm:p-5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl space-y-3.5">
+                      <div className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-[#25D366] text-slate-950 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.34C9.33 7.34 9 7.42 8.72 7.72C8.44 8.03 7.65 8.77 7.65 10.27C7.65 11.76 8.74 13.2 8.89 13.41C9.05 13.62 11.02 16.65 14.04 17.95C14.76 18.26 15.32 18.45 15.76 18.59C16.49 18.82 17.15 18.79 17.67 18.71C18.26 18.62 19.47 17.98 19.72 17.27C19.97 16.57 19.97 15.96 19.9 15.84C19.82 15.72 19.62 15.65 19.31 15.5C19.01 15.34 17.53 14.61 17.25 14.51C16.98 14.41 16.78 14.36 16.58 14.66C16.37 14.97 15.79 15.65 15.61 15.85C15.44 16.06 15.26 16.08 14.96 15.93C14.65 15.78 13.67 15.46 12.51 14.42C11.61 13.62 11 12.63 10.85 12.37C10.7 12.12 10.83 11.98 10.99 11.83C11.12 11.7 11.29 11.47 11.44 11.3C11.59 11.12 11.64 11 11.74 10.79C11.84 10.59 11.79 10.41 11.72 10.26C11.64 10.11 11.03 8.62 10.78 8C10.53 7.41 10.28 7.49 10.09 7.48C9.91 7.47 9.71 7.34 9.53 7.34Z" />
+                          </svg>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-white leading-relaxed">
+                            Thank you for your submission. If you do not see our email reply within a few hours or if it lands in your spam folder, click below to chat with us instantly on WhatsApp.
+                          </p>
+                          <p className="text-xs text-slate-300">
+                            Client Name: <span className="text-white font-semibold">{submittedDossier.name}</span> · Case Reference: <span className="text-emerald-400 font-mono font-bold">{submittedDossier.caseId}</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      <a
+                        href={buildWhatsAppUrl()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full inline-flex items-center justify-center gap-2.5 px-5 py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-bold text-sm rounded-lg transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+                      >
+                        <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.34C9.33 7.34 9 7.42 8.72 7.72C8.44 8.03 7.65 8.77 7.65 10.27C7.65 11.76 8.74 13.2 8.89 13.41C9.05 13.62 11.02 16.65 14.04 17.95C14.76 18.26 15.32 18.45 15.76 18.59C16.49 18.82 17.15 18.79 17.67 18.71C18.26 18.62 19.47 17.98 19.72 17.27C19.97 16.57 19.97 15.96 19.9 15.84C19.82 15.72 19.62 15.65 19.31 15.5C19.01 15.34 17.53 14.61 17.25 14.51C16.98 14.41 16.78 14.36 16.58 14.66C16.37 14.97 15.79 15.65 15.61 15.85C15.44 16.06 15.26 16.08 14.96 15.93C14.65 15.78 13.67 15.46 12.51 14.42C11.61 13.62 11 12.63 10.85 12.37C10.7 12.12 10.83 11.98 10.99 11.83C11.12 11.7 11.29 11.47 11.44 11.3C11.59 11.12 11.64 11 11.74 10.79C11.84 10.59 11.79 10.41 11.72 10.26C11.64 10.11 11.03 8.62 10.78 8C10.53 7.41 10.28 7.49 10.09 7.48C9.91 7.47 9.71 7.34 9.53 7.34Z" />
+                        </svg>
+                        <span>Chat With Us Instantly on WhatsApp</span>
+                      </a>
+                    </div>
 
                     <div className="p-4 bg-[#080C14] border border-slate-800 rounded-lg space-y-2 text-xs font-medium">
+                      <div className="flex justify-between py-1 border-b border-slate-800/80">
+                        <span className="text-slate-300">Client Name:</span>
+                        <span className="text-white font-semibold">{submittedDossier.name}</span>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-slate-800/80">
+                        <span className="text-slate-300">Work Email:</span>
+                        <span className="text-white font-mono">{submittedDossier.email}</span>
+                      </div>
                       <div className="flex justify-between py-1 border-b border-slate-800/80">
                         <span className="text-slate-300">Submitted URL:</span>
                         <span className="text-white font-mono truncate max-w-[260px]">
@@ -983,6 +1097,20 @@ export default function App() {
                         <span className="text-slate-300">Search Keywords:</span>
                         <span className="text-white">{submittedDossier.keywords}</span>
                       </div>
+                      <div className="flex justify-between py-1 border-b border-slate-800/80">
+                        <span className="text-slate-300">Removal Scope:</span>
+                        <span className="text-white">{submittedDossier.scopeLabel}</span>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-slate-800/80">
+                        <span className="text-slate-300">Mutual NDA:</span>
+                        <span className="text-white">{submittedDossier.requireNda ? 'Yes (Signed NDA Requested)' : 'Standard Mutual NDA'}</span>
+                      </div>
+                      {submittedDossier.details && (
+                        <div className="flex justify-between py-1 border-b border-slate-800/80">
+                          <span className="text-slate-300">Additional Context:</span>
+                          <span className="text-white text-right max-w-[260px] truncate">{submittedDossier.details}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between py-1 border-b border-slate-800/80">
                         <span className="text-slate-300">Payment Protection:</span>
                         <span className="text-emerald-400 font-bold font-mono">
@@ -1000,21 +1128,10 @@ export default function App() {
                     <div className="flex flex-col sm:flex-row gap-3 pt-2">
                       <button
                         type="button"
-                        onClick={() => {
-                          setSubmittedDossier(null);
-                          setFormData({
-                            name: '',
-                            email: '',
-                            redditUrl: '',
-                            keywords: '',
-                            scopeType: 'full-thread',
-                            requireNda: true,
-                            details: '',
-                          });
-                        }}
-                        className="px-5 py-2.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs sm:text-sm font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+                        onClick={resetClientInquiry}
+                        className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap"
                       >
-                        Submit Another Link
+                        Submit Another Link / New Client
                       </button>
                     </div>
                   </div>
@@ -1029,25 +1146,10 @@ export default function App() {
                           Starting from $300 · Held in Escrow.com · Released only after verified removal
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFormData({
-                            name: 'Jordan Hayes',
-                            email: 'jordan@acmesaas.io',
-                            redditUrl:
-                              'https://www.reddit.com/r/SaaS/comments/1x89k2/avoid_acmecloud_at_all_costs/',
-                            keywords: 'AcmeCloud reviews, AcmeCloud reddit',
-                            scopeType: 'full-thread',
-                            requireNda: true,
-                            details:
-                              'Competitor planted thread ranking #2 on Google for our brand name and showing up in ChatGPT answers.',
-                          })
-                        }
-                        className="text-xs font-semibold font-mono text-slate-300 hover:text-emerald-400 underline underline-offset-4 cursor-pointer whitespace-nowrap"
-                      >
-                        Fill Sample
-                      </button>
+                      <div className="text-xs font-mono text-emerald-400 font-semibold flex items-center gap-1.5 whitespace-nowrap">
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>Mutual NDA Protected</span>
+                      </div>
                     </div>
 
                     {formError && (
@@ -1327,6 +1429,14 @@ export default function App() {
             >
               support@postwipe.com
             </a>
+            <a
+              href={buildWhatsAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#25D366] font-bold font-mono hover:underline transition-colors"
+            >
+              WhatsApp: +216 95 022 973
+            </a>
           </div>
 
           <div className="text-xs text-slate-400">
@@ -1334,6 +1444,51 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Floating WhatsApp Action Widget */}
+      <aside aria-label="WhatsApp Support" className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 flex items-center gap-2.5">
+        {/* Dismissible desktop preview pill */}
+        {!hasDismissedWaBubble && (
+          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 bg-[#0F1623]/95 border border-slate-700/80 rounded-full shadow-lg text-xs font-semibold text-white animate-in fade-in duration-300 hover:border-emerald-500/50 transition-all">
+            <span className="w-2 h-2 rounded-full bg-[#25D366]"></span>
+            <a
+              href={buildWhatsAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cursor-pointer hover:text-emerald-400 transition-colors"
+            >
+              Chat on WhatsApp
+            </a>
+            <button
+              type="button"
+              onClick={() => setHasDismissedWaBubble(true)}
+              className="text-slate-400 hover:text-white ml-0.5 cursor-pointer text-sm leading-none"
+              aria-label="Dismiss chat bubble"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {/* Floating WhatsApp Action Button - Direct Link with dynamic pre-filled client details */}
+        <a
+          href={buildWhatsAppUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat directly on WhatsApp with PostWipe Specialist"
+          className="relative w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer focus:outline-none focus:ring-4 focus:ring-emerald-500/30"
+        >
+          {/* Pulsing Green Online Indicator */}
+          <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-400 border-2 border-[#080C14]"></span>
+          </span>
+
+          <svg className="w-7 h-7 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.34C9.33 7.34 9 7.42 8.72 7.72C8.44 8.03 7.65 8.77 7.65 10.27C7.65 11.76 8.74 13.2 8.89 13.41C9.05 13.62 11.02 16.65 14.04 17.95C14.76 18.26 15.32 18.45 15.76 18.59C16.49 18.82 17.15 18.79 17.67 18.71C18.26 18.62 19.47 17.98 19.72 17.27C19.97 16.57 19.97 15.96 19.9 15.84C19.82 15.72 19.62 15.65 19.31 15.5C19.01 15.34 17.53 14.61 17.25 14.51C16.98 14.41 16.78 14.36 16.58 14.66C16.37 14.97 15.79 15.65 15.61 15.85C15.44 16.06 15.26 16.08 14.96 15.93C14.65 15.78 13.67 15.46 12.51 14.42C11.61 13.62 11 12.63 10.85 12.37C10.7 12.12 10.83 11.98 10.99 11.83C11.12 11.7 11.29 11.47 11.44 11.3C11.59 11.12 11.64 11 11.74 10.79C11.84 10.59 11.79 10.41 11.72 10.26C11.64 10.11 11.03 8.62 10.78 8C10.53 7.41 10.28 7.49 10.09 7.48C9.91 7.47 9.71 7.34 9.53 7.34Z" />
+          </svg>
+        </a>
+      </aside>
     </div>
   );
 }
