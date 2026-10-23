@@ -21,6 +21,7 @@ import {
   Calendar,
   X,
   Video,
+  Download,
 } from 'lucide-react';
 
 interface SubmittedCaseDetails {
@@ -206,6 +207,120 @@ function PostWipeLogoMark({ className = 'w-10 h-10' }: { className?: string }) {
   );
 }
 
+function drawPostWipeShield(ctx: CanvasRenderingContext2D) {
+  // 1. Outer rounded rectangle (0,0,64,64 rx=16)
+  const bgGrad = ctx.createLinearGradient(0, 0, 64, 64);
+  bgGrad.addColorStop(0, '#2563EB');
+  bgGrad.addColorStop(1, '#1E3A8A');
+  ctx.fillStyle = bgGrad;
+  ctx.beginPath();
+  ctx.roundRect(0, 0, 64, 64, 16);
+  ctx.fill();
+
+  // 2. Inner stroke border (2,2,60,60 rx=14)
+  ctx.save();
+  ctx.strokeStyle = 'rgba(147, 197, 253, 0.4)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(2, 2, 60, 60, 14);
+  ctx.stroke();
+  ctx.restore();
+
+  // 3. Shield path
+  const shieldPath = new Path2D(
+    'M32 11L15 18.5V30.5C15 41.8 22.2 51.9 32 55C41.8 51.9 49 41.8 49 30.5V18.5L32 11Z'
+  );
+  ctx.save();
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+  ctx.fill(shieldPath);
+  const shieldGrad = ctx.createLinearGradient(12, 10, 52, 54);
+  shieldGrad.addColorStop(0, '#FFFFFF');
+  shieldGrad.addColorStop(1, '#DBEAFE');
+  ctx.strokeStyle = shieldGrad;
+  ctx.lineWidth = 3.2;
+  ctx.lineJoin = 'round';
+  ctx.stroke(shieldPath);
+  ctx.restore();
+
+  // 4. Dashed top wipe line
+  const dashPath = new Path2D('M23.5 27.5H34.5');
+  ctx.save();
+  ctx.strokeStyle = 'rgba(191, 219, 254, 0.85)';
+  ctx.lineWidth = 2.8;
+  ctx.lineCap = 'round';
+  ctx.setLineDash([3, 4]);
+  ctx.stroke(dashPath);
+  ctx.restore();
+
+  // 5. Checkmark
+  const checkPath = new Path2D('M24 34.5L29.5 40L41 26.5');
+  ctx.save();
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 4.2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.stroke(checkPath);
+  ctx.restore();
+}
+
+function generatePostWipeLogoPngs(): { iconPng: string; fullPng: string; fullWhiteBgPng: string } {
+  if (typeof document === 'undefined') {
+    return { iconPng: '', fullPng: '', fullWhiteBgPng: '' };
+  }
+
+  // 1. 1024x1024 High-Res Shield Icon PNG (Transparent)
+  const iconCanvas = document.createElement('canvas');
+  iconCanvas.width = 1024;
+  iconCanvas.height = 1024;
+  const iconCtx = iconCanvas.getContext('2d');
+  if (iconCtx) {
+    iconCtx.scale(16, 16);
+    drawPostWipeShield(iconCtx);
+  }
+  const iconPng = iconCanvas.toDataURL('image/png');
+
+  // Helper for full horizontal logo (1680x384)
+  const createFullLogo = (withWhiteBg: boolean) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1680;
+    canvas.height = 384;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      if (withWhiteBg) {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      ctx.save();
+      ctx.translate(48, 36);
+      ctx.scale(4.875, 4.875); // 64 * 4.875 = 312px tall icon
+      drawPostWipeShield(ctx);
+      ctx.restore();
+
+      ctx.font = '800 215px Outfit, "Plus Jakarta Sans", system-ui, -apple-system, sans-serif';
+      ctx.textBaseline = 'alphabetic';
+      const postText = 'Post';
+      const wipeText = 'Wipe';
+      const startX = 408;
+      const baselineY = 266;
+
+      ctx.fillStyle = '#111827';
+      ctx.fillText(postText, startX, baselineY);
+      const postWidth = ctx.measureText(postText).width;
+
+      ctx.fillStyle = '#2563EB';
+      ctx.fillText(wipeText, startX + postWidth - 4, baselineY);
+    }
+    return canvas.toDataURL('image/png');
+  };
+
+  return {
+    iconPng,
+    fullPng: createFullLogo(false),
+    fullWhiteBgPng: createFullLogo(true),
+  };
+}
+
+
 const CASE_STUDIES = [
   {
     id: 'PW-941',
@@ -285,6 +400,8 @@ export function App() {
     typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
 
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(true);
+  const [logoPngs] = useState(() => generatePostWipeLogoPngs());
   const [callStep, setCallStep] = useState<'slot' | 'details'>('slot');
   const [callPlatform, setCallPlatform] = useState<'Google Meet' | 'WhatsApp Call' | 'Phone Call'>('Google Meet');
   const [callDate, setCallDate] = useState(upcomingDays[0]?.isoDate || '');
@@ -1562,6 +1679,14 @@ export function App() {
               <a href="#audit-form" className="hover:text-[#2563EB] transition-colors">
                 12-Hour Audit
               </a>
+              <button
+                type="button"
+                onClick={() => setIsLogoModalOpen(true)}
+                className="inline-flex items-center gap-1.5 text-[#2563EB] hover:text-[#1D4ED8] font-bold cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download Logo (PNG)</span>
+              </button>
             </div>
           </div>
 
@@ -1944,6 +2069,139 @@ export function App() {
                     </div>
                   </form>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Downloadable PostWipe Logo Pictures Modal (PNG & SVG) */}
+      {isLogoModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/65 backdrop-blur-xs overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="download-logo-title"
+        >
+          <div className="bg-white text-[#111827] w-full max-w-2xl rounded-2xl shadow-2xl border border-blue-100 overflow-hidden my-8">
+            <div className="px-6 py-4 bg-[#F4F6FB] border-b border-gray-200 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <PostWipeLogoMark className="w-8 h-8" />
+                <div>
+                  <h3 id="download-logo-title" className="font-display text-lg font-extrabold text-[#111827]">
+                    Download PostWipe Logo Pictures (PNG &amp; SVG)
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Click any button below to download the high-resolution PNG picture or right-click any image to save it.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsLogoModalOpen(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 transition-colors cursor-pointer"
+                aria-label="Close logo download modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* 1. Shield Icon Picture (1024x1024 PNG) */}
+              <div className="rounded-2xl border border-gray-200 bg-[#F4F6FB]/60 p-5 flex flex-col sm:flex-row items-center justify-between gap-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-24 h-24 rounded-2xl bg-white border border-gray-200 p-3 flex items-center justify-center shadow-xs shrink-0">
+                    {logoPngs.iconPng ? (
+                      <img
+                        src={logoPngs.iconPng}
+                        alt="PostWipe Icon Logo PNG"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <PostWipeLogoMark className="w-16 h-16" />
+                    )}
+                  </div>
+                  <div>
+                    <span className="inline-block font-mono text-[10px] uppercase font-bold text-[#2563EB] bg-blue-100 px-2 py-0.5 rounded mb-1">
+                      1024 × 1024 PX • HIGH-RES PNG
+                    </span>
+                    <h4 className="font-display text-base font-extrabold text-[#111827]">
+                      PostWipe Shield Icon Picture
+                    </h4>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      Square Royal Cobalt Blue icon for profile pictures, favicons, and social avatars.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 w-full sm:w-auto shrink-0">
+                  <a
+                    href={logoPngs.iconPng}
+                    download="postwipe-logo-icon.png"
+                    className="inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download Icon PNG</span>
+                  </a>
+                  <a
+                    href="/favicon.svg"
+                    download="postwipe-logo-icon.svg"
+                    className="inline-flex items-center justify-center gap-2 bg-white hover:bg-blue-50 text-[#1E3A8A] border border-blue-200 font-bold text-xs px-4 py-2 rounded-xl transition-all cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download Icon SVG</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* 2. Full Horizontal Logo Picture (1680x384 PNG) */}
+              <div className="rounded-2xl border border-gray-200 bg-[#F4F6FB]/60 p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="inline-block font-mono text-[10px] uppercase font-bold text-[#2563EB] bg-blue-100 px-2 py-0.5 rounded mb-1">
+                      1680 × 384 PX • HIGH-RES PNG
+                    </span>
+                    <h4 className="font-display text-base font-extrabold text-[#111827]">
+                      PostWipe Full Horizontal Logo Picture
+                    </h4>
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-white border border-gray-200 p-5 flex items-center justify-center shadow-xs">
+                  {logoPngs.fullPng && (
+                    <img
+                      src={logoPngs.fullPng}
+                      alt="PostWipe Full Horizontal Logo PNG"
+                      className="max-h-20 w-auto object-contain"
+                    />
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <a
+                    href={logoPngs.fullPng}
+                    download="postwipe-logo-full-transparent.png"
+                    className="inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download PNG (Transparent)</span>
+                  </a>
+                  <a
+                    href={logoPngs.fullWhiteBgPng}
+                    download="postwipe-logo-full-white.png"
+                    className="inline-flex items-center justify-center gap-2 bg-white hover:bg-blue-50 text-[#1E3A8A] border border-blue-200 font-extrabold text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download PNG (White BG)</span>
+                  </a>
+                  <a
+                    href="/postwipe-logo-full.svg"
+                    download="postwipe-logo-full.svg"
+                    className="inline-flex items-center justify-center gap-2 bg-white hover:bg-blue-50 text-gray-700 border border-gray-200 font-bold text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download Vector SVG</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
