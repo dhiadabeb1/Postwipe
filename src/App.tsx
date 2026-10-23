@@ -1,575 +1,759 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  ArrowRight,
-  Check,
-  ChevronDown,
-  Lock,
   ShieldCheck,
-  Users,
-  FileCheck,
+  ArrowRight,
+  Lock,
+  CheckCircle2,
+  AlertTriangle,
+  Search,
+  FileCheck2,
+  Clock,
+  ChevronDown,
+  Globe,
+  Sparkles,
+  Scale,
+  EyeOff,
+  Check,
+  ExternalLink,
+  Zap,
+  MessageSquareOff,
+  PhoneCall,
+  Calendar,
   X,
+  Video,
 } from 'lucide-react';
 
-interface CaseStudy {
-  id: string;
-  category: 'saas' | 'ecommerce' | 'executive';
-  categoryLabel: string;
-  subreddit: string;
-  turnaround: string;
-  title: string;
-  problem: string;
-  action: string;
-  outcomeMetric: string;
-  quote: string;
-  author: string;
-  role: string;
-  timeline: { day: string; event: string }[];
+interface SubmittedCaseDetails {
+  caseId: string;
+  name: string;
+  email: string;
+  url: string;
+  company: string;
+  context: string;
 }
 
-const CASE_STUDIES: CaseStudy[] = [
+const WHATSAPP_BASE_URL = 'https://wa.me/21695022973';
+
+function buildWhatsAppUrl(details: SubmittedCaseDetails | null): string {
+  if (!details) {
+    return WHATSAPP_BASE_URL;
+  }
+  const lines = [
+    `Hi PostWipe team, I just submitted my Reddit link for a removal audit.`,
+    ``,
+    `• Client Name: ${details.name}`,
+    `• Case Reference: ${details.caseId}`,
+    `• Email: ${details.email}`,
+    `• Target Reddit URL: ${details.url}`,
+    details.company ? `• Brand / Company: ${details.company}` : null,
+    details.context ? `• Additional Details: ${details.context}` : null,
+    ``,
+    `Please confirm receipt of my submission and let me know the next steps.`,
+  ].filter(Boolean);
+
+  return `${WHATSAPP_BASE_URL}?text=${encodeURIComponent(lines.join('\n'))}`;
+}
+
+interface UpcomingDay {
+  isoDate: string;
+  dayName: string;
+  monthShort: string;
+  dayNum: string;
+  fullLabel: string;
+}
+
+function getUpcomingBusinessDays(count = 8): UpcomingDay[] {
+  const days: UpcomingDay[] = [];
+  const cursor = new Date();
+  while (days.length < count) {
+    const dayOfWeek = cursor.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      const yyyy = cursor.getFullYear();
+      const mm = String(cursor.getMonth() + 1).padStart(2, '0');
+      const dd = String(cursor.getDate()).padStart(2, '0');
+      days.push({
+        isoDate: `${yyyy}-${mm}-${dd}`,
+        dayName: cursor.toLocaleDateString('en-US', { weekday: 'short' }),
+        monthShort: cursor.toLocaleDateString('en-US', { month: 'short' }),
+        dayNum: String(cursor.getDate()),
+        fullLabel: cursor.toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+        }),
+      });
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return days;
+}
+
+const TIME_SLOTS = [
+  '09:00 AM',
+  '09:30 AM',
+  '10:00 AM',
+  '11:00 AM',
+  '01:00 PM',
+  '02:00 PM',
+  '03:30 PM',
+  '04:30 PM',
+];
+
+function buildGoogleCalendarUrl(params: {
+  caseId: string;
+  name: string;
+  email: string;
+  isoDate: string;
+  timeSlot: string;
+  platform: string;
+  redditUrl: string;
+}): string {
+  const [timePart, meridiem] = params.timeSlot.split(' ');
+  const [rawHours, rawMinutes] = timePart.split(':').map(Number);
+  let hours = rawHours;
+  if (meridiem === 'PM' && hours < 12) hours += 12;
+  if (meridiem === 'AM' && hours === 12) hours = 0;
+
+  const [year, month, day] = params.isoDate.split('-').map(Number);
+  const startDate = new Date(year, month - 1, day, hours, rawMinutes, 0);
+  const endDate = new Date(startDate.getTime() + 15 * 60 * 1000);
+
+  const formatGCalDate = (d: Date) => {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  };
+
+  const datesParam = `${formatGCalDate(startDate)}/${formatGCalDate(endDate)}`;
+  const title = `PostWipe Strategy Call (${params.caseId}) (${params.name})`;
+  const details = [
+    `15-Minute Confidential Reddit Removal & Escrow Consultation`,
+    `Case Reference: ${params.caseId}`,
+    `Client: ${params.name} (${params.email})`,
+    `Call Service: ${params.platform}`,
+    `Target Reddit URL: ${params.redditUrl}`,
+    `WhatsApp Direct Support: https://wa.me/21695022973`,
+  ].join('\n');
+
+  const query = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: title,
+    dates: datesParam,
+    details,
+    location: params.platform,
+    add: 'xboxdhia089@gmail.com',
+  });
+
+  return `https://calendar.google.com/calendar/render?${query.toString()}`;
+}
+
+/**
+ * PostWipe Shield + Checkmark Logo Mark in the new Royal Cobalt Blue palette
+ */
+function PostWipeLogoMark({ className = 'w-10 h-10' }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 64 64"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="pw-cobalt-bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#2563EB" />
+          <stop offset="100%" stopColor="#1E3A8A" />
+        </linearGradient>
+        <linearGradient id="pw-cobalt-shield" x1="12" y1="10" x2="52" y2="54" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="100%" stopColor="#DBEAFE" />
+        </linearGradient>
+      </defs>
+      <rect width="64" height="64" rx="16" fill="url(#pw-cobalt-bg)" />
+      <rect
+        x="2"
+        y="2"
+        width="60"
+        height="60"
+        rx="14"
+        stroke="#93C5FD"
+        strokeOpacity="0.4"
+        strokeWidth="2"
+      />
+      <path
+        d="M32 11L15 18.5V30.5C15 41.8 22.2 51.9 32 55C41.8 51.9 49 41.8 49 30.5V18.5L32 11Z"
+        fill="#FFFFFF"
+        fillOpacity="0.14"
+        stroke="url(#pw-cobalt-shield)"
+        strokeWidth="3.2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M23.5 27.5H34.5"
+        stroke="#BFDBFE"
+        strokeOpacity="0.85"
+        strokeWidth="2.8"
+        strokeLinecap="round"
+        strokeDasharray="3 4"
+      />
+      <path
+        d="M24 34.5L29.5 40L41 26.5"
+        stroke="#FFFFFF"
+        strokeWidth="4.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+const CASE_STUDIES = [
   {
-    id: 'cs-1',
-    category: 'saas',
-    categoryLabel: 'Series B FinTech SaaS',
-    subreddit: 'r/SaaS & r/startups',
-    turnaround: 'Removed in 6 Days',
-    title: 'Fake Competitor Hit Piece Ranking #2 on Google for "[Brand] Pricing"',
-    problem:
-      'A competitor used aged burner accounts to post false security and billing accusations. Subreddit mods ignored four polite requests from the founder, and prospects brought the link up on nearly half of all enterprise sales calls.',
-    action:
-      'We documented coordinated vote manipulation and trademark disparagement, bypassed the subreddit mods completely, and escalated directly to Reddit’s internal policy team.',
-    outcomeMetric: '+38% Enterprise Demo Close Rate in 30 Days',
-    quote:
-      'Prospects were pasting that Reddit link into Zoom chat on almost every discovery call. PostWipe wiped the entire thread and cleared the Google snippet in six days. Funds stayed in Escrow.com until we verified the deletion ourselves.',
-    author: 'Marcus Vance',
-    role: 'CoFounder & CEO, Series B FinTech Infrastructure',
-    timeline: [
-      { day: 'Day 1', event: 'Audited the thread under NDA; identified 3 clear sitewide rule violations and opened Escrow.com milestone.' },
-      { day: 'Day 2', event: 'Filed formal policy escalation directly with Reddit Trust & Safety.' },
-      { day: 'Day 5', event: 'Reddit admins permanently deleted the post and all 68 comments (delete verification confirmed).' },
-      { day: 'Day 6', event: 'Forced Google & Bing cache purge; cleared from Perplexity and ChatGPT before escrow release.' },
-    ],
+    id: 'PW-941',
+    sector: 'B2B SaaS Platform (Series A)',
+    subreddit: 'r/SaaS & r/entrepreneur',
+    issue: 'Viral competitor smear thread ranking #2 on Google for "[Brand] reviews" and cited by ChatGPT.',
+    scope: 'Full Thread Removal + Google & AI De-Index',
+    timeline: '8 Business Days',
+    escrowStatus: 'Escrow Released Post-Removal',
+    metrics: 'Page-1 Google snippet & ChatGPT citation purged within 48h of Reddit deletion.',
   },
   {
-    id: 'cs-2',
-    category: 'ecommerce',
-    categoryLabel: '8 Figure DTC Brand',
-    subreddit: 'r/SkincareAddiction',
-    turnaround: 'Removed in 11 Days',
-    title: '340 Comment Viral Thread Claiming Flagship Product Used Fake Ingredients',
-    problem:
-      'An anonymous poster falsely claimed our client’s bestseller contained counterfeit ingredients. The thread sat at #1 in Google’s "Discussions and forums" box, costing roughly $42,000 a week in lost sales.',
-    action:
-      'We paired third party lab certificates with a formal trademark and false safety claim escalation, getting the thread removed without ever arguing in the comments.',
-    outcomeMetric: '$168,000/mo Branded Search Revenue Restored',
-    quote:
-      'Two PR agencies pitched us $15,000 retainers to write blog posts that would never outrank Reddit anyway. PostWipe worked strictly through escrow on a pay on success basis and actually got the post deleted.',
-    author: 'Elena Rostova',
-    role: 'Founder, DTC Consumer Wellness Brand',
-    timeline: [
-      { day: 'Day 1', event: 'Signed Mutual NDA; archived evidence of the main thread and crossposts.' },
-      { day: 'Day 3', event: 'Submitted escalation brief citing falsified safety claims and trademark misuse.' },
-      { day: 'Day 9', event: 'Primary thread and two crossposts permanently deleted from Reddit.' },
-      { day: 'Day 11', event: 'Google forum carousel updated and AI search snippets cleared; escrow released.' },
-    ],
+    id: 'PW-884',
+    sector: 'DTC Health & Supplement Brand',
+    subreddit: 'r/Supplements',
+    issue: '3-year-old thread with unverified product safety claims driving a 28% drop in branded checkout conversion.',
+    scope: 'Complete Root Thread Deletion',
+    timeline: '11 Business Days',
+    escrowStatus: 'Escrow Released Post-Removal',
+    metrics: 'Root post permanently removed at source; Google URL removal completed in 36 hours.',
   },
   {
-    id: 'cs-3',
-    category: 'executive',
-    categoryLabel: 'Private Equity Partner',
-    subreddit: 'City & Finance Subreddits',
-    turnaround: 'Removed in 5 Days',
-    title: 'Doxxing & Defamation Thread During a $120M Fundraise',
-    problem:
-      'In the middle of raising a new fund, a bitter former vendor posted personal home details and fabricated lawsuit claims in a high traffic city subreddit.',
-    action:
-      'We escalated immediately through Reddit’s personal information and targeted harassment channels, securing full deletion and a sitewide ban on the poster’s account.',
-    outcomeMetric: '100% Google & AI Search Clearance in 5 Days',
-    quote:
-      'Fast, quiet, and surgical. They signed our counsel’s NDA within an hour, never engaged publicly with the poster, and eliminated a serious threat before our LP committee met.',
-    author: 'David Kensington',
-    role: 'Managing Partner, Private Equity',
-    timeline: [
-      { day: 'Day 1', event: 'Emergency review initiated under NDA; doxxing & harassment brief prepared.' },
-      { day: 'Day 2', event: 'Direct administrative Trust & Safety escalation submitted.' },
-      { day: 'Day 4', event: 'Thread permanently deleted and offending account suspended.' },
-      { day: 'Day 5', event: 'Outdated content purge confirmed across Google, Bing, and Perplexity.' },
-    ],
+    id: 'PW-917',
+    sector: 'Fintech Founder & Executive',
+    subreddit: 'r/fintech & r/startups',
+    issue: 'Doxxing and defamatory commentary by a former contractor appearing on page 1 for the founder’s full name.',
+    scope: 'Targeted Comment Tree Wipe + Search Cache Purge',
+    timeline: '5 Business Days',
+    escrowStatus: 'Escrow Released Post-Removal',
+    metrics: '14 defamatory comments wiped under harassment & PII policy without alerting the thread author.',
   },
 ];
 
 const FAQS = [
   {
-    question: 'How does the Escrow.com payment and verification process work?',
-    answer:
-      'Pricing starts from $300 depending on thread complexity, with zero upfront retainers or audit fees. Once we review your link and agree on a flat fee, payment is held securely in an independent Escrow.com transaction (or billed upon completion for verified enterprise accounts). Funds are only released to PostWipe after delete verification confirms that the Reddit post is permanently deleted and the snippet has been purged from Google Search. If we do not succeed, 100% of your funds are returned immediately.',
+    q: 'What if the subreddit moderators already ignored or rejected our takedown request?',
+    a: 'Subreddit moderators are unpaid community volunteers who frequently reject business requests, or worse, publicly screenshot your message to mock your brand. PostWipe never contacts volunteer subreddit moderators. Our specialists escalate directly through corporate Trust & Safety, intellectual property, and sitewide Content Policy compliance channels.',
   },
   {
-    question: 'Who is behind PostWipe, and why do you succeed when subreddit mods refuse?',
-    answer:
-      'PostWipe is operated by a US-based team of former platform Trust & Safety analysts, digital defamation paralegals, and technical SEO de-indexing specialists. Subreddit moderators are unpaid volunteers who rarely help brands and often screenshot takedown requests to mock companies publicly. We never contact subreddit moderators. Instead, we file structured policy, trademark, and legal escalations directly with Reddit’s corporate compliance and Trust & Safety teams.',
+    q: 'How does the Escrow.com payment protection work?',
+    a: 'After our free 12-hour audit confirms your link is actionable, we provide a fixed quote starting from $300. Your payment is deposited into a regulated Escrow.com transaction. Funds remain locked in escrow while we execute the removal and are released to PostWipe only after you verify the target Reddit post or comment is permanently deleted. If we do not remove it within the agreed timeframe, Escrow.com refunds 100% of your deposit.',
   },
   {
-    question: 'How long does removal and Google/AI search de-indexing take?',
-    answer:
-      'We review your submitted link within 12 hours. Most Reddit removals finish within 7 to 14 business days, while urgent doxxing or impersonation cases often resolve in 3 to 6 days. Immediately after Reddit deletes the thread, we submit expedited URL cache purges to Google and Bing so the dead result drops from Google Search, ChatGPT, Perplexity, and Gemini within 24 to 72 hours.',
+    q: 'Should we choose a Targeted Comment Wipe or a Full Thread Deletion?',
+    a: 'If the main Reddit post is neutral (e.g., "Has anyone tried [Brand]?") and only one or two replies contain false allegations, a Targeted Comment Wipe removes those specific replies cleanly. However, if the thread title itself contains keywords like "scam," "avoid," or false accusations ranking on Google, we recommend a Full Thread Deletion so the entire URL can be de-indexed from Google, Bing, ChatGPT, and Perplexity.',
   },
   {
-    question: 'What happens if the user notices and reposts the thread?',
-    answer:
-      'Because our removals are executed by Reddit corporate administrators rather than local volunteers, the offending account receives an official platform policy strike or suspension, which stops 98% of repeat posts. Furthermore, every removal includes a 90 Day Repost Warranty: if the same content is reposted, we remove and de-index it again at zero cost.',
+    q: 'How fast do Google, ChatGPT, and Perplexity stop showing the deleted Reddit thread?',
+    a: 'Once a Reddit thread is permanently deleted at the source, Google and Bing normally take weeks to recrawl it naturally. PostWipe accelerates this immediately by submitting verified dead-link cache purge requests across search engines, clearing the snippet from Google search results and AI answer engines within 24 to 72 hours.',
   },
   {
-    question: 'How do you clear negative Reddit threads from ChatGPT, Perplexity, and Gemini?',
-    answer:
-      'AI search engines retrieve live citations from Google, Bing, and Reddit’s API feed. Once a thread is permanently deleted at the source on Reddit, the live link is dead. We then force an outdated-content cache purge across Google Search Console and Bing Webmaster pipelines so AI engines stop citing the thread within days.',
+    q: 'Will the original poster or competitors know our company hired PostWipe?',
+    a: 'No. Every audit and policy escalation is conducted under strict NDA. Because removals are executed through formal platform policy enforcement rather than public replies or mass-reporting bots, there is zero public footprint linking the removal back to your brand.',
+  },
+  {
+    q: 'What if the deleted Reddit post gets re-posted later?',
+    a: 'Every completed removal includes a 90-day re-post protection warranty. Once a post is removed for a sitewide policy violation, any attempt by the same user to re-post identical defamatory content violates platform ban-evasion and repeat-harassment rules, allowing us to fast-track a secondary takedown at no extra charge.',
   },
 ];
 
-export default function App() {
-  const [comparisonMode, setComparisonMode] = useState<'postwipe' | 'traditional'>('postwipe');
-  const [caseFilter, setCaseFilter] = useState<'all' | 'saas' | 'ecommerce' | 'executive'>('all');
-  const [expandedCaseId, setExpandedCaseId] = useState<string | null>('cs-1');
+export function App() {
+  const [urlInput, setUrlInput] = useState('');
+  const [nameInput, setNameInput] = useState('');
+  const [emailInput, setEmailInput] = useState('');
+  const [companyInput, setCompanyInput] = useState('');
+  const [contextInput, setContextInput] = useState('');
+  const [removalScope, setRemovalScope] = useState<'full-thread' | 'comment-only'>('full-thread');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submittedCase, setSubmittedCase] = useState<SubmittedCaseDetails | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [previewMode, setPreviewMode] = useState<'after' | 'before'>('after');
 
-  const [activeCaseId, setActiveCaseId] = useState<string>(() => 'PW' + Math.floor(100000 + Math.random() * 900000));
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    redditUrl: '',
-    keywords: '',
-    scopeType: 'full-thread',
-    requireNda: true,
-    details: '',
-  });
-  const [formError, setFormError] = useState<string | null>(null);
-  const [isSending, setIsSending] = useState<boolean>(false);
-  const [submittedDossier, setSubmittedDossier] = useState<{
-    caseId: string;
-    name: string;
-    email: string;
-    redditUrl: string;
-    keywords: string;
-    scopeType: string;
-    scopeLabel: string;
-    requireNda: boolean;
-    details: string;
-    submittedAt: string;
-  } | null>(null);
+  // Schedule a Call (Google Calendar / Meet) Modal State
+  const upcomingDays = getUpcomingBusinessDays(8);
+  const detectedTimezone =
+    typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
 
-  const [quickUrl, setQuickUrl] = useState('');
-  const [hasDismissedWaBubble, setHasDismissedWaBubble] = useState<boolean>(false);
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+  const [callStep, setCallStep] = useState<'slot' | 'details'>('slot');
+  const [callPlatform, setCallPlatform] = useState<'Google Meet' | 'WhatsApp Call' | 'Phone Call'>('Google Meet');
+  const [callDate, setCallDate] = useState(upcomingDays[0]?.isoDate || '');
+  const [callTimeSlot, setCallTimeSlot] = useState('10:00 AM');
+  const [callName, setCallName] = useState('');
+  const [callEmail, setCallEmail] = useState('');
+  const [callPhone, setCallPhone] = useState('');
+  const [callUrl, setCallUrl] = useState('');
+  const [isCallSubmitting, setIsCallSubmitting] = useState(false);
+  const [callError, setCallError] = useState('');
+  const [callBookedCase, setCallBookedCase] = useState<SubmittedCaseDetails | null>(null);
+  const [bookedCalendarUrl, setBookedCalendarUrl] = useState('');
 
-  const formSectionRef = useRef<HTMLElement | null>(null);
-  const urlInputRef = useRef<HTMLInputElement | null>(null);
+  const selectedDayObj = upcomingDays.find((d) => d.isoDate === callDate) || upcomingDays[0];
 
-  const getScopeLabel = (scopeType: string) => {
-    const scopeLabels: Record<string, string> = {
-      'full-thread': 'Entire Reddit Thread + Google De-Index',
-      'specific-comments': 'Specific Comment(s) Inside a Thread',
-      'multiple-threads': 'Multiple Threads Across Subreddits',
-    };
-    return scopeLabels[scopeType] || scopeType;
-  };
-
-  const resetClientInquiry = () => {
-    const newCaseId = 'PW' + Math.floor(100000 + Math.random() * 900000);
-    setActiveCaseId(newCaseId);
-    setSubmittedDossier(null);
-    setFormData({
-      name: '',
-      email: '',
-      redditUrl: '',
-      keywords: '',
-      scopeType: 'full-thread',
-      requireNda: true,
-      details: '',
-    });
-    setQuickUrl('');
-    setFormError(null);
-  };
-
-  const buildWhatsAppUrl = () => {
-    const basePhone = '21695022973';
-
-    // Only include pre-filled details when the client has actually sent their link for review!
-    if (submittedDossier) {
-      const parts = [
-        '🛡️ *POSTWIPE - LINK REVIEW REQUEST*',
-        '',
-        `• *Client Name:* ${submittedDossier.name}`,
-        `• *Case Reference:* ${submittedDossier.caseId}`,
-        `• *Work Email:* ${submittedDossier.email}`,
-        `• *Submitted Link:* ${submittedDossier.redditUrl}`,
-        `• *Removal Scope:* ${submittedDossier.scopeLabel}`,
-        `• *Payment Terms:* Starts from $300 (Held in Escrow.com · Released only after delete verification)`,
-        '',
-        'Hello PostWipe, I just submitted this link for review. Please confirm feasibility and flat escrow quote if my email lands in spam.'
-      ];
-      return `https://wa.me/${basePhone}?text=${encodeURIComponent(parts.join('\n'))}`;
-    }
-
-    // When clicking the WhatsApp icon normally before sending a link for review:
-    // Direct clean WhatsApp chat with no prefilled dummy template
-    return `https://wa.me/${basePhone}`;
-  };
-
-  useEffect(() => {
-    const canonicalUrl = window.location.origin + window.location.pathname;
-    let canonicalLink = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-    if (!canonicalLink) {
-      canonicalLink = document.createElement('link');
-      canonicalLink.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonicalLink);
-    }
-    canonicalLink.setAttribute('href', canonicalUrl);
-
-    let ogUrlMeta = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
-    if (!ogUrlMeta) {
-      ogUrlMeta = document.createElement('meta');
-      ogUrlMeta.setAttribute('property', 'og:url');
-      document.head.appendChild(ogUrlMeta);
-    }
-    ogUrlMeta.setAttribute('content', canonicalUrl);
-  }, []);
-
-  const filteredCaseStudies =
-    caseFilter === 'all'
-      ? CASE_STUDIES
-      : CASE_STUDIES.filter((cs) => cs.category === caseFilter);
-
-  const scrollToAuditForm = (prefillUrl?: string, prefillKeywords?: string) => {
-    if (prefillUrl !== undefined) {
-      setFormData((prev) => ({
-        ...prev,
-        redditUrl: prefillUrl || prev.redditUrl,
-        keywords: prefillKeywords || prev.keywords,
-      }));
-    }
-    formSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-    setTimeout(() => {
-      urlInputRef.current?.focus();
-    }, 450);
-  };
-
-  const handleQuickAuditSubmit = (e: React.FormEvent) => {
+  const handleCallSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    scrollToAuditForm(
-      quickUrl.trim() || 'https://www.reddit.com/r/SaaS/comments/example_thread/',
-      ''
-    );
-  };
+    if (!callName.trim() || !callEmail.trim() || !callDate.trim()) return;
 
-  const handleLeadSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError(null);
+    setIsCallSubmitting(true);
+    setCallError('');
 
-    if (!formData.name.trim()) {
-      setFormError('Please enter your name.');
-      return;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email.trim())) {
-      setFormError('Please enter a valid email address.');
-      return;
-    }
-    if (!formData.redditUrl.trim() || formData.redditUrl.trim().length < 10) {
-      setFormError('Please paste the Reddit URL or search link you want us to review.');
-      return;
-    }
+    const generatedCaseId = `PW-CALL-${Math.floor(10000 + Math.random() * 90000)}`;
+    const cleanName = callName.trim();
+    const cleanEmail = callEmail.trim();
+    const cleanPhone = callPhone.trim();
+    const cleanUrl = callUrl.trim() || 'To be discussed on call';
+    const slotSummary = `${selectedDayObj?.fullLabel || callDate} at ${callTimeSlot} (${detectedTimezone}) via ${callPlatform}`;
 
-    const randomNum = Math.floor(100000 + Math.random() * 900000);
-    const caseId = `PW${randomNum}`;
-    const submittedAt = new Date().toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
+    const gcalUrl = buildGoogleCalendarUrl({
+      caseId: generatedCaseId,
+      name: cleanName,
+      email: cleanEmail,
+      isoDate: callDate,
+      timeSlot: callTimeSlot,
+      platform: callPlatform,
+      redditUrl: cleanUrl,
     });
-
-    setIsSending(true);
 
     try {
-      await fetch('https://formsubmit.co/ajax/xboxdhia089@gmail.com', {
+      const response = await fetch('https://formsubmit.co/ajax/xboxdhia089@gmail.com', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          _subject: `New PostWipe Link Review (${caseId}) from ${formData.name.trim()}`,
-          _cc: 'support@postwipe.com',
+          _subject: `New PostWipe ${callPlatform} Scheduled (${generatedCaseId}) - ${cleanName}`,
+          Request_Type: `15-Minute Strategy Call (${callPlatform})`,
+          Case_Reference: generatedCaseId,
+          Client_Name: cleanName,
+          Work_Email: cleanEmail,
+          Phone_Or_WhatsApp: cleanPhone || 'Not provided',
+          Scheduled_Slot: slotSummary,
+          Target_Reddit_URL: cleanUrl,
+          Google_Calendar_Link: gcalUrl,
           _template: 'table',
-          _captcha: 'false',
-          case_reference: caseId,
-          client_name: formData.name.trim(),
-          client_email: formData.email.trim(),
-          reddit_url_to_audit: formData.redditUrl.trim(),
-          target_search_keywords:
-            formData.keywords.trim() || 'Branded Google & AI Search',
-          removal_scope: formData.scopeType,
-          mutual_nda_requested: formData.requireNda ? 'Yes' : 'No',
-          additional_details: formData.details.trim() || 'None provided',
         }),
       });
-    } catch {
-      // Fallback handled gracefully so user still sees confirmation
-    } finally {
-      setIsSending(false);
-      if (
-        typeof window !== 'undefined' &&
-        typeof (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag === 'function'
-      ) {
-        (window as unknown as { gtag: (...args: unknown[]) => void }).gtag('event', 'generate_lead', {
-          event_category: 'Audit Form',
-          event_label: formData.scopeType,
-          value: 300,
-          currency: 'USD',
-        });
-      }
-      const scopeLabels: Record<string, string> = {
-        'full-thread': 'Entire Reddit Thread + Google De-Index',
-        'specific-comments': 'Specific Comment(s) Inside a Thread',
-        'multiple-threads': 'Multiple Threads Across Subreddits',
-      };
-      const scopeLabel = scopeLabels[formData.scopeType] || formData.scopeType;
 
-      setSubmittedDossier({
-        caseId,
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        redditUrl: formData.redditUrl.trim(),
-        keywords: formData.keywords.trim() || 'Branded Google & AI Search',
-        scopeType: formData.scopeType,
-        scopeLabel,
-        requireNda: formData.requireNda,
-        details: formData.details.trim(),
-        submittedAt,
-      });
+      if (response.ok) {
+        const bookedDetails: SubmittedCaseDetails = {
+          caseId: generatedCaseId,
+          name: cleanName,
+          email: cleanEmail,
+          url: cleanUrl,
+          company: cleanPhone ? `${callPlatform} • ${cleanPhone}` : callPlatform,
+          context: slotSummary,
+        };
+        setBookedCalendarUrl(gcalUrl);
+        setCallBookedCase(bookedDetails);
+      } else {
+        setCallError('Unable to schedule your call right now. Please try again.');
+      }
+    } catch {
+      setCallError('Network error while scheduling your call. Please check your connection.');
+    } finally {
+      setIsCallSubmitting(false);
     }
   };
 
+  const handleAuditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!urlInput.trim() || !nameInput.trim() || !emailInput.trim()) return;
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    const generatedCaseId = `PW-${Math.floor(100000 + Math.random() * 900000)}`;
+    const cleanName = nameInput.trim();
+    const cleanEmail = emailInput.trim();
+    const cleanUrl = urlInput.trim();
+    const cleanCompany = companyInput.trim();
+    const cleanContext = contextInput.trim();
+
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/xboxdhia089@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          _subject: `New PostWipe Audit Request (${generatedCaseId}) - ${cleanName}`,
+          Case_Reference: generatedCaseId,
+          Client_Name: cleanName,
+          Work_Email: cleanEmail,
+          Target_Reddit_URL: cleanUrl,
+          Removal_Scope_Preference:
+            removalScope === 'full-thread' ? 'Full Thread Deletion + Search De-Index' : 'Targeted Comment / Mention Wipe',
+          Company_Or_Brand: cleanCompany || 'Not provided',
+          Context_Details: cleanContext || 'Not provided',
+          _template: 'table',
+        }),
+      });
+
+      if (response.ok) {
+        setSubmittedCase({
+          caseId: generatedCaseId,
+          name: cleanName,
+          email: cleanEmail,
+          url: cleanUrl,
+          company: cleanCompany,
+          context: cleanContext,
+        });
+      } else {
+        setSubmitError('Something went wrong submitting your request. Please try again or reach out via support@postwipe.com.');
+      }
+    } catch {
+      setSubmitError('Network error while submitting your request. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const activeWhatsAppUrl = buildWhatsAppUrl(submittedCase);
+
   return (
-    <div className="min-h-screen bg-[#080C14] text-[#F8FAFC] flex flex-col selection:bg-emerald-500/30 selection:text-white">
-      {/* Top Bar Contract: 3 Zones — Compact on mobile so first screen fits comfortably */}
-      <header className="sticky top-0 z-40 h-14 sm:h-16 bg-[#080C14]/95 backdrop-blur-md border-b border-slate-800/80">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
-          {/* Zone 1: Brand lockup */}
-          <a
-            href="#"
-            className="inline-flex items-center gap-2 font-display text-lg sm:text-xl font-bold tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
-          >
-            <img
-              src="/favicon.svg"
-              alt="PostWipe Logo"
-              className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg shrink-0"
-            />
-            <span>PostWipe</span>
-            <span className="hidden sm:inline-block text-xs font-mono font-medium text-slate-400 pl-1">
-              postwipe.com
-            </span>
+    <div className="min-h-screen flex flex-col bg-white text-[#111827] selection:bg-blue-600/15 selection:text-blue-950">
+      {/* Sticky Header with User's PostWipe Logo */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+          {/* PostWipe Brand Logo */}
+          <a href="#" className="flex items-center gap-3 group focus:outline-none">
+            <PostWipeLogoMark className="w-10 h-10 shadow-md shadow-blue-600/20 group-hover:scale-105 transition-transform" />
+            <div className="flex flex-col">
+              <span className="font-display text-2xl font-extrabold tracking-tight text-[#111827] leading-none">
+                Post<span className="text-[#2563EB]">Wipe</span>
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-gray-500 mt-0.5">
+                Reddit Removal &amp; De-Indexing
+              </span>
+            </div>
           </a>
 
-          {/* Zone 2: Clean navigation links */}
-          <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-slate-300">
-            <a
-              href="#trust-verification"
-              className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap"
-            >
-              Escrow &amp; Process
+          {/* Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-8 text-[14px] font-semibold text-gray-600">
+            <a href="#why-postwipe" className="hover:text-[#2563EB] transition-colors">
+              Why Reddit Hurts
             </a>
-            <a
-              href="#capabilities"
-              className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap"
-            >
-              Why PostWipe
+            <a href="#removal-options" className="hover:text-[#2563EB] transition-colors">
+              Removal Scope
             </a>
-            <a
-              href="#case-studies"
-              className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap"
-            >
+            <a href="#escrow-workflow" className="hover:text-[#2563EB] transition-colors">
+              Escrow Process
+            </a>
+            <a href="#case-results" className="hover:text-[#2563EB] transition-colors">
               Case Studies
             </a>
-            <a
-              href="#faq"
-              className="hover:text-white hover:underline underline-offset-4 transition-colors whitespace-nowrap"
-            >
+            <a href="#faq" className="hover:text-[#2563EB] transition-colors">
               FAQ
             </a>
           </nav>
 
-          {/* Zone 3: Top Action CTA */}
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => scrollToAuditForm()}
-              className="px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080C14] focus-visible:ring-emerald-400"
+          {/* Header Action Area */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <a
+              href="#audit-form"
+              className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-[14px] px-5 py-2.5 rounded-xl shadow-sm shadow-blue-600/20 hover:shadow-md transition-all cursor-pointer"
             >
-              Submit a Link for Review
-            </button>
+              <span>Free 12h Link Audit</span>
+              <ArrowRight className="w-4 h-4 text-blue-100" />
+            </a>
           </div>
         </div>
       </header>
 
       <main className="flex-1">
-        {/* 1. FIRST SCREEN / ABOVE-THE-FOLD HERO SECTION
-            Engineered to fit Headline + 2 Supporting Lines + CTA Button + Adjacent Pricing/Escrow Terms + 3 Trust Elements comfortably on mobile & desktop */}
-        <section className="relative pt-4 pb-6 sm:pt-10 sm:pb-12 lg:pt-12 lg:pb-14 border-b border-slate-800/80 overflow-hidden">
+        {/* =========================================================
+            SECTION 1: HERO — CLEAR VALUE PROPOSITION + ESCROW + LIVE 404 CONSOLE
+           ========================================================= */}
+        <section className="relative pt-10 pb-20 lg:pt-16 lg:pb-24 overflow-hidden bg-gradient-to-b from-[#F4F6FB] to-white pw-grid-bg border-b border-gray-200">
+          {/* Soft ambient cobalt-indigo glow */}
           <div
+            className="pointer-events-none absolute -top-24 right-1/4 w-[520px] h-[520px] rounded-full bg-blue-500/10 blur-3xl"
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(16,185,129,0.12),transparent)]"
           />
 
-          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6">
-            <div className="max-w-4xl mx-auto flex flex-col items-center text-center space-y-3.5 sm:space-y-5">
-              {/* Top Kicker */}
-              <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs sm:text-sm font-mono font-bold text-slate-200">
-                <span className="text-emerald-400">For Founders &amp; SaaS Operators</span>
-                <span aria-hidden="true" className="text-slate-600">·</span>
-                <span>Escrow.com Protected</span>
-                <span aria-hidden="true" className="text-slate-600">·</span>
-                <span>Mutual NDA Standard</span>
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+              {/* Left Column: Core Pitch, Pricing + Escrow, 3 Trust Pillars */}
+              <div className="lg:col-span-7">
+                {/* Category Pill */}
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-bold tracking-wide uppercase mb-6 shadow-2xs">
+                  <ShieldCheck className="w-4 h-4 text-[#2563EB] shrink-0" />
+                  <span>Corporate Policy Escalation • No Moderator Begging</span>
+                </div>
+
+                {/* Main Headline */}
+                <h1 className="font-display text-[38px] sm:text-[50px] lg:text-[56px] font-extrabold text-[#111827] tracking-tight leading-[1.05] mb-6">
+                  Permanently Erase Defamatory <span className="pw-hl">Reddit Threads</span> &amp; Google Search Snippets.
+                </h1>
+
+                {/* Two concise supporting lines explaining who it's for, what is removed/de-indexed, and Escrow terms */}
+                <div className="space-y-3 text-[16px] sm:text-[17.5px] text-gray-600 leading-relaxed max-w-2xl mb-8">
+                  <p>
+                    Built for <strong className="text-[#111827] font-semibold">founders, SaaS operators, and executives</strong>: we remove damaging Reddit posts and comments at the source and de-index dead links from <strong className="text-[#111827] font-semibold">Google, Bing, ChatGPT, and Perplexity</strong>.
+                  </p>
+                  <p>
+                    Every engagement is protected by <strong className="text-[#111827] font-semibold">Escrow.com</strong>, where your deposit stays locked and is <span className="underline decoration-[#2563EB] decoration-2 underline-offset-4 font-semibold text-[#111827]">released only after delete verification</span>.
+                  </p>
+                </div>
+
+                {/* Primary CTA + Schedule a Call + Pricing & Escrow Terms */}
+                <div className="space-y-4 mb-9">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3.5">
+                    <a
+                      href="#audit-form"
+                      className="inline-flex items-center justify-center gap-3 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-[16px] px-7 py-4 rounded-xl shadow-lg shadow-blue-600/25 hover:shadow-blue-600/35 transition-all cursor-pointer shrink-0"
+                    >
+                      <span>Submit Reddit Link for Audit</span>
+                      <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCallBookedCase(null);
+                        setCallStep('slot');
+                        setIsCallModalOpen(true);
+                      }}
+                      className="inline-flex items-center justify-center gap-2.5 bg-white hover:bg-blue-50/60 text-[#111827] font-extrabold text-[15.5px] px-6 py-4 rounded-xl border-2 border-blue-200 hover:border-[#2563EB] shadow-2xs transition-all cursor-pointer shrink-0"
+                    >
+                      <Video className="w-5 h-5 text-[#2563EB]" />
+                      <span>Schedule a Call (Google Meet)</span>
+                    </button>
+                  </div>
+
+                  {/* Pricing + Escrow Badge directly beneath/beside CTA */}
+                  <div className="inline-flex items-center gap-3.5 bg-white px-4 py-3 rounded-xl border border-blue-200/90 shadow-2xs">
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
+                      <Lock className="w-5 h-5 text-[#2563EB]" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-display font-extrabold text-[15px] text-[#111827]">
+                          Starts from $300
+                        </span>
+                        <span className="text-[11px] font-mono font-semibold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                          Escrow.com
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                        Released only after delete verification • $0 if unsuccessful
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3 First-Screen Trust Elements */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-6 border-t border-gray-200">
+                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-bold text-[#111827]">Escrow.com Protected</div>
+                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                        Funds held safely until target URL is permanently deleted.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                      <FileCheck2 className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-bold text-[#111827]">Source + SERP Wipe</div>
+                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                        Deletes Reddit source &amp; purges Google / AI search cache.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                      <Scale className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-bold text-[#111827]">Direct Policy Escalation</div>
+                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                        100% NDA compliance via internal Trust &amp; Safety filings.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Requirement 1: Strong Primary H1 Headline + Two Clear Supporting Lines */}
-              <h1 className="font-display text-2xl sm:text-4xl lg:text-[46px] font-bold text-white leading-[1.12] tracking-tight max-w-3xl">
-                Remove Negative Reddit Threads &amp; Damaging Search Results. Pay Only After Verified Removal.
-              </h1>
+              {/* Right Column: Clean Light-Mode Interactive 404 & SERP Verification Console */}
+              <div className="lg:col-span-5">
+                <div className="bg-white text-[#111827] rounded-2xl border-2 border-blue-100 shadow-xl shadow-blue-900/5 overflow-hidden">
+                  {/* Console Top Bar */}
+                  <div className="px-5 py-3.5 bg-[#F4F6FB] border-b border-gray-200 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                      <span className="ml-2 font-mono text-[11px] text-gray-500 font-semibold">
+                        postwipe://live-verification
+                      </span>
+                    </div>
 
-              <div className="space-y-1.5 sm:space-y-2 max-w-3xl text-xs sm:text-base text-slate-200 leading-snug sm:leading-relaxed">
-                {/* Supporting Line 1: Who the service is for + what gets removed or de-indexed */}
-                <p className="font-medium">
-                  Built for <strong className="text-white font-semibold">SaaS operators, founders, and executive teams</strong>: we permanently remove defamatory or rule breaking <strong className="text-white font-semibold">Reddit threads and comments</strong> at the platform level and de-index dead links from <strong className="text-white font-semibold">Google Search, ChatGPT, Perplexity, and Gemini</strong>.
-                </p>
-                {/* Supporting Line 2: Payment held in escrow and only released after successful verification */}
-                <p className="font-medium text-slate-300">
-                  Your payment is held safely in <strong className="text-emerald-400 font-semibold">Escrow.com</strong> and is <strong className="text-white font-semibold">released only after delete verification</strong> once the thread is permanently deleted and wiped from search engine results.
-                </p>
-              </div>
-
-              {/* Requirement 2 & 3: Action-Oriented CTA Button + Visible Pricing & Escrow Terms Displayed Right Next to the Main Button */}
-              <div className="w-full max-w-3xl pt-1">
-                <form
-                  onSubmit={handleQuickAuditSubmit}
-                  className="bg-[#0F1623] border border-slate-700/90 rounded-xl p-2.5 sm:p-3.5 shadow-lg"
-                >
-                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5 sm:gap-3">
-                    {/* Optional quick URL input + Primary CTA Button */}
-                    <div className="flex flex-col sm:flex-row flex-1 gap-2">
-                      <input
-                        type="text"
-                        value={quickUrl}
-                        onChange={(e) => setQuickUrl(e.target.value)}
-                        placeholder="Paste Reddit or Google URL (optional)..."
-                        aria-label="Reddit or Google URL to submit for review"
-                        className="w-full sm:flex-1 h-10 sm:h-12 px-3 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-xs sm:text-sm font-medium text-white placeholder-slate-400 font-mono focus:outline-none transition-colors"
-                      />
+                    {/* Interactive Before / After State Toggle */}
+                    <div className="inline-flex rounded-lg bg-white p-0.5 border border-gray-200 text-[11px] font-mono">
                       <button
-                        type="submit"
-                        className="h-10 sm:h-12 px-4 sm:px-5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs sm:text-sm font-bold rounded-lg transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer shadow-sm"
+                        type="button"
+                        onClick={() => setPreviewMode('before')}
+                        className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                          previewMode === 'before'
+                            ? 'bg-rose-50 text-rose-700 font-bold border border-rose-200'
+                            : 'text-gray-500 hover:text-gray-900'
+                        }`}
                       >
-                        <span>Submit a Link for Free Review</span>
-                        <ArrowRight className="w-4 h-4 shrink-0" />
+                        Before
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewMode('after')}
+                        className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                          previewMode === 'after'
+                            ? 'bg-[#2563EB] text-white font-bold'
+                            : 'text-gray-500 hover:text-gray-900'
+                        }`}
+                      >
+                        After Removal
                       </button>
                     </div>
+                  </div>
 
-                    {/* Visible Pricing Details & Escrow Terms Right Next to Main Button */}
-                    <div className="lg:border-l lg:border-slate-800 lg:pl-3.5 flex flex-row lg:flex-col items-center justify-between lg:justify-center lg:items-start text-left gap-2 px-1 py-0.5">
-                      <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white whitespace-nowrap">
-                        <span className="text-emerald-400 font-mono">Starts from $300</span>
-                        <span aria-hidden="true" className="text-slate-500">·</span>
-                        <span>$0 Upfront Risk</span>
+                  {/* Console Body */}
+                  <div className="p-5 sm:p-6 space-y-4">
+                    {/* 1. Target Reddit Thread Card */}
+                    <div
+                      className={`rounded-xl p-4 border transition-all ${
+                        previewMode === 'after'
+                          ? 'bg-blue-50/50 border-blue-200'
+                          : 'bg-rose-50/50 border-rose-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
+                        <span className="font-mono text-[11px] text-gray-500 truncate">
+                          reddit.com/r/SaaS/comments/1x9k2a/avoid_acme_software...
+                        </span>
+                        {previewMode === 'after' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#2563EB] text-white font-mono text-[10px] font-bold shrink-0">
+                            PERMANENTLY DELETED
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-200 font-mono text-[10px] font-bold shrink-0">
+                            RANKING #2 ON GOOGLE
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[11px] sm:text-xs font-medium text-slate-300 leading-tight">
-                        Held in <strong className="text-white font-semibold">Escrow.com</strong> · Released only after delete verification
+
+                      {previewMode === 'after' ? (
+                        <div className="space-y-2">
+                          <div className="relative inline-block">
+                            <p className="text-sm font-semibold text-gray-400 line-through">
+                              Avoid AcmeCloud: deceptive billing &amp; terrible support [248 upvotes]
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-blue-900 font-mono bg-blue-100/80 border border-blue-200 rounded-lg px-3 py-2">
+                            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#2563EB]" />
+                            <span>[removed by Reddit in response to policy violation]</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-gray-900">
+                            Avoid AcmeCloud: deceptive billing &amp; terrible support [248 upvotes]
+                          </p>
+                          <p className="text-xs text-rose-700">
+                            89 comments • Appearing in Google page-1 search &amp; AI summaries for &ldquo;AcmeCloud reviews&rdquo;
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 2. Search Engine & AI Citation Status */}
+                    <div className="rounded-xl bg-[#F4F6FB] border border-gray-200 p-4">
+                      <div className="text-[11px] font-mono uppercase tracking-wider text-gray-500 mb-3 flex items-center justify-between">
+                        <span>Search &amp; AI Index Propagation</span>
+                        <span className="text-[#2563EB] font-bold">
+                          {previewMode === 'after' ? '3 / 3 PURGED' : 'EXPOSED'}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2.5 text-xs">
+                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200">
+                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                            <Globe className="w-3.5 h-3.5 text-[#2563EB]" />
+                            Google Search &amp; Cached Snippet
+                          </span>
+                          {previewMode === 'after' ? (
+                            <span className="font-mono text-[11px] text-[#2563EB] font-bold">
+                              De-Indexed (Cache Purged)
+                            </span>
+                          ) : (
+                            <span className="font-mono text-[11px] text-rose-600 font-bold">
+                              Indexed on Page 1
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200">
+                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                            <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" />
+                            ChatGPT &amp; Perplexity Brand Summary
+                          </span>
+                          {previewMode === 'after' ? (
+                            <span className="font-mono text-[11px] text-[#2563EB] font-bold">
+                              Citation Cleared
+                            </span>
+                          ) : (
+                            <span className="font-mono text-[11px] text-rose-600 font-bold">
+                              Actively Cited
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                            <Lock className="w-3.5 h-3.5 text-[#2563EB]" />
+                            Escrow.com Milestone Status
+                          </span>
+                          {previewMode === 'after' ? (
+                            <span className="font-mono text-[11px] bg-blue-100 text-blue-900 px-2 py-0.5 rounded border border-blue-200 font-bold">
+                              VERIFIED &amp; RELEASED
+                            </span>
+                          ) : (
+                            <span className="font-mono text-[11px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-200 font-bold">
+                              LOCKED IN ESCROW
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </form>
-              </div>
 
-              {/* Requirement 4 & 5: Trust Elements on First Screen Explaining:
-                  1) Escrow Provider Used, 2) How Verification & Removal Works, 3) Who Is Behind the Agency
-                  Compact responsive grid so mobile users see all 3 immediately without scrolling past empty space */}
-              <div
-                id="trust-verification"
-                className="w-full pt-1 sm:pt-2 grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3.5 text-left"
-              >
-                {/* Trust Element 1: Escrow Provider Used */}
-                <div className="bg-[#0F1623]/90 border border-slate-800/90 rounded-lg p-3 sm:p-4 flex items-start gap-2.5">
-                  <Lock className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <div className="space-y-0.5">
-                    <div className="text-xs sm:text-sm font-bold text-white">
-                      Escrow.com Buyer Protection
+                    {/* Console Bottom Status Strip */}
+                    <div className="flex items-center justify-between text-[11px] font-mono text-gray-500 pt-1">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
+                        90-Day Re-Post Protection Included
+                      </span>
+                      <a href="#audit-form" className="text-[#2563EB] hover:underline font-bold">
+                        Check Your URL →
+                      </a>
                     </div>
-                    <p className="text-[11px] sm:text-xs font-medium text-slate-300 leading-snug">
-                      All engagements use licensed <strong className="text-white">Escrow.com</strong> milestone accounts. Funds remain locked until you confirm the URL is deleted; 100% refunded if not removed.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Trust Element 2: How Verification & Removal Works */}
-                <div className="bg-[#0F1623]/90 border border-slate-800/90 rounded-lg p-3 sm:p-4 flex items-start gap-2.5">
-                  <FileCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <div className="space-y-0.5">
-                    <div className="text-xs sm:text-sm font-bold text-white">
-                      Corporate Escalation &amp; Delete Verification
-                    </div>
-                    <p className="text-[11px] sm:text-xs font-medium text-slate-300 leading-snug">
-                      We never message subreddit mods. We file sitewide policy &amp; legal briefs with Reddit Trust &amp; Safety, complete delete verification, and purge Google/AI caches in 24 to 72 hrs.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Trust Element 3: Who Is Behind the Agency */}
-                <div className="bg-[#0F1623]/90 border border-slate-800/90 rounded-lg p-3 sm:p-4 flex items-start gap-2.5">
-                  <Users className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <div className="space-y-0.5">
-                    <div className="text-xs sm:text-sm font-bold text-white">
-                      Ex-Platform Policy &amp; Search Specialists
-                    </div>
-                    <p className="text-[11px] sm:text-xs font-medium text-slate-300 leading-snug">
-                      Founded by US-based former platform compliance analysts and search de-indexing engineers. 480+ threads removed for YC startups and SaaS operators under NDA.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Compact Verified Benchmark Strip */}
-              <div className="w-full pt-2 sm:pt-4 border-t border-slate-800/70 grid grid-cols-4 gap-2 sm:gap-6 text-center">
-                <div>
-                  <div className="font-display text-base sm:text-2xl font-bold text-white tabular-nums">
-                    94.2%
-                  </div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-300">
-                    Removal rate
-                  </div>
-                </div>
-                <div>
-                  <div className="font-display text-base sm:text-2xl font-bold text-white tabular-nums">
-                    9.4 Days
-                  </div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-300">
-                    Avg turnaround
-                  </div>
-                </div>
-                <div>
-                  <div className="font-display text-base sm:text-2xl font-bold text-emerald-400 tabular-nums">
-                    From $300
-                  </div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-300">
-                    Held in escrow
-                  </div>
-                </div>
-                <div>
-                  <div className="font-display text-base sm:text-2xl font-bold text-white tabular-nums">
-                    12 Hrs
-                  </div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-300">
-                    Free link audit
                   </div>
                 </div>
               </div>
@@ -577,918 +761,1196 @@ export default function App() {
           </div>
         </section>
 
-        {/* 2. DEEP-DIVE TRUST: ESCROW, VERIFICATION & TEAM */}
-        <section id="capabilities" className="py-16 lg:py-20 border-b border-slate-800/80">
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-10">
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-              <div className="max-w-2xl space-y-2">
-                <p className="text-xs sm:text-sm font-bold font-mono text-emerald-400">
-                  Why SaaS Operators &amp; Founders Choose PostWipe
-                </p>
-                <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
-                  We Don’t Publish Fluff Blog Posts to &ldquo;Bury&rdquo; Bad Press. We Delete the Source.
-                </h2>
+        {/* =========================================================
+            SECTION 2: WHY NEGATIVE REDDIT THREADS HURT FOUNDERS & SAAS
+           ========================================================= */}
+        <section id="why-postwipe" className="py-20 bg-white border-b border-gray-200">
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mb-14">
+              <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
+                01 // THE REPUTATION BOTTLENECK
               </div>
-
-              <div className="flex items-center gap-1 p-1 bg-[#0F1623] border border-slate-800 rounded-lg self-start">
-                <button
-                  type="button"
-                  onClick={() => setComparisonMode('postwipe')}
-                  className={`px-3.5 py-1.5 text-xs sm:text-sm font-bold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                    comparisonMode === 'postwipe'
-                      ? 'bg-emerald-400 text-slate-950'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  PostWipe Escrow Model
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setComparisonMode('traditional')}
-                  className={`px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                    comparisonMode === 'traditional'
-                      ? 'bg-slate-800 text-white'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  vs. Traditional PR Retainers
-                </button>
-              </div>
-            </div>
-
-            {comparisonMode === 'traditional' ? (
-              <div className="bg-[#0F1623] border border-slate-800 rounded-xl p-6 sm:p-7 grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-3.5">
-                  <div className="text-xs font-bold font-mono text-rose-400">
-                    The Old Reputation Management Trap
-                  </div>
-                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">
-                    Why Paying an SEO Agency to Outrank Reddit Fails
-                  </h3>
-                  <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-slate-300">
-                    <li className="flex items-start gap-2.5">
-                      <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                      <span>
-                        Locks you into $5,000+/month upfront retainers with zero guarantee of ever removing the Reddit post.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                      <span>
-                        Publishes generic Medium articles and press releases that never outrank Reddit’s domain authority on Google.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <X className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                      <span>
-                        Leaves the thread live, so ChatGPT, Perplexity, and Gemini keep citing it when prospects research your company.
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="space-y-3.5 md:border-l md:border-slate-800 md:pl-8">
-                  <div className="text-xs font-bold font-mono text-emerald-400">
-                    The PostWipe Standard
-                  </div>
-                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">
-                    Permanent Removal Starting from $300. Held in Escrow.com.
-                  </h3>
-                  <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-slate-200">
-                    <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>
-                        100% Pay on Success: Funds stay in Escrow.com and are released only after verified removal and search de-indexing.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>
-                        Escalates directly to Reddit’s internal policy and legal teams without ever contacting biased subreddit moderators.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>
-                        Purges the dead link from Google and Bing caches so AI search engines drop it within 24 to 72 hours.
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            ) : null}
-
-            {/* Asymmetric Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-              <div className="md:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
-                <div className="space-y-2.5">
-                  <div className="text-xs font-bold font-mono text-emerald-400">
-                    01. Escrow.com Protection &amp; Pricing
-                  </div>
-                  <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
-                    Starting from $300. Locked in Escrow Until Verified.
-                  </h3>
-                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
-                    We never charge audit fees, setup retainers, or upfront deposits to PostWipe. After reviewing your link, we give you a fixed flat quote starting from $300. Funds are deposited with <strong className="text-white">Escrow.com</strong> (licensed &amp; audited escrow provider) and are only disbursed after you independently verify that the Reddit post is deleted and de-indexed from Google.
-                  </p>
-                </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-300">
-                  <span className="text-emerald-400 font-bold">Starts from $300</span>
-                  <span aria-hidden="true">·</span>
-                  <span className="text-white font-bold">Escrow.com Protected</span>
-                  <span aria-hidden="true">·</span>
-                  <span>90 Day Repost Warranty</span>
-                </div>
-              </div>
-
-              <div className="md:col-span-5 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
-                <div className="space-y-2.5">
-                  <div className="text-xs font-bold font-mono text-emerald-400">
-                    02. Who Is Behind PostWipe
-                  </div>
-                  <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
-                    Former Trust &amp; Safety &amp; Search Specialists
-                  </h3>
-                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
-                    Our team consists of US-based former platform policy specialists, defamation paralegals, and search index engineers. We know exactly how Reddit’s internal Content Policy, trademark rules, and harassment escalations are adjudicated behind the scenes.
-                  </p>
-                </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-300">
-                  <span className="text-white font-bold">480+ SaaS &amp; Founder Cases</span>
-                  <span aria-hidden="true">·</span>
-                  <span>Mutual NDA Standard</span>
-                </div>
-              </div>
-
-              <div className="md:col-span-5 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
-                <div className="space-y-2.5">
-                  <div className="text-xs font-bold font-mono text-emerald-400">
-                    03. Zero Streisand Effect Risk
-                  </div>
-                  <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
-                    No Moderator Begging or Public Replies
-                  </h3>
-                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
-                    Messaging volunteer subreddit mods or replying in the thread almost always backfires when mods screenshot your message and pin it publicly. We operate 100% through corporate compliance channels with zero contact with local moderators or posters.
-                  </p>
-                </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-300 tabular-nums">
-                  <span className="text-white font-bold">12 Hr Link Audit</span>
-                  <span aria-hidden="true">·</span>
-                  <span>7 to 14 Days Typical Resolution</span>
-                </div>
-              </div>
-
-              <div className="md:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
-                <div className="space-y-2.5">
-                  <div className="text-xs font-bold font-mono text-emerald-400">
-                    04. Verification &amp; Search De-Indexing
-                  </div>
-                  <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
-                    Wiped from Google, ChatGPT, Perplexity &amp; Gemini
-                  </h3>
-                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
-                    Google’s data partnership with Reddit ranks forum threads at the top of branded searches, and LLMs pull directly from those links. Once Reddit permanently deletes the thread, we complete delete verification and execute expedited cache purges on Google and Bing so the snippet vanishes from search results and AI answers before escrow is released.
-                  </p>
-                </div>
-                <div className="pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-300">
-                  <span className="text-white font-bold">Delete Verification</span>
-                  <span aria-hidden="true">·</span>
-                  <span>Google Cache Removal</span>
-                  <span aria-hidden="true">·</span>
-                  <span>AI Citation Purge</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 3. HOW VERIFICATION & REMOVAL WORKS */}
-        <section id="process" className="py-16 lg:py-20 border-b border-slate-800/80">
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-10">
-            <div className="max-w-2xl space-y-2">
-              <p className="text-xs sm:text-sm font-bold font-mono text-emerald-400">
-                Verification &amp; Removal Workflow
-              </p>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
-                How Our Escrow-Backed Removal Process Works
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] mb-4">
+                Why One Hostile Reddit Thread Quietly Destroys High-Intent Deals
               </h2>
-              <p className="text-sm font-medium text-slate-300">
-                Clear milestones, transparent verification, and zero upfront risk from day one.
+              <p className="text-gray-600 text-[16.5px] leading-relaxed">
+                Google’s search algorithm now prioritizes Reddit discussions above review sites, while AI engines scrape those exact threads to answer buyer due-diligence queries.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 flex flex-col justify-between space-y-5">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs font-bold font-mono">
-                    <span className="text-emerald-400">01. Link Review &amp; Quote</span>
-                    <span className="text-slate-300 tabular-nums">Within 12 Hours</span>
-                  </div>
-                  <h3 className="font-display text-lg font-bold text-white">
-                    Submit Your Link Under NDA
-                  </h3>
-                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
-                    Submit the offending Reddit URL or search result. Within 12 hours, our policy specialists audit the thread against Reddit’s sitewide rules and send a fixed quote (starting from $300) plus a signed Mutual NDA.
-                  </p>
+              <div className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200">
+                <div className="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 flex items-center justify-center mb-5">
+                  <Search className="w-5 h-5" />
                 </div>
-                <div className="pt-3.5 border-t border-slate-800/80 text-xs font-semibold text-slate-300">
-                  Deliverable: Written feasibility audit + fixed quote
+                <div className="font-mono text-xs font-bold text-rose-600 uppercase mb-1.5">
+                  Google SERP Priority
+                </div>
+                <h3 className="font-display text-xl font-bold text-[#111827] mb-3">
+                  Pinned to Page 1 for “[Brand] Reviews”
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Because Google treats Reddit as high-authority user-generated content, a single thread from an angry ex-employee, competitor, or troll often outranks your own website and G2/Trustpilot profiles.
+                </p>
+              </div>
+
+              <div className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200">
+                <div className="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 flex items-center justify-center mb-5">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div className="font-mono text-xs font-bold text-indigo-600 uppercase mb-1.5">
+                  AI Search Contamination
+                </div>
+                <h3 className="font-display text-xl font-bold text-[#111827] mb-3">
+                  Repeated as “Fact” by ChatGPT &amp; Perplexity
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  When prospects ask ChatGPT, Gemini, or Perplexity whether your company is trustworthy, LLMs synthesize unverified Reddit accusations directly into their buying recommendations.
+                </p>
+              </div>
+
+              <div className="pw-card bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] text-white rounded-2xl p-7 border border-blue-700 shadow-lg">
+                <div className="w-11 h-11 rounded-xl bg-white/15 border border-white/25 text-white flex items-center justify-center mb-5">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div className="font-mono text-xs font-bold text-blue-200 uppercase mb-1.5">
+                  The PostWipe Solution
+                </div>
+                <h3 className="font-display text-xl font-bold text-white mb-3">
+                  Corporate Escalation with Zero Streisand Effect
+                </h3>
+                <p className="text-blue-100 text-sm leading-relaxed">
+                  Messaging volunteer subreddit mods often gets your DM screenshotted and pinned to the top of the thread. We bypass moderators entirely and file directly through corporate policy &amp; legal channels.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            SECTION 3: TWO REMOVAL SCOPES (COMMENT WIPE VS FULL THREAD 404)
+           ========================================================= */}
+        <section id="removal-options" className="py-20 bg-[#F4F6FB] border-b border-gray-200">
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
+              <div className="max-w-2xl">
+                <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
+                  02 // SURGICAL SCOPE SELECTION
+                </div>
+                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827]">
+                  Choose the Right Removal Scope for Your Situation
+                </h2>
+              </div>
+              <p className="text-gray-600 text-sm max-w-md">
+                Not every thread needs the same intervention. During your free 12-hour audit, we map out whether surgical comment deletion or full thread removal will best protect your search footprint.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Scope A: Targeted Comment / Mention Wipe */}
+              <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-3 mb-6">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-gray-100 text-gray-800 font-mono text-xs font-bold">
+                      <MessageSquareOff className="w-4 h-4 text-[#2563EB]" />
+                      OPTION A • TARGETED COMMENT WIPE
+                    </span>
+                    <span className="font-mono text-xs font-semibold text-gray-500">
+                      Starts from $300
+                    </span>
+                  </div>
+
+                  <h3 className="font-display text-2xl font-extrabold text-[#111827] mb-3">
+                    Surgical Comment &amp; Brand Mention Removal
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                    Ideal when the main Reddit post is a general industry discussion (e.g., <em>&ldquo;What CRM do you use?&rdquo;</em>) and a specific reply attacks your company, leaks confidential info, or spreads false claims.
+                  </p>
+
+                  {/* Visual Mockup of Comment Wipe */}
+                  <div className="bg-[#F4F6FB] rounded-xl p-4 border border-gray-200 mb-6 space-y-2.5 font-mono text-xs">
+                    <div className="text-gray-500 flex items-center justify-between">
+                      <span>Root Thread: &ldquo;Best tools for Q4?&rdquo;</span>
+                      <span className="text-gray-400">Remains Intact</span>
+                    </div>
+                    <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-950 flex items-center justify-between">
+                      <span className="line-through text-gray-400">
+                        u/competitor_bot: &ldquo;Stay away from [Your Brand]...&rdquo;
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-[#2563EB] text-white text-[10px] font-bold">
+                        WIPED
+                      </span>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-3 text-sm text-gray-700 mb-8">
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-4 h-4 text-[#2563EB] shrink-0 mt-1" />
+                      <span>Eliminates specific defamatory comments or nested reply chains</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-4 h-4 text-[#2563EB] shrink-0 mt-1" />
+                      <span>Zero disruption to neutral community threads</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-4 h-4 text-[#2563EB] shrink-0 mt-1" />
+                      <span>Protected by Escrow.com and released only after comment deletion</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <a
+                  href="#audit-form"
+                  onClick={() => setRemovalScope('comment-only')}
+                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm transition-colors"
+                >
+                  <span>Audit a Specific Reddit Comment</span>
+                  <ArrowRight className="w-4 h-4 text-blue-300" />
+                </a>
+              </div>
+
+              {/* Scope B: Full Thread Wipe + Google & AI De-Index */}
+              <div className="bg-white rounded-2xl border-2 border-[#2563EB] p-8 shadow-xl shadow-blue-600/10 relative flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-3 mb-6">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-50 text-[#2563EB] border border-blue-200 font-mono text-xs font-bold">
+                      <Zap className="w-4 h-4 text-[#2563EB]" />
+                      OPTION B • FULL THREAD + SERP WIPE
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#2563EB] text-white font-mono text-[11px] font-extrabold uppercase">
+                      Most Requested
+                    </span>
+                  </div>
+
+                  <h3 className="font-display text-2xl font-extrabold text-[#111827] mb-3">
+                    Complete Thread Deletion + Google &amp; AI De-Indexing
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                    Required when the Reddit thread title itself contains your brand or executive name alongside damaging keywords and ranks on Page 1 of Google or appears in ChatGPT/Perplexity answers.
+                  </p>
+
+                  {/* Visual Mockup of Full Thread Wipe */}
+                  <div className="bg-blue-50/60 rounded-xl p-4 border border-blue-200 mb-6 space-y-2.5 font-mono text-xs">
+                    <div className="flex items-center justify-between text-[#1E3A8A]">
+                      <span className="font-semibold">Root Thread URL Status:</span>
+                      <span className="px-2 py-0.5 rounded bg-[#2563EB] text-white font-bold">
+                        PERMANENTLY DELETED
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white border border-blue-200 text-gray-700 flex items-center justify-between">
+                      <span>Google SERP &amp; AI Search Cache:</span>
+                      <span className="text-[#2563EB] font-bold">DE-INDEXED IN 24 TO 72H</span>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-3 text-sm text-gray-700 mb-8">
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-4 h-4 text-[#2563EB] shrink-0 mt-1" />
+                      <span>Permanently deletes the entire root Reddit thread &amp; all comments</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-4 h-4 text-[#2563EB] shrink-0 mt-1" />
+                      <span>Expedited Google &amp; Bing dead-link cache purge included</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-4 h-4 text-[#2563EB] shrink-0 mt-1" />
+                      <span>Escrow.com funds released only after delete verification + 90-day warranty</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <a
+                  href="#audit-form"
+                  onClick={() => setRemovalScope('full-thread')}
+                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-sm transition-colors shadow-lg shadow-blue-600/20"
+                >
+                  <span>Audit a Full Reddit Thread for Removal</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            SECTION 4: 4-STEP ESCROW.COM WORKFLOW
+           ========================================================= */}
+        <section id="escrow-workflow" className="py-20 bg-white border-b border-gray-200">
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto mb-14">
+              <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
+                03 // ZERO-RISK EXECUTION PROTOCOL
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] mb-4">
+                How PostWipe’s Escrow-Protected Removal Process Works
+              </h2>
+              <p className="text-gray-600 text-[16px]">
+                No retainers, no vague “suppression” promises, and zero upfront risk. You only release payment once the target URL is provably gone.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  step: 'STEP 01',
+                  time: 'Within 12 Hours',
+                  title: 'Confidential Policy Audit',
+                  desc: 'Submit your offending Reddit URL below. Our former platform policy specialists analyze the thread against sitewide harassment, defamation, trademark, and PII rules.',
+                },
+                {
+                  step: 'STEP 02',
+                  time: 'Starts from $300',
+                  title: 'Escrow.com Lock-In',
+                  desc: 'Once confirmed actionable, you receive a fixed price quote. Funds are deposited into Escrow.com where they remain locked until deletion is verified.',
+                },
+                {
+                  step: 'STEP 03',
+                  time: 'Days 2 to 10',
+                  title: 'Corporate Policy Escalation',
+                  desc: 'We file formal compliance documentation directly with corporate Trust & Safety and legal teams without ever contacting subreddit moderators.',
+                },
+                {
+                  step: 'STEP 04',
+                  time: '24 to 72h Post-Wipe',
+                  title: 'Delete Verification & De-Index',
+                  desc: 'Once the Reddit URL is permanently deleted, we trigger Google & Bing cache purge requests so AI engines drop the citation, and you authorize Escrow release.',
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="pw-card bg-[#F4F6FB] rounded-2xl p-6 border border-gray-200 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-5">
+                      <span className="font-mono text-xs font-extrabold px-2.5 py-1 rounded bg-[#2563EB] text-white">
+                        {item.step}
+                      </span>
+                      <span className="font-mono text-[11px] text-gray-500 font-semibold">
+                        {item.time}
+                      </span>
+                    </div>
+                    <h3 className="font-display text-xl font-bold text-[#111827] mb-2.5">
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                  <div className="mt-6 pt-4 border-t border-gray-200/80 flex items-center justify-between text-xs font-mono text-[#2563EB] font-semibold">
+                    <span>NDA Protected</span>
+                    <span>✓ Verified</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            SECTION 5: COMPARISON — POSTWIPE VS DIY MOD APPEALS VS PR AGENCIES
+           ========================================================= */}
+        <section className="py-20 bg-[#F4F6FB] border-b border-gray-200">
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mb-12">
+              <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
+                04 // WHY TRADITIONAL METHODS BACKFIRE
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] mb-3">
+                PostWipe Corporate Escalation vs. Alternatives
+              </h2>
+              <p className="text-gray-600 text-[16px]">
+                Replying in the thread or buying upvotes only boosts engagement velocity, locking the negative post even higher on Google.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200 bg-gray-50 text-xs font-mono uppercase text-gray-500">
+                      <th className="py-4 px-6">Evaluation Criteria</th>
+                      <th className="py-4 px-6 bg-blue-50/80 text-blue-950 font-extrabold border-x border-blue-200">
+                        <div className="flex items-center gap-2">
+                          <PostWipeLogoMark className="w-5 h-5" />
+                          <span>PostWipe Direct Escalation</span>
+                        </div>
+                      </th>
+                      <th className="py-4 px-6">Messaging Subreddit Mods</th>
+                      <th className="py-4 px-6">Traditional ORM / PR Agencies</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 text-sm">
+                    <tr>
+                      <td className="py-4 px-6 font-semibold text-[#111827]">Outcome on Target URL</td>
+                      <td className="py-4 px-6 bg-blue-50/30 border-x border-blue-200/70 font-bold text-[#1E3A8A]">
+                        Permanent Source Deletion + Google De-Index
+                      </td>
+                      <td className="py-4 px-6 text-gray-600">Ignored or publicly mocked by mods</td>
+                      <td className="py-4 px-6 text-gray-600">Leaves thread live; publishes fluff blog posts</td>
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-semibold text-[#111827]">Payment Structure</td>
+                      <td className="py-4 px-6 bg-blue-50/30 border-x border-blue-200/70 font-bold text-[#1E3A8A]">
+                        Starts from $300 • Held in Escrow.com until verified deletion
+                      </td>
+                      <td className="py-4 px-6 text-gray-600">Free, but high brand backfire risk</td>
+                      <td className="py-4 px-6 text-gray-600">$3,000 to $10,000/mo upfront retainers</td>
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-semibold text-[#111827]">Streisand / Backlash Risk</td>
+                      <td className="py-4 px-6 bg-blue-50/30 border-x border-blue-200/70 font-bold text-[#1E3A8A]">
+                        Zero, executed via confidential corporate filings
+                      </td>
+                      <td className="py-4 px-6 text-rose-600 font-medium">
+                        Extreme, mods often pin your DM to the thread
+                      </td>
+                      <td className="py-4 px-6 text-amber-700 font-medium">
+                        High if using fake accounts or downvote bots
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-semibold text-[#111827]">ChatGPT &amp; Perplexity Cleanup</td>
+                      <td className="py-4 px-6 bg-blue-50/30 border-x border-blue-200/70 font-bold text-[#1E3A8A]">
+                        Included via expedited search cache purge
+                      </td>
+                      <td className="py-4 px-6 text-gray-600">None</td>
+                      <td className="py-4 px-6 text-gray-600">Does not remove source citation</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            SECTION 6: VERIFIED CASE STUDIES (FOUNDERS & SAAS)
+           ========================================================= */}
+        <section id="case-results" className="py-20 bg-white border-b border-gray-200">
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+              <div>
+                <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
+                  05 // VERIFIED REMOVAL LEDGER
+                </div>
+                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827]">
+                  Recent Anonymized Reddit Removals
+                </h2>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-50 border border-blue-200 text-xs font-mono text-blue-900 font-semibold">
+                <CheckCircle2 className="w-4 h-4 text-[#2563EB]" />
+                <span>All cases settled via Escrow.com post-verification</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {CASE_STUDIES.map((cs) => (
+                <div
+                  key={cs.id}
+                  className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <span className="font-mono text-xs font-bold px-2.5 py-1 rounded bg-[#1E3A8A] text-white">
+                        CASE {cs.id}
+                      </span>
+                      <span className="font-mono text-xs font-semibold text-[#2563EB] bg-blue-100/80 px-2.5 py-1 rounded">
+                        {cs.timeline}
+                      </span>
+                    </div>
+
+                    <div className="text-xs font-mono text-gray-500 mb-1">{cs.subreddit}</div>
+                    <h3 className="font-display text-lg font-extrabold text-[#111827] mb-3">
+                      {cs.sector}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed mb-5">{cs.issue}</p>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-200 space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500 font-medium">Action Executed:</span>
+                      <span className="font-mono font-bold text-[#111827]">{cs.scope}</span>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-200/80 text-blue-950 font-medium">
+                      {cs.metrics}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            SECTION 7: FREE 12-HOUR CASE AUDIT FORM + INSTANT WHATSAPP FOLLOW-UP
+           ========================================================= */}
+        <section id="audit-form" className="py-20 bg-gradient-to-br from-[#1E3A8A] via-[#1D4ED8] to-[#312E81] text-white border-b border-blue-900">
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+              {/* Left Column: Audit Guarantee & What Happens Next */}
+              <div className="lg:col-span-5 space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono text-xs font-semibold">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>FREE 12-HOUR FEASIBILITY AUDIT</span>
+                </div>
+
+                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+                  Submit Your Target Reddit Link for a Confidential Audit
+                </h2>
+
+                <p className="text-blue-100 text-[15.5px] leading-relaxed">
+                  Paste the offending Reddit thread or comment URL. Within 12 hours, our policy specialists will confirm whether it qualifies for permanent removal and send your fixed Escrow.com quote.
+                </p>
+
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-start gap-3.5 p-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-xs">
+                    <div className="w-9 h-9 rounded-lg bg-white/15 text-white flex items-center justify-center shrink-0 mt-0.5">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white">
+                        Starts from $300 • Held in Escrow.com
+                      </h3>
+                      <p className="text-xs text-blue-100 mt-1 leading-relaxed">
+                        You never pay upfront retainers. Funds are held in Escrow.com and released only after delete verification confirms the link is permanently removed.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3.5 p-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-xs">
+                    <div className="w-9 h-9 rounded-lg bg-white/15 text-white flex items-center justify-center shrink-0 mt-0.5">
+                      <EyeOff className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white">
+                        Strict Non-Disclosure Protection
+                      </h3>
+                      <p className="text-xs text-blue-100 mt-1 leading-relaxed">
+                        Your identity, brand name, and submitted URLs are protected under mutual NDA from the moment you submit this form.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCallBookedCase(null);
+                        setCallStep('slot');
+                        setIsCallModalOpen(true);
+                      }}
+                      className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-xl bg-white hover:bg-blue-50 text-[#1E3A8A] font-extrabold text-sm shadow-lg transition-all cursor-pointer"
+                    >
+                      <Video className="w-4 h-4 text-[#2563EB]" />
+                      <span>Schedule a Google Meet / Strategy Call</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 flex flex-col justify-between space-y-5">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs font-bold font-mono">
-                    <span className="text-emerald-400">02. Escrow &amp; Escalation</span>
-                    <span className="text-slate-300 tabular-nums">Days 1 to 10</span>
-                  </div>
-                  <h3 className="font-display text-lg font-bold text-white">
-                    Escrow Funded &amp; Corporate Filing
-                  </h3>
-                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
-                    Payment is placed in neutral Escrow.com custody. Our team prepares and files a formal compliance brief (covering commercial disparagement, vote manipulation, trademark misuse, or harassment) directly with Reddit admins.
-                  </p>
-                </div>
-                <div className="pt-3.5 border-t border-slate-800/80 text-xs font-semibold text-slate-300">
-                  Deliverable: Direct Trust &amp; Safety escalation
-                </div>
-              </div>
+              {/* Right Column: Interactive Form or Post-Submission Confirmation + WhatsApp Action */}
+              <div className="lg:col-span-7">
+                <div className="bg-white text-[#111827] rounded-2xl p-6 sm:p-9 shadow-2xl border border-blue-100">
+                  {submittedCase ? (
+                    <div className="py-4 space-y-6">
+                      <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-gray-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-xl bg-blue-100 text-[#2563EB] flex items-center justify-center">
+                            <CheckCircle2 className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <span className="font-mono text-xs uppercase font-bold text-[#2563EB]">
+                              Audit Request Logged
+                            </span>
+                            <h3 className="font-display text-2xl font-extrabold text-[#111827]">
+                              Case Reference: {submittedCase.caseId}
+                            </h3>
+                          </div>
+                        </div>
+                        <span className="px-3 py-1 rounded-full bg-blue-50 border border-blue-200 font-mono text-xs font-semibold text-blue-900">
+                          Status: Assigned to Policy Analyst
+                        </span>
+                      </div>
 
-              <div className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 flex flex-col justify-between space-y-5">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs font-bold font-mono">
-                    <span className="text-emerald-400">03. Verification &amp; Release</span>
-                    <span className="text-slate-300 tabular-nums">Days 10 to 14</span>
-                  </div>
-                  <h3 className="font-display text-lg font-bold text-white">
-                    Confirm Removal, Then Release Escrow
-                  </h3>
-                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
-                    Once the thread is deleted at the source, we purge the dead URL from Google, Bing, ChatGPT, and Perplexity. You verify the removal yourself before authorizing Escrow.com to release the funds.
-                  </p>
-                </div>
-                <div className="pt-3.5 border-t border-slate-800/80 text-xs font-semibold text-slate-300">
-                  Deliverable: Delete verification + clean search results + 90 day warranty
+                      {/* Mandatory Exact Confirmation Message */}
+                      <div className="p-5 rounded-xl bg-[#F4F6FB] border border-gray-200 text-gray-700 text-[15px] leading-relaxed font-medium">
+                        Thank you for your submission. If you do not see our email reply within a few hours or if it lands in your spam folder, click below to chat with us instantly on WhatsApp.
+                      </div>
+
+                      {/* Case Summary Box */}
+                      <div className="rounded-xl bg-[#F4F6FB] border border-blue-200 text-gray-800 p-4 font-mono text-xs space-y-1.5">
+                        <div>
+                          <span className="text-gray-500">Client Name:</span>{' '}
+                          <span className="text-[#111827] font-semibold">{submittedCase.name}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Case ID:</span>{' '}
+                          <span className="text-[#2563EB] font-bold">{submittedCase.caseId}</span>
+                        </div>
+                        <div className="truncate">
+                          <span className="text-gray-500">Target URL:</span>{' '}
+                          <span className="text-gray-800">{submittedCase.url}</span>
+                        </div>
+                      </div>
+
+                      {/* Direct WhatsApp Button with Pre-Filled Client Name & Case Reference */}
+                      <div className="space-y-3">
+                        <a
+                          href={activeWhatsAppUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full inline-flex items-center justify-center gap-3 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-base py-4 px-6 rounded-xl shadow-lg transition-all cursor-pointer"
+                        >
+                          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.124.556 4.119 1.528 5.847l-1.528 5.583 5.714-1.499c1.688.918 3.621 1.442 5.686 1.442 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z" />
+                          </svg>
+                          <span>WhatsApp</span>
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSubmittedCase(null);
+                            setUrlInput('');
+                            setContextInput('');
+                          }}
+                          className="w-full text-center text-xs font-mono text-gray-500 hover:text-gray-800 py-2 cursor-pointer"
+                        >
+                          Submit another Reddit URL for review
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleAuditSubmit} className="space-y-5">
+                      <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+                        <div>
+                          <h3 className="font-display text-xl font-extrabold text-[#111827]">
+                            Request Your Free 12-Hour Case Review
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            No upfront payment required • Protected by NDA
+                          </p>
+                        </div>
+                        <span className="font-mono text-xs font-bold px-2.5 py-1 rounded bg-blue-50 text-[#2563EB] border border-blue-200">
+                          From $300
+                        </span>
+                      </div>
+
+                      {/* Target Reddit URL */}
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                          Target Reddit Post or Comment URL *
+                        </label>
+                        <input
+                          type="url"
+                          required
+                          value={urlInput}
+                          onChange={(e) => setUrlInput(e.target.value)}
+                          placeholder="https://www.reddit.com/r/..."
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm font-mono bg-[#F4F6FB]"
+                        />
+                      </div>
+
+                      {/* Scope Selector */}
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                          Preferred Removal Scope
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setRemovalScope('full-thread')}
+                            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                              removalScope === 'full-thread'
+                                ? 'border-[#2563EB] bg-blue-50/70 text-blue-950 font-semibold'
+                                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="text-xs font-bold">Full Thread + SERP Wipe</div>
+                            <div className="text-[11px] text-gray-500 mt-0.5">
+                              Erase entire post &amp; Google/AI cache
+                            </div>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setRemovalScope('comment-only')}
+                            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                              removalScope === 'comment-only'
+                                ? 'border-[#2563EB] bg-blue-50/70 text-blue-950 font-semibold'
+                                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="text-xs font-bold">Targeted Comment Wipe</div>
+                            <div className="text-[11px] text-gray-500 mt-0.5">
+                              Remove specific reply or brand mention
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Name & Work Email */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                            Your Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={nameInput}
+                            onChange={(e) => setNameInput(e.target.value)}
+                            placeholder="Alex Rivera"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                            Work Email *
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            value={emailInput}
+                            onChange={(e) => setEmailInput(e.target.value)}
+                            placeholder="alex@company.com"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Company & Context */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                            Brand / Company Name
+                          </label>
+                          <input
+                            type="text"
+                            value={companyInput}
+                            onChange={(e) => setCompanyInput(e.target.value)}
+                            placeholder="Acme Inc."
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                            Brief Context (Optional)
+                          </label>
+                          <input
+                            type="text"
+                            value={contextInput}
+                            onChange={(e) => setContextInput(e.target.value)}
+                            placeholder="e.g. False claims by competitor / ex-employee"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      {submitError && (
+                        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4 shrink-0" />
+                          <span>{submitError}</span>
+                        </div>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full inline-flex items-center justify-center gap-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white font-extrabold text-[15.5px] py-4 px-6 rounded-xl shadow-lg shadow-blue-600/25 transition-all cursor-pointer"
+                      >
+                        <span>
+                          {isSubmitting
+                            ? 'Encrypting & Submitting Case...'
+                            : 'Submit Link for Free 12-Hour Audit'}
+                        </span>
+                        <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                      </button>
+
+                      <p className="text-center text-xs text-gray-500">
+                        Protected by Escrow.com • Payment is released only after delete verification.
+                      </p>
+                    </form>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 4. CASE STUDIES / PROOF SECTION */}
-        <section id="case-studies" className="py-16 lg:py-20 border-b border-slate-800/80">
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-10">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div className="max-w-2xl space-y-2">
-                <p className="text-xs sm:text-sm font-bold font-mono text-emerald-400">
-                  Verified Case Studies
-                </p>
-                <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
-                  Recent Removals for SaaS Operators &amp; Founders
-                </h2>
-                <p className="text-sm font-medium text-slate-300">
-                  Anonymized client engagements completed under Mutual NDA and Escrow.com verification.
-                </p>
+        {/* =========================================================
+            SECTION 8: FREQUENTLY ASKED QUESTIONS
+           ========================================================= */}
+        <section id="faq" className="py-20 bg-[#F4F6FB] border-b border-gray-200">
+          <div className="max-w-[920px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
+                06 // DUE DILIGENCE &amp; ESCROW FAQ
               </div>
-
-              <div className="flex flex-wrap items-center gap-1 p-1 bg-[#0F1623] border border-slate-800 rounded-lg self-start">
-                {[
-                  { id: 'all', label: 'All Cases' },
-                  { id: 'saas', label: 'B2B SaaS' },
-                  { id: 'ecommerce', label: 'Ecommerce' },
-                  { id: 'executive', label: 'Executives' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() =>
-                      setCaseFilter(tab.id as 'all' | 'saas' | 'ecommerce' | 'executive')
-                    }
-                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                      caseFilter === tab.id
-                        ? 'bg-emerald-400 text-slate-950'
-                        : 'text-slate-300 hover:text-white'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827]">
+                Frequently Asked Questions
+              </h2>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {filteredCaseStudies.map((cs) => {
-                const isExpanded = expandedCaseId === cs.id;
+            <div className="space-y-3.5">
+              {FAQS.map((item, idx) => {
+                const isOpen = openFaqIndex === idx;
                 return (
-                  <article
-                    key={cs.id}
-                    className="bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 flex flex-col justify-between space-y-5"
+                  <div
+                    key={idx}
+                    className="bg-white rounded-2xl border border-gray-200 overflow-hidden transition-all"
                   >
-                    <div className="space-y-3.5">
-                      <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-slate-300">
-                        <span className="text-white font-bold">{cs.categoryLabel}</span>
-                        <span aria-hidden="true">·</span>
-                        <span className="font-mono">{cs.subreddit}</span>
-                        <span aria-hidden="true">·</span>
-                        <span className="font-mono text-emerald-400 font-bold tabular-nums">
-                          {cs.turnaround}
-                        </span>
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                      className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-gray-50/70 transition-colors"
+                    >
+                      <span className="font-display text-[17px] font-bold text-[#111827]">
+                        {item.q}
+                      </span>
+                      <ChevronDown
+                        className={`w-5 h-5 text-[#2563EB] shrink-0 transition-transform duration-200 ${
+                          isOpen ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                    {isOpen && (
+                      <div className="px-6 pb-5 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-3">
+                        {item.a}
                       </div>
-
-                      <h3 className="font-display text-lg font-bold text-white leading-snug">
-                        {cs.title}
-                      </h3>
-
-                      <div className="space-y-2 text-xs sm:text-sm font-medium text-slate-300 leading-relaxed">
-                        <p>
-                          <strong className="text-white font-bold">The Problem: </strong>
-                          {cs.problem}
-                        </p>
-                        <p>
-                          <strong className="text-white font-bold">What We Did: </strong>
-                          {cs.action}
-                        </p>
-                      </div>
-
-                      <div className="pt-1">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setExpandedCaseId(isExpanded ? null : cs.id)
-                          }
-                          className="text-xs font-bold font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1 cursor-pointer"
-                        >
-                          <span>
-                            {isExpanded
-                              ? 'Hide Verification Log'
-                              : 'See Verification Timeline'}
-                          </span>
-                          <ChevronDown
-                            className={`w-3.5 h-3.5 transition-transform ${
-                              isExpanded ? 'rotate-180' : ''
-                            }`}
-                          />
-                        </button>
-
-                        {isExpanded && (
-                          <div className="mt-3 p-3.5 bg-[#080C14] border border-slate-800 rounded-lg space-y-2">
-                            {cs.timeline.map((step, i) => (
-                              <div key={i} className="text-xs font-medium flex items-start gap-2">
-                                <span className="font-mono font-bold text-emerald-400 shrink-0 w-12 tabular-nums">
-                                  {step.day}
-                                </span>
-                                <span className="text-slate-200">{step.event}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="pt-4 border-t border-slate-800/80 space-y-2.5">
-                      <div className="text-xs font-bold font-mono text-emerald-400 tabular-nums">
-                        Result: {cs.outcomeMetric}
-                      </div>
-                      <blockquote className="text-xs font-medium text-slate-200 italic leading-relaxed">
-                        &ldquo;{cs.quote}&rdquo;
-                      </blockquote>
-                      <div className="text-xs font-semibold text-slate-300">
-                        <span className="text-white font-bold">{cs.author}</span> · {cs.role}
-                      </div>
-                    </div>
-                  </article>
+                    )}
+                  </div>
                 );
               })}
             </div>
           </div>
         </section>
+      </main>
 
-        {/* 5. LINK REVIEW / AUDIT SUBMISSION FORM */}
-        <section
-          id="audit-form"
-          ref={formSectionRef}
-          className="py-16 lg:py-20 border-b border-slate-800/80"
+      {/* =========================================================
+          FOOTER WITH POSTWIPE SHIELD LOGO (CLEAN LIGHT PALETTE)
+         ========================================================= */}
+      <footer className="bg-white text-gray-600 py-14 border-t border-gray-200">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-10 border-b border-gray-200">
+            <div className="space-y-3 max-w-md">
+              <a href="#" className="flex items-center gap-3">
+                <PostWipeLogoMark className="w-9 h-9" />
+                <span className="font-display text-2xl font-extrabold tracking-tight text-[#111827]">
+                  Post<span className="text-[#2563EB]">Wipe</span>
+                </span>
+              </a>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Specialized Reddit post removal and Google/AI search de-indexing for founders, SaaS operators, and executives. Protected by Escrow.com and released only after delete verification.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-6 text-xs font-semibold text-gray-700">
+              <a href="#why-postwipe" className="hover:text-[#2563EB] transition-colors">
+                Why Reddit Hurts
+              </a>
+              <a href="#removal-options" className="hover:text-[#2563EB] transition-colors">
+                Removal Scope
+              </a>
+              <a href="#escrow-workflow" className="hover:text-[#2563EB] transition-colors">
+                Escrow Process
+              </a>
+              <a href="#case-results" className="hover:text-[#2563EB] transition-colors">
+                Case Studies
+              </a>
+              <a href="#audit-form" className="hover:text-[#2563EB] transition-colors">
+                12-Hour Audit
+              </a>
+            </div>
+          </div>
+
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+            <p>© {new Date().getFullYear()} PostWipe (postwipe.com). All rights reserved.</p>
+            <p className="font-mono text-[11px]">
+              Independent compliance &amp; reputation firm • Not affiliated with Reddit, Inc.
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Floating WhatsApp Widget — Styled in Cobalt Blue to remove all old green colors */}
+      <aside className="fixed bottom-5 right-5 z-50">
+        <a
+          href={activeWhatsAppUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat with PostWipe on WhatsApp"
+          className="group flex items-center gap-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs px-4 py-3 rounded-full shadow-xl shadow-blue-900/20 border border-white/20 transition-all hover:scale-105"
         >
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-              <div className="lg:col-span-5 space-y-4">
-                <p className="text-xs sm:text-sm font-bold font-mono text-emerald-400">
-                  Submit a Link for Review
-                </p>
-                <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
-                  Send Us the Link. Get a Fixed Quote &amp; Feasibility Audit in 12 Hours.
-                </h2>
-                <p className="text-sm font-medium text-slate-300 leading-relaxed">
-                  Paste the Reddit thread or damaging search result below. Our team will inspect the post, confirm if it qualifies for permanent removal, and send a flat quote starting from $300.
-                </p>
+          <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.124.556 4.119 1.528 5.847l-1.528 5.583 5.714-1.499c1.688.918 3.621 1.442 5.686 1.442 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z" />
+          </svg>
+          <span className="hidden sm:inline">WhatsApp</span>
+        </a>
+      </aside>
 
-                <div className="space-y-3 pt-1">
-                  <div className="p-4 bg-[#0F1623] border border-slate-800/90 rounded-xl space-y-1">
-                    <div className="text-sm font-bold text-white">
-                      Starts from $300 · Held in Escrow.com
+      {/* Interactive Google Calendar / Google Meet Appointment Scheduler Modal */}
+      {isCallModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/65 backdrop-blur-xs overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="schedule-call-title"
+        >
+          <div className="bg-white text-[#111827] w-full max-w-3xl rounded-2xl shadow-2xl border border-blue-100 overflow-hidden my-8">
+            {/* Top Bar */}
+            <div className="px-6 py-4 bg-[#F4F6FB] border-b border-gray-200 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center shadow-xs">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 id="schedule-call-title" className="font-display text-lg font-extrabold text-[#111827]">
+                      PostWipe Appointment Scheduler
+                    </h3>
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-100 text-[#2563EB] font-mono text-[10px] font-bold">
+                      GOOGLE CALENDAR &amp; MEET
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Book a confidential 15-minute Reddit removal &amp; Escrow consultation
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCallModalOpen(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 transition-colors cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 2-Column Google Calendar Appointment Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-12">
+              {/* Left Column: Host & Meeting Info */}
+              <div className="md:col-span-5 bg-[#F4F6FB]/70 p-6 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col justify-between space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <PostWipeLogoMark className="w-9 h-9" />
+                    <div>
+                      <div className="text-xs font-mono text-gray-500 uppercase font-bold">Host</div>
+                      <div className="font-display font-extrabold text-sm text-[#111827]">
+                        PostWipe Senior Policy Team
+                      </div>
                     </div>
-                    <p className="text-xs font-medium text-slate-300 leading-relaxed">
-                      Zero audit fees or retainers. Funds remain locked in Escrow.com and are released only after you verify the URL is permanently removed and de-indexed.
+                  </div>
+
+                  <div>
+                    <h4 className="font-display text-xl font-extrabold text-[#111827] leading-snug">
+                      15-Min Reddit Removal Strategy Call
+                    </h4>
+                    <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
+                      Live feasibility review of your target Reddit URL, Google/AI cache purge timeline, and Escrow.com milestone setup.
                     </p>
                   </div>
 
-                  <div className="p-4 bg-[#0F1623] border border-slate-800/90 rounded-xl space-y-1">
-                    <div className="text-sm font-bold text-white">
-                      What Happens After You Submit?
+                  <div className="space-y-2.5 pt-2 text-xs text-gray-700 font-medium">
+                    <div className="flex items-center gap-2.5">
+                      <Clock className="w-4 h-4 text-[#2563EB] shrink-0" />
+                      <span>15 Minutes • 1-on-1 Confidential</span>
                     </div>
-                    <p className="text-xs font-medium text-slate-300 leading-relaxed">
-                      1. Our compliance analysts audit the URL against platform rules.
-                      <br />
-                      2. You receive a written assessment + flat price within 12 hours.
-                      <br />
-                      3. If you proceed, we open the Escrow.com milestone and begin removal immediately.
-                    </p>
+                    <div className="flex items-center gap-2.5">
+                      <Video className="w-4 h-4 text-[#2563EB] shrink-0" />
+                      <span>Google Meet / WhatsApp / Phone</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <Globe className="w-4 h-4 text-[#2563EB] shrink-0" />
+                      <span className="truncate">Timezone: {detectedTimezone}</span>
+                    </div>
+                  </div>
+
+                  {/* Call Service Selector */}
+                  <div className="pt-2">
+                    <label className="block text-[11px] font-mono uppercase tracking-wider text-gray-500 font-bold mb-2">
+                      Select Call Service
+                    </label>
+                    <div className="space-y-1.5">
+                      {(['Google Meet', 'WhatsApp Call', 'Phone Call'] as const).map((plat) => (
+                        <button
+                          key={plat}
+                          type="button"
+                          onClick={() => setCallPlatform(plat)}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                            callPlatform === plat
+                              ? 'bg-blue-50 border-[#2563EB] text-[#1E3A8A]'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            {plat === 'Google Meet' ? (
+                              <Video className="w-3.5 h-3.5 text-[#2563EB]" />
+                            ) : (
+                              <PhoneCall className="w-3.5 h-3.5 text-[#2563EB]" />
+                            )}
+                            {plat}
+                          </span>
+                          {callPlatform === plat && <Check className="w-3.5 h-3.5 text-[#2563EB]" />}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                <div className="pt-1 text-xs sm:text-sm font-semibold text-slate-300 space-y-1">
-                  <div>
-                    Direct Support:{' '}
-                    <a
-                      href="mailto:support@postwipe.com"
-                      className="text-emerald-400 font-bold font-mono hover:text-emerald-300 transition-colors"
-                    >
-                      support@postwipe.com
-                    </a>
-                  </div>
-                  <div>
-                    WhatsApp:{' '}
-                    <a
-                      href={buildWhatsAppUrl()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#25D366] font-bold font-mono hover:underline transition-colors"
-                    >
-                      +216 95 022 973
-                    </a>
-                  </div>
+                <div className="p-3 rounded-xl bg-white border border-gray-200 text-[11px] text-gray-500 flex items-center gap-2">
+                  <Lock className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
+                  <span>Protected by Mutual NDA &amp; Escrow.com</span>
                 </div>
               </div>
 
-              {/* Right Column: Form */}
-              <div className="lg:col-span-7 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-8">
-                {submittedDossier ? (
+              {/* Right Column: Interactive Date/Slot Picker -> Details -> Confirmation */}
+              <div className="md:col-span-7 p-6">
+                {callBookedCase ? (
                   <div className="space-y-5">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                      <div>
-                        <span className="text-xs font-bold font-mono text-emerald-400">
-                          Link Review Request Received
-                        </span>
-                        <h3 className="font-display text-xl font-bold text-white mt-1">
-                          Reference ID: {submittedDossier.caseId}
-                        </h3>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#2563EB] flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="w-6 h-6" />
                       </div>
-                      <ShieldCheck className="w-7 h-7 text-emerald-400 shrink-0" />
+                      <div>
+                        <span className="font-mono text-xs uppercase font-bold text-[#2563EB]">
+                          Appointment Scheduled
+                        </span>
+                        <h4 className="font-display text-xl font-extrabold text-[#111827]">
+                          Reference: {callBookedCase.caseId}
+                        </h4>
+                      </div>
                     </div>
 
-                    {/* Required Explicit Confirmation Message & WhatsApp Action Button */}
-                    <div className="p-4 sm:p-5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl space-y-3.5">
-                      <div className="flex items-start gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-[#25D366] text-slate-950 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-                          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.34C9.33 7.34 9 7.42 8.72 7.72C8.44 8.03 7.65 8.77 7.65 10.27C7.65 11.76 8.74 13.2 8.89 13.41C9.05 13.62 11.02 16.65 14.04 17.95C14.76 18.26 15.32 18.45 15.76 18.59C16.49 18.82 17.15 18.79 17.67 18.71C18.26 18.62 19.47 17.98 19.72 17.27C19.97 16.57 19.97 15.96 19.9 15.84C19.82 15.72 19.62 15.65 19.31 15.5C19.01 15.34 17.53 14.61 17.25 14.51C16.98 14.41 16.78 14.36 16.58 14.66C16.37 14.97 15.79 15.65 15.61 15.85C15.44 16.06 15.26 16.08 14.96 15.93C14.65 15.78 13.67 15.46 12.51 14.42C11.61 13.62 11 12.63 10.85 12.37C10.7 12.12 10.83 11.98 10.99 11.83C11.12 11.7 11.29 11.47 11.44 11.3C11.59 11.12 11.64 11 11.74 10.79C11.84 10.59 11.79 10.41 11.72 10.26C11.64 10.11 11.03 8.62 10.78 8C10.53 7.41 10.28 7.49 10.09 7.48C9.91 7.47 9.71 7.34 9.53 7.34Z" />
-                          </svg>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-semibold text-white leading-relaxed">
-                            Thank you for your submission. If you do not see our email reply within a few hours or if it lands in your spam folder, click below to chat with us instantly on WhatsApp.
-                          </p>
-                          <p className="text-xs text-slate-300">
-                            Client Name: <span className="text-white font-semibold">{submittedDossier.name}</span> · Case Reference: <span className="text-emerald-400 font-mono font-bold">{submittedDossier.caseId}</span>
-                          </p>
-                        </div>
-                      </div>
+                    <div className="p-4 rounded-xl bg-[#F4F6FB] border border-gray-200 text-gray-700 text-sm leading-relaxed font-medium">
+                      Thank you for your submission. If you do not see our email reply within a few hours or if it lands in your spam folder, click below to chat with us instantly on WhatsApp.
+                    </div>
 
+                    <div className="rounded-xl bg-blue-50/60 border border-blue-200 p-4 font-mono text-xs space-y-1.5 text-gray-700">
+                      <div>
+                        <span className="text-gray-500">Attendee:</span>{' '}
+                        <strong className="text-[#111827]">{callBookedCase.name}</strong> ({callBookedCase.email})
+                      </div>
+                      <div>
+                        <span className="text-gray-500">When:</span>{' '}
+                        <strong className="text-[#2563EB]">{callBookedCase.context}</strong>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {/* 1-Click Add to Google Calendar */}
                       <a
-                        href={buildWhatsAppUrl()}
+                        href={bookedCalendarUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full inline-flex items-center justify-center gap-2.5 px-5 py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-bold text-sm rounded-lg transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+                        className="w-full inline-flex items-center justify-center gap-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-sm py-3.5 px-5 rounded-xl shadow-md shadow-blue-600/20 transition-all cursor-pointer"
                       >
-                        <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-                          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.34C9.33 7.34 9 7.42 8.72 7.72C8.44 8.03 7.65 8.77 7.65 10.27C7.65 11.76 8.74 13.2 8.89 13.41C9.05 13.62 11.02 16.65 14.04 17.95C14.76 18.26 15.32 18.45 15.76 18.59C16.49 18.82 17.15 18.79 17.67 18.71C18.26 18.62 19.47 17.98 19.72 17.27C19.97 16.57 19.97 15.96 19.9 15.84C19.82 15.72 19.62 15.65 19.31 15.5C19.01 15.34 17.53 14.61 17.25 14.51C16.98 14.41 16.78 14.36 16.58 14.66C16.37 14.97 15.79 15.65 15.61 15.85C15.44 16.06 15.26 16.08 14.96 15.93C14.65 15.78 13.67 15.46 12.51 14.42C11.61 13.62 11 12.63 10.85 12.37C10.7 12.12 10.83 11.98 10.99 11.83C11.12 11.7 11.29 11.47 11.44 11.3C11.59 11.12 11.64 11 11.74 10.79C11.84 10.59 11.79 10.41 11.72 10.26C11.64 10.11 11.03 8.62 10.78 8C10.53 7.41 10.28 7.49 10.09 7.48C9.91 7.47 9.71 7.34 9.53 7.34Z" />
-                        </svg>
-                        <span>Chat With Us Instantly on WhatsApp</span>
+                        <Calendar className="w-4 h-4" />
+                        <span>Add Appointment to Google Calendar</span>
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+
+                      {/* Instant WhatsApp Follow-Up */}
+                      <a
+                        href={buildWhatsAppUrl(callBookedCase)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full inline-flex items-center justify-center gap-2.5 bg-white hover:bg-blue-50 text-[#1E3A8A] border-2 border-blue-200 font-extrabold text-sm py-3 px-5 rounded-xl transition-all cursor-pointer"
+                      >
+                        <PhoneCall className="w-4 h-4 text-[#2563EB]" />
+                        <span>WhatsApp</span>
+                        <ExternalLink className="w-4 h-4" />
                       </a>
                     </div>
-
-                    <div className="p-4 bg-[#080C14] border border-slate-800 rounded-lg space-y-2 text-xs font-medium">
-                      <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-300">Client Name:</span>
-                        <span className="text-white font-semibold">{submittedDossier.name}</span>
+                  </div>
+                ) : callStep === 'slot' ? (
+                  <div className="space-y-5">
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-2.5">
+                        1. Select a Date
                       </div>
-                      <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-300">Work Email:</span>
-                        <span className="text-white font-mono">{submittedDossier.email}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-300">Submitted URL:</span>
-                        <span className="text-white font-mono truncate max-w-[260px]">
-                          {submittedDossier.redditUrl}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-300">Search Keywords:</span>
-                        <span className="text-white">{submittedDossier.keywords}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-300">Removal Scope:</span>
-                        <span className="text-white">{submittedDossier.scopeLabel}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-300">Mutual NDA:</span>
-                        <span className="text-white">{submittedDossier.requireNda ? 'Yes (Signed NDA Requested)' : 'Standard Mutual NDA'}</span>
-                      </div>
-                      {submittedDossier.details && (
-                        <div className="flex justify-between py-1 border-b border-slate-800/80">
-                          <span className="text-slate-300">Additional Context:</span>
-                          <span className="text-white text-right max-w-[260px] truncate">{submittedDossier.details}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between py-1 border-b border-slate-800/80">
-                        <span className="text-slate-300">Payment Protection:</span>
-                        <span className="text-emerald-400 font-bold font-mono">
-                          Starts from $300 · Escrow.com Pay on Success
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1">
-                        <span className="text-slate-300">Submitted At:</span>
-                        <span className="text-white font-mono tabular-nums">
-                          {submittedDossier.submittedAt}
-                        </span>
+                      <div className="grid grid-cols-4 gap-2">
+                        {upcomingDays.map((d) => {
+                          const isSelected = d.isoDate === callDate;
+                          return (
+                            <button
+                              key={d.isoDate}
+                              type="button"
+                              onClick={() => setCallDate(d.isoDate)}
+                              className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                                isSelected
+                                  ? 'bg-[#2563EB] border-[#2563EB] text-white shadow-sm'
+                                  : 'bg-white border-gray-200 hover:border-blue-300 text-gray-700'
+                              }`}
+                            >
+                              <div className={`text-[10px] font-mono uppercase ${isSelected ? 'text-blue-100' : 'text-gray-400'}`}>
+                                {d.dayName}
+                              </div>
+                              <div className="font-display font-extrabold text-base leading-tight my-0.5">
+                                {d.dayNum}
+                              </div>
+                              <div className={`text-[10px] font-semibold ${isSelected ? 'text-blue-100' : 'text-gray-500'}`}>
+                                {d.monthShort}
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                    <div>
+                      <div className="flex items-center justify-between mb-2.5">
+                        <span className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                          2. Select an Available Time ({selectedDayObj?.fullLabel})
+                        </span>
+                        <span className="text-[11px] font-mono text-[#2563EB] font-semibold">
+                          15-min slots
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {TIME_SLOTS.map((slot) => {
+                          const isSelected = slot === callTimeSlot;
+                          return (
+                            <button
+                              key={slot}
+                              type="button"
+                              onClick={() => setCallTimeSlot(slot)}
+                              className={`py-2.5 px-3 rounded-xl border font-mono text-xs font-bold transition-all cursor-pointer ${
+                                isSelected
+                                  ? 'bg-blue-50 border-2 border-[#2563EB] text-[#1E3A8A]'
+                                  : 'bg-white border-gray-200 hover:border-blue-300 text-gray-700'
+                              }`}
+                            >
+                              {slot}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
                       <button
                         type="button"
-                        onClick={resetClientInquiry}
-                        className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+                        onClick={() => setCallStep('details')}
+                        className="w-full inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-sm py-3.5 px-6 rounded-xl shadow-md shadow-blue-600/20 transition-all cursor-pointer"
                       >
-                        Submit Another Link / New Client
+                        <span>
+                          Continue with {selectedDayObj?.fullLabel} at {callTimeSlot}
+                        </span>
+                        <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={handleLeadSubmit} className="space-y-4" noValidate>
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3.5">
-                      <div>
-                        <h3 className="font-display text-lg sm:text-xl font-bold text-white">
-                          Submit a Link for Free Review
-                        </h3>
-                        <p className="text-xs font-medium text-slate-300 mt-0.5">
-                          Starting from $300 · Held in Escrow.com · Released only after verified removal
-                        </p>
+                  <form onSubmit={handleCallSubmit} className="space-y-4">
+                    {/* Selected Slot Pill */}
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs">
+                      <div className="flex items-center gap-2 font-semibold text-[#1E3A8A]">
+                        <Calendar className="w-4 h-4 text-[#2563EB]" />
+                        <span>
+                          {selectedDayObj?.fullLabel} • {callTimeSlot} ({callPlatform})
+                        </span>
                       </div>
-                      <div className="text-xs font-mono text-emerald-400 font-semibold flex items-center gap-1.5 whitespace-nowrap">
-                        <Lock className="w-3.5 h-3.5" />
-                        <span>Mutual NDA Protected</span>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setCallStep('slot')}
+                        className="text-[#2563EB] hover:underline font-bold cursor-pointer"
+                      >
+                        Change
+                      </button>
                     </div>
 
-                    {formError && (
-                      <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-xs font-semibold text-rose-300">
-                        {formError}
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div>
-                        <label
-                          htmlFor="audit-name"
-                          className="block text-xs font-semibold text-slate-200 mb-1.5"
-                        >
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
                           Your Name *
                         </label>
                         <input
-                          id="audit-name"
                           type="text"
                           required
-                          value={formData.name}
-                          onChange={(e) =>
-                            setFormData({ ...formData, name: e.target.value })
-                          }
-                          placeholder="Alex Morgan"
-                          className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
+                          value={callName}
+                          onChange={(e) => setCallName(e.target.value)}
+                          placeholder="Alex Rivera"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
                         />
                       </div>
-
                       <div>
-                        <label
-                          htmlFor="audit-email"
-                          className="block text-xs font-semibold text-slate-200 mb-1.5"
-                        >
-                          Work Email *
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                          Email for Calendar Invite *
                         </label>
                         <input
-                          id="audit-email"
                           type="email"
                           required
-                          value={formData.email}
-                          onChange={(e) =>
-                            setFormData({ ...formData, email: e.target.value })
-                          }
+                          value={callEmail}
+                          onChange={(e) => setCallEmail(e.target.value)}
                           placeholder="alex@company.com"
-                          className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
                         />
                       </div>
                     </div>
 
-                    <div>
-                      <label
-                        htmlFor="audit-url"
-                        className="block text-xs font-semibold text-slate-200 mb-1.5"
-                      >
-                        Reddit Thread or Search Result URL *
-                      </label>
-                      <input
-                        id="audit-url"
-                        ref={urlInputRef}
-                        type="url"
-                        required
-                        value={formData.redditUrl}
-                        onChange={(e) =>
-                          setFormData({ ...formData, redditUrl: e.target.value })
-                        }
-                        placeholder="https://www.reddit.com/r/subreddit/comments/..."
-                        className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 font-mono focus:outline-none transition-colors"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div>
-                        <label
-                          htmlFor="audit-keywords"
-                          className="block text-xs font-semibold text-slate-200 mb-1.5"
-                        >
-                          Target Search Keywords (Optional)
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                          Phone / WhatsApp Number
                         </label>
                         <input
-                          id="audit-keywords"
-                          type="text"
-                          value={formData.keywords}
-                          onChange={(e) =>
-                            setFormData({ ...formData, keywords: e.target.value })
-                          }
-                          placeholder="e.g., [Brand] reviews, [Brand] reddit"
-                          className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
+                          type="tel"
+                          value={callPhone}
+                          onChange={(e) => setCallPhone(e.target.value)}
+                          placeholder="+1 (555) 000-0000"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
                         />
                       </div>
-
                       <div>
-                        <label
-                          htmlFor="audit-scope"
-                          className="block text-xs font-semibold text-slate-200 mb-1.5"
-                        >
-                          What Needs to Be Removed?
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                          Target Reddit URL (Optional)
                         </label>
-                        <select
-                          id="audit-scope"
-                          value={formData.scopeType}
-                          onChange={(e) =>
-                            setFormData({ ...formData, scopeType: e.target.value })
-                          }
-                          className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white focus:outline-none transition-colors"
-                        >
-                          <option value="full-thread">Entire Reddit Thread + Google De-Index</option>
-                          <option value="specific-comments">Specific Comment(s) Inside a Thread</option>
-                          <option value="multiple-threads">Multiple Threads Across Subreddits</option>
-                        </select>
+                        <input
+                          type="url"
+                          value={callUrl}
+                          onChange={(e) => setCallUrl(e.target.value)}
+                          placeholder="https://www.reddit.com/r/..."
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm font-mono"
+                        />
                       </div>
                     </div>
 
-                    <div>
-                      <label
-                        htmlFor="audit-details"
-                        className="block text-xs font-semibold text-slate-200 mb-1.5"
+                    {callError && (
+                      <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 shrink-0" />
+                        <span>{callError}</span>
+                      </div>
+                    )}
+
+                    <div className="pt-2 flex items-center justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setCallStep('slot')}
+                        className="px-4 py-2.5 rounded-xl border border-gray-300 text-gray-600 hover:text-gray-900 text-xs font-bold cursor-pointer"
                       >
-                        Additional Context (Optional)
-                      </label>
-                      <textarea
-                        id="audit-details"
-                        rows={3}
-                        value={formData.details}
-                        onChange={(e) =>
-                          setFormData({ ...formData, details: e.target.value })
-                        }
-                        placeholder="Any helpful context (e.g., posted by a competitor or ex-employee, false claims, or showing up in ChatGPT)..."
-                        className="w-full px-3.5 py-2.5 bg-[#080C14] border border-slate-700/80 focus:border-emerald-400 rounded-lg text-sm font-medium text-white placeholder-slate-500 focus:outline-none transition-colors"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2.5 pt-0.5">
-                      <input
-                        id="audit-nda"
-                        type="checkbox"
-                        checked={formData.requireNda}
-                        onChange={(e) =>
-                          setFormData({ ...formData, requireNda: e.target.checked })
-                        }
-                        className="w-4 h-4 accent-emerald-400 rounded cursor-pointer"
-                      />
-                      <label
-                        htmlFor="audit-nda"
-                        className="text-xs font-medium text-slate-300 cursor-pointer select-none"
+                        ← Back to Calendar
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isCallSubmitting}
+                        className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white font-extrabold text-sm px-6 py-3 rounded-xl shadow-md shadow-blue-600/20 transition-all cursor-pointer"
                       >
-                        Include a signed Mutual NDA &amp; Escrow.com terms sheet with my quote
-                      </label>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isSending}
-                      className="w-full py-3.5 px-6 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-60 text-slate-950 font-bold text-sm rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
-                    >
-                      <Lock className="w-4 h-4" />
-                      <span>
-                        {isSending
-                          ? 'Submitting Link for Review...'
-                          : 'Submit Link for Free 12-Hour Review'}
-                      </span>
-                    </button>
-
-                    <div className="text-center text-xs font-semibold text-slate-300">
-                      Starts from $300 · Held in Escrow.com · Released Only After Verified Removal
+                        <Calendar className="w-4 h-4" />
+                        <span>{isCallSubmitting ? 'Scheduling...' : 'Confirm & Create Invite'}</span>
+                      </button>
                     </div>
                   </form>
                 )}
               </div>
             </div>
           </div>
-        </section>
-
-        {/* 6. FAQ SECTION */}
-        <section id="faq" className="py-16 lg:py-20">
-          <div className="max-w-[900px] mx-auto px-4 sm:px-6 space-y-8">
-            <div className="space-y-2">
-              <p className="text-xs sm:text-sm font-bold font-mono text-emerald-400">
-                Straight Answers
-              </p>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-white leading-tight">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-sm font-medium text-slate-300">
-                Everything founders and SaaS operators ask about Escrow.com protection, verification, and turnaround times.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {FAQS.map((faq, index) => {
-                const isOpen = openFaqIndex === index;
-                return (
-                  <div
-                    key={index}
-                    className="bg-[#0F1623] border border-slate-800/90 rounded-xl overflow-hidden"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                      aria-expanded={isOpen}
-                      className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
-                    >
-                      <span className="font-display text-sm sm:text-base font-bold text-white">
-                        {faq.question}
-                      </span>
-                      <ChevronDown
-                        className={`w-4 h-4 text-slate-300 shrink-0 transition-transform duration-150 ${
-                          isOpen ? 'rotate-180 text-emerald-400' : ''
-                        }`}
-                      />
-                    </button>
-                    {isOpen && (
-                      <div className="px-5 pb-5 pt-2 text-xs sm:text-sm font-medium text-slate-300 leading-relaxed border-t border-slate-800/80">
-                        {faq.answer}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Bottom Callout */}
-            <div className="mt-10 bg-[#0F1623] border border-slate-800/90 rounded-xl p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
-              <div className="space-y-1">
-                <h3 className="font-display text-lg sm:text-xl font-bold text-white">
-                  Ready to get that Reddit thread off page one of Google?
-                </h3>
-                <p className="text-xs sm:text-sm font-medium text-slate-300">
-                  Submit the link for a free 12 hour review. Starting from $300, held in Escrow.com until verified.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => scrollToAuditForm()}
-                className="px-5 py-3 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs sm:text-sm font-bold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-              >
-                Submit a Link for Free Review
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Quiet Footer */}
-      <footer className="border-t border-slate-800/80 py-10 bg-[#080C14] text-xs font-medium text-slate-300">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 font-display text-base font-bold text-white">
-              <img
-                src="/favicon.svg"
-                alt="PostWipe Logo"
-                className="w-5 h-5 rounded-md shrink-0"
-              />
-              <span>PostWipe</span>
-            </div>
-            <p className="text-xs font-medium text-slate-300">
-              Reddit Post Removal &amp; Search De-Indexing for Founders &amp; SaaS Operators · Escrow.com Protected
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-6 font-semibold">
-            <a href="#trust-verification" className="hover:text-white transition-colors">
-              Escrow &amp; Process
-            </a>
-            <a href="#capabilities" className="hover:text-white transition-colors">
-              Why PostWipe
-            </a>
-            <a href="#case-studies" className="hover:text-white transition-colors">
-              Case Studies
-            </a>
-            <a href="#faq" className="hover:text-white transition-colors">
-              FAQ
-            </a>
-            <a
-              href="mailto:support@postwipe.com"
-              className="text-emerald-400 font-bold font-mono hover:text-emerald-300 transition-colors"
-            >
-              support@postwipe.com
-            </a>
-            <a
-              href={buildWhatsAppUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#25D366] font-bold font-mono hover:underline transition-colors"
-            >
-              WhatsApp: +216 95 022 973
-            </a>
-          </div>
-
-          <div className="text-xs text-slate-400">
-            © {new Date().getFullYear()} PostWipe (postwipe.com). All inquiries protected by Mutual NDA.
-          </div>
         </div>
-      </footer>
-
-      {/* Floating WhatsApp Action Widget */}
-      <aside aria-label="WhatsApp Support" className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 flex items-center gap-2.5">
-        {/* Dismissible desktop preview pill */}
-        {!hasDismissedWaBubble && (
-          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 bg-[#0F1623]/95 border border-slate-700/80 rounded-full shadow-lg text-xs font-semibold text-white animate-in fade-in duration-300 hover:border-emerald-500/50 transition-all">
-            <span className="w-2 h-2 rounded-full bg-[#25D366]"></span>
-            <a
-              href={buildWhatsAppUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cursor-pointer hover:text-emerald-400 transition-colors"
-            >
-              Chat on WhatsApp
-            </a>
-            <button
-              type="button"
-              onClick={() => setHasDismissedWaBubble(true)}
-              className="text-slate-400 hover:text-white ml-0.5 cursor-pointer text-sm leading-none"
-              aria-label="Dismiss chat bubble"
-            >
-              ×
-            </button>
-          </div>
-        )}
-
-        {/* Floating WhatsApp Action Button - Direct Link with dynamic pre-filled client details */}
-        <a
-          href={buildWhatsAppUrl()}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Chat directly on WhatsApp with PostWipe Specialist"
-          className="relative w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer focus:outline-none focus:ring-4 focus:ring-emerald-500/30"
-        >
-          {/* Pulsing Green Online Indicator */}
-          <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-400 border-2 border-[#080C14]"></span>
-          </span>
-
-          <svg className="w-7 h-7 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.34C9.33 7.34 9 7.42 8.72 7.72C8.44 8.03 7.65 8.77 7.65 10.27C7.65 11.76 8.74 13.2 8.89 13.41C9.05 13.62 11.02 16.65 14.04 17.95C14.76 18.26 15.32 18.45 15.76 18.59C16.49 18.82 17.15 18.79 17.67 18.71C18.26 18.62 19.47 17.98 19.72 17.27C19.97 16.57 19.97 15.96 19.9 15.84C19.82 15.72 19.62 15.65 19.31 15.5C19.01 15.34 17.53 14.61 17.25 14.51C16.98 14.41 16.78 14.36 16.58 14.66C16.37 14.97 15.79 15.65 15.61 15.85C15.44 16.06 15.26 16.08 14.96 15.93C14.65 15.78 13.67 15.46 12.51 14.42C11.61 13.62 11 12.63 10.85 12.37C10.7 12.12 10.83 11.98 10.99 11.83C11.12 11.7 11.29 11.47 11.44 11.3C11.59 11.12 11.64 11 11.74 10.79C11.84 10.59 11.79 10.41 11.72 10.26C11.64 10.11 11.03 8.62 10.78 8C10.53 7.41 10.28 7.49 10.09 7.48C9.91 7.47 9.71 7.34 9.53 7.34Z" />
-          </svg>
-        </a>
-      </aside>
+      )}
     </div>
   );
 }
+
+export default App;

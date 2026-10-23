@@ -1,37 +1,106 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-display: "Outfit", system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+
+:root {
+  --pw-blue: #2563eb;
+  --pw-blue-deep: #1d4ed8;
+  --pw-blue-bright: #3b82f6;
+  --pw-blue-soft: #eff6ff;
+  --pw-blue-border: #bfdbfe;
+  --pw-indigo: #4f46e5;
+  --pw-danger: #e11d48;
+  --pw-danger-soft: #fff1f2;
+  --pw-ink: #111827;
+  --pw-ink-2: #1f2937;
+  --pw-muted: #4b5563;
+  --pw-surface: #f4f6fb;
+  --pw-line: #e5e7eb;
+  --shadow-sm: 0 10px 30px -5px rgba(17, 24, 39, 0.05);
+  --shadow-md: 0 20px 50px -12px rgba(37, 99, 235, 0.12);
 }
 
 @layer base {
   html {
-    font-size: 15px;
+    font-size: 16px;
+    scroll-behavior: smooth;
+    scroll-padding-top: 88px;
   }
 
   body {
     font-family: var(--font-sans);
     font-weight: 500;
-    background-color: #080C14;
-    color: #F8FAFC;
-    letter-spacing: 0.01em;
+    background-color: #ffffff;
+    color: var(--pw-ink);
+    line-height: 1.6;
+    overflow-x: hidden;
   }
 
-  h1, h2, h3, .font-display {
+  h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-weight: 800;
+    letter-spacing: -0.028em;
+    line-height: 1.08;
     text-wrap: balance;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+/* Cobalt Highlight Bar */
+.pw-hl {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  color: #1d4ed8;
+}
+
+.pw-hl::after {
+  content: "";
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.16) 0%, rgba(79, 70, 229, 0.24) 100%);
+  z-index: -1;
+  border-radius: 6px;
+  height: 0.36em;
+  position: absolute;
+  bottom: 0.06em;
+  left: -4px;
+  right: -4px;
+}
+
+/* Subtle Architectural Dot & Line Grid */
+.pw-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(37, 99, 235, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(37, 99, 235, 0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+/* Card with Cobalt Top Hover Bar */
+.pw-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
+}
+
+.pw-card::before {
+  content: "";
+  background: linear-gradient(90deg, #2563eb, #4f46e5);
+  width: 0;
+  height: 3px;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.pw-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: #bfdbfe;
+}
+
+.pw-card:hover::before {
+  width: 100%;
 }
