@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ShieldCheck,
   ArrowRight,
@@ -279,6 +279,67 @@ export function App() {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [previewMode, setPreviewMode] = useState<'after' | 'before'>('after');
 
+  const [activePage, setActivePage] = useState<'reddit' | 'news'>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path.includes('news') || hash.includes('news')) {
+        return 'news';
+      }
+    }
+    return 'reddit';
+  });
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path.includes('news') || hash.includes('news')) {
+        setActivePage('news');
+      } else {
+        setActivePage('reddit');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const switchPage = (page: 'reddit' | 'news', targetHash?: string) => {
+    setActivePage(page);
+    if (typeof window !== 'undefined') {
+      const newUrl =
+        page === 'news'
+          ? `/news-removal${targetHash ? targetHash : ''}`
+          : `/${targetHash ? targetHash : ''}`;
+      try {
+        window.history.pushState({ page }, '', newUrl);
+      } catch {
+        // Ignore history pushState restrictions in sandboxed environments
+      }
+      if (targetHash) {
+        setTimeout(() => {
+          const el = document.querySelector(targetHash);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 40);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
+
+  // News & Media Article Removal Form State
+  const [newsPreviewMode, setNewsPreviewMode] = useState<'after' | 'before'>('after');
+  const [newsName, setNewsName] = useState('');
+  const [newsEmail, setNewsEmail] = useState('');
+  const [newsArticleUrl, setNewsArticleUrl] = useState('');
+  const [newsKeywords, setNewsKeywords] = useState('');
+  const [newsNotes, setNewsNotes] = useState('');
+  const [isNewsSubmitting, setIsNewsSubmitting] = useState(false);
+  const [newsError, setNewsError] = useState('');
+  const [submittedNewsCase, setSubmittedNewsCase] = useState<SubmittedCaseDetails | null>(null);
+
   // Schedule a Call (Google Calendar / Meet) Modal State
   const upcomingDays = getUpcomingBusinessDays(8);
   const detectedTimezone =
@@ -420,58 +481,172 @@ export function App() {
     }
   };
 
-  const activeWhatsAppUrl = buildWhatsAppUrl(submittedCase);
+  const handleNewsAuditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsName.trim() || !newsEmail.trim() || !newsArticleUrl.trim()) return;
+
+    setIsNewsSubmitting(true);
+    setNewsError('');
+
+    const generatedCaseId = `PW-NEWS-${Math.floor(100000 + Math.random() * 900000)}`;
+    const cleanName = newsName.trim();
+    const cleanEmail = newsEmail.trim();
+    const cleanUrl = newsArticleUrl.trim();
+    const cleanKeywords = newsKeywords.trim();
+    const cleanNotes = newsNotes.trim();
+
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/xboxdhia089@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          _subject: `New PostWipe News & Media Article Removal Audit (${generatedCaseId}) - ${cleanName}`,
+          Service_Type: 'News & Media Article Removal',
+          Case_Reference: generatedCaseId,
+          Full_Name: cleanName,
+          Email: cleanEmail,
+          Article_URL_To_Audit: cleanUrl,
+          Target_Keywords: cleanKeywords || 'Not provided',
+          Additional_Notes: cleanNotes || 'Not provided',
+          _template: 'table',
+        }),
+      });
+
+      if (response.ok) {
+        const newsDetails: SubmittedCaseDetails = {
+          caseId: generatedCaseId,
+          name: cleanName,
+          email: cleanEmail,
+          url: cleanUrl,
+          company: cleanKeywords ? `Target Keywords: ${cleanKeywords}` : 'News & Media Article Removal',
+          context: cleanNotes,
+        };
+        setSubmittedNewsCase(newsDetails);
+        setSubmittedCase(newsDetails);
+      } else {
+        setNewsError('Something went wrong submitting your article audit request. Please try again.');
+      }
+    } catch {
+      setNewsError('Network error while submitting your request. Please check your connection and try again.');
+    } finally {
+      setIsNewsSubmitting(false);
+    }
+  };
+
+  const activeWhatsAppUrl = buildWhatsAppUrl(submittedCase || submittedNewsCase);
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#111827] selection:bg-blue-600/15 selection:text-blue-950">
-      {/* Sticky Header with User's PostWipe Logo */}
+      {/* Sticky Header with User's PostWipe Logo & Page Switcher */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
           {/* PostWipe Brand Logo */}
-          <a href="#" className="flex items-center gap-3 group focus:outline-none">
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              switchPage('reddit');
+            }}
+            className="flex items-center gap-3 group focus:outline-none"
+          >
             <PostWipeLogoMark className="w-10 h-10 shadow-md shadow-blue-600/20 group-hover:scale-105 transition-transform" />
             <div className="flex flex-col">
               <span className="font-display text-2xl font-extrabold tracking-tight text-[#111827] leading-none">
                 Post<span className="text-[#2563EB]">Wipe</span>
               </span>
               <span className="font-mono text-[10px] uppercase tracking-widest text-gray-500 mt-0.5">
-                Reddit Removal &amp; De-Indexing
+                {activePage === 'news' ? 'News & Media Removal' : 'Reddit Removal & De-Indexing'}
               </span>
             </div>
           </a>
 
-          {/* Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-[14px] font-semibold text-gray-600">
-            <a href="#why-postwipe" className="hover:text-[#2563EB] transition-colors">
-              Why Reddit Hurts
-            </a>
-            <a href="#removal-options" className="hover:text-[#2563EB] transition-colors">
-              Removal Scope
-            </a>
-            <a href="#escrow-workflow" className="hover:text-[#2563EB] transition-colors">
-              Escrow Process
-            </a>
-            <a href="#case-results" className="hover:text-[#2563EB] transition-colors">
-              Case Studies
-            </a>
-            <a href="#faq" className="hover:text-[#2563EB] transition-colors">
-              FAQ
-            </a>
+          {/* Navigation Links & Dedicated Page Switcher */}
+          <nav className="hidden lg:flex items-center gap-6 text-[14px] font-semibold text-gray-600">
+            {/* Dedicated Service Pages Pill Switcher */}
+            <div className="inline-flex items-center p-1 rounded-xl bg-[#F4F6FB] border border-gray-200">
+              <button
+                type="button"
+                onClick={() => switchPage('reddit')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                  activePage === 'reddit'
+                    ? 'bg-[#2563EB] text-white shadow-2xs'
+                    : 'text-gray-600 hover:text-[#111827]'
+                }`}
+              >
+                Reddit Removal
+              </button>
+              <button
+                type="button"
+                onClick={() => switchPage('news')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                  activePage === 'news'
+                    ? 'bg-[#2563EB] text-white shadow-2xs'
+                    : 'text-gray-600 hover:text-[#111827]'
+                }`}
+              >
+                News &amp; Media Removal
+              </button>
+            </div>
+
+            {activePage === 'reddit' ? (
+              <>
+                <a href="#why-postwipe" className="hover:text-[#2563EB] transition-colors">
+                  Why Reddit Hurts
+                </a>
+                <a href="#removal-options" className="hover:text-[#2563EB] transition-colors">
+                  Removal Scope
+                </a>
+                <a href="#escrow-workflow" className="hover:text-[#2563EB] transition-colors">
+                  Escrow Process
+                </a>
+                <a href="#case-results" className="hover:text-[#2563EB] transition-colors">
+                  Case Studies
+                </a>
+                <a href="#faq" className="hover:text-[#2563EB] transition-colors">
+                  FAQ
+                </a>
+              </>
+            ) : (
+              <>
+                <a href="#news-process" className="hover:text-[#2563EB] transition-colors">
+                  3-Step Process
+                </a>
+                <a href="#news-features" className="hover:text-[#2563EB] transition-colors">
+                  Risk-Free Model
+                </a>
+                <a href="#news-audit-form" className="hover:text-[#2563EB] transition-colors">
+                  Request Audit
+                </a>
+              </>
+            )}
           </nav>
 
           {/* Header Action Area */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <a
-              href="#audit-form"
-              className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-[14px] px-5 py-2.5 rounded-xl shadow-sm shadow-blue-600/20 hover:shadow-md transition-all cursor-pointer"
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Mobile Page Toggle */}
+            <button
+              type="button"
+              onClick={() => switchPage(activePage === 'reddit' ? 'news' : 'reddit')}
+              className="lg:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#F4F6FB] border border-blue-200 text-[#1E3A8A] font-bold text-xs cursor-pointer"
             >
-              <span>Free 12h Link Audit</span>
-              <ArrowRight className="w-4 h-4 text-blue-100" />
+              <span>{activePage === 'reddit' ? 'News Removal Page →' : '← Reddit Removal'}</span>
+            </button>
+
+            <a
+              href={activePage === 'news' ? '#news-audit-form' : '#audit-form'}
+              className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-[13px] sm:text-[14px] px-4 sm:px-5 py-2.5 rounded-xl shadow-sm shadow-blue-600/20 hover:shadow-md transition-all cursor-pointer"
+            >
+              <span>{activePage === 'news' ? 'Request Link Audit' : 'Free 12h Link Audit'}</span>
+              <ArrowRight className="w-4 h-4 text-blue-100 hidden sm:inline" />
             </a>
           </div>
         </div>
       </header>
 
+      {activePage === 'reddit' ? (
       <main className="flex-1">
         {/* =========================================================
             SECTION 1: HERO — CLEAR VALUE PROPOSITION + ESCROW + LIVE 404 CONSOLE
@@ -1527,6 +1702,721 @@ export function App() {
           </div>
         </section>
       </main>
+      ) : (
+      /* =========================================================
+         DEDICATED PAGE: NEWS & MEDIA ARTICLE REMOVAL (/news-removal)
+         ========================================================= */
+      <main className="flex-1">
+        {/* 1. HERO SECTION: HEADLINE, SUBHEADLINE & MEDIA DE-INDEXING CONSOLE */}
+        <section className="relative pt-12 pb-20 lg:pt-16 lg:pb-24 overflow-hidden bg-gradient-to-b from-[#F4F6FB] to-white pw-grid-bg border-b border-gray-200">
+          <div
+            className="pointer-events-none absolute -top-24 right-1/4 w-[520px] h-[520px] rounded-full bg-blue-500/10 blur-3xl"
+            aria-hidden="true"
+          />
+
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+              {/* Left Column: Headline, Subheadline, Primary CTAs */}
+              <div className="lg:col-span-7">
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-bold tracking-wide uppercase mb-6 shadow-2xs">
+                  <Globe className="w-4 h-4 text-[#2563EB] shrink-0" />
+                  <span>News &amp; Media Article Removal • Legal &amp; Publisher Escalation</span>
+                </div>
+
+                <h1 className="font-display text-[36px] sm:text-[48px] lg:text-[54px] font-extrabold text-[#111827] tracking-tight leading-[1.06] mb-6">
+                  Complete Removal of Damaging <span className="pw-hl">News Articles</span> &amp; Online Media Publications.
+                </h1>
+
+                <div className="space-y-3 text-[16px] sm:text-[17.5px] text-gray-600 leading-relaxed max-w-2xl mb-8">
+                  <p>
+                    We handle direct <strong className="text-[#111827] font-semibold">publisher outreach, legal and editorial compliance pathways, and complete Google de-indexing</strong> to permanently eliminate defamatory press, outdated news coverage, and digital media articles at the source.
+                  </p>
+                  <p>
+                    Every case is backed by <strong className="text-[#111827] font-semibold">100% Escrow.com protection</strong>, our <strong className="text-[#111827] font-semibold">Free-Fix Guarantee</strong>, and strict <span className="underline decoration-[#2563EB] decoration-2 underline-offset-4 font-semibold text-[#111827]">NDA confidentiality</span> with zero secondary media exposure.
+                  </p>
+                </div>
+
+                <div className="space-y-4 mb-9">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3.5">
+                    <a
+                      href="#news-audit-form"
+                      className="inline-flex items-center justify-center gap-3 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-[16px] px-7 py-4 rounded-xl shadow-lg shadow-blue-600/25 hover:shadow-blue-600/35 transition-all cursor-pointer shrink-0"
+                    >
+                      <span>Request Link Audit &amp; Quote</span>
+                      <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCallBookedCase(null);
+                        setCallStep('slot');
+                        setIsCallModalOpen(true);
+                      }}
+                      className="inline-flex items-center justify-center gap-2.5 bg-white hover:bg-blue-50/60 text-[#111827] font-extrabold text-[15.5px] px-6 py-4 rounded-xl border-2 border-blue-200 hover:border-[#2563EB] shadow-2xs transition-all cursor-pointer shrink-0"
+                    >
+                      <Video className="w-5 h-5 text-[#2563EB]" />
+                      <span>Schedule a Call (Google Meet)</span>
+                    </button>
+                  </div>
+
+                  {/* Escrow & Risk-Free Summary Strip */}
+                  <div className="inline-flex items-center gap-3.5 bg-white px-4 py-3 rounded-xl border border-blue-200/90 shadow-2xs">
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
+                      <Lock className="w-5 h-5 text-[#2563EB]" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-display font-extrabold text-[15px] text-[#111827]">
+                          100% Escrow Protected
+                        </span>
+                        <span className="text-[11px] font-mono font-semibold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                          Escrow.com
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                        Payment released only after verified source removal &amp; Google de-indexing
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3 Quick Highlight Pillars */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-6 border-t border-gray-200">
+                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-bold text-[#111827]">100% Escrow Protected</div>
+                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                        Funds held in third-party escrow until verified removal.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-bold text-[#111827]">Free-Fix Guarantee</div>
+                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                        Ongoing monitoring &amp; automatic remediation if content resurfaces.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                      <EyeOff className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-bold text-[#111827]">Complete Confidentiality</div>
+                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                        Zero publicity or media exposure under strict NDA.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Interactive Media Takedown & De-Indexing Verification Console */}
+              <div className="lg:col-span-5">
+                <div className="bg-white text-[#111827] rounded-2xl border-2 border-blue-100 shadow-xl shadow-blue-900/5 overflow-hidden">
+                  <div className="px-5 py-3.5 bg-[#F4F6FB] border-b border-gray-200 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                      <span className="ml-2 font-mono text-[11px] text-gray-500 font-semibold">
+                        postwipe://media-deindex-status
+                      </span>
+                    </div>
+
+                    <div className="inline-flex rounded-lg bg-white p-0.5 border border-gray-200 text-[11px] font-mono">
+                      <button
+                        type="button"
+                        onClick={() => setNewsPreviewMode('before')}
+                        className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                          newsPreviewMode === 'before'
+                            ? 'bg-rose-50 text-rose-700 font-bold border border-rose-200'
+                            : 'text-gray-500 hover:text-gray-900'
+                        }`}
+                      >
+                        Before
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setNewsPreviewMode('after')}
+                        className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                          newsPreviewMode === 'after'
+                            ? 'bg-[#2563EB] text-white font-bold'
+                            : 'text-gray-500 hover:text-gray-900'
+                        }`}
+                      >
+                        After Removal
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-5 sm:p-6 space-y-4">
+                    <div
+                      className={`rounded-xl p-4 border transition-all ${
+                        newsPreviewMode === 'after'
+                          ? 'bg-blue-50/50 border-blue-200'
+                          : 'bg-rose-50/50 border-rose-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
+                        <span className="font-mono text-[11px] text-gray-500 truncate">
+                          digitalpressdaily.com/business/executive-inquiry-report...
+                        </span>
+                        {newsPreviewMode === 'after' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#2563EB] text-white font-mono text-[10px] font-bold shrink-0">
+                            UNPUBLISHED &amp; DELETED
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-200 font-mono text-[10px] font-bold shrink-0">
+                            PAGE 1 GOOGLE NEWS
+                          </span>
+                        )}
+                      </div>
+
+                      {newsPreviewMode === 'after' ? (
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-gray-400 line-through">
+                             Investigation into Former Biotech Executive Raises Governance Questions
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-blue-900 font-mono bg-blue-100/80 border border-blue-200 rounded-lg px-3 py-2">
+                            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#2563EB]" />
+                            <span>[Article permanently removed via publisher legal compliance]</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-gray-900">
+                            Investigation into Former Biotech Executive Raises Governance Questions
+                          </p>
+                          <p className="text-xs text-rose-700">
+                            Indexed in Google Search, Google News &amp; AI summaries for executive name search
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="rounded-xl bg-[#F4F6FB] border border-gray-200 p-4">
+                      <div className="text-[11px] font-mono uppercase tracking-wider text-gray-500 mb-3 flex items-center justify-between">
+                        <span>Publisher &amp; Search De-Indexing Status</span>
+                        <span className="text-[#2563EB] font-bold">
+                          {newsPreviewMode === 'after' ? 'VERIFIED CLEAN' : 'ACTIVE EXPOSURE'}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2.5 text-xs">
+                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200">
+                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                            <Scale className="w-3.5 h-3.5 text-[#2563EB]" />
+                            Publisher Source URL
+                          </span>
+                          {newsPreviewMode === 'after' ? (
+                            <span className="font-mono text-[11px] text-[#2563EB] font-bold">
+                              Removed at Source
+                            </span>
+                          ) : (
+                            <span className="font-mono text-[11px] text-rose-600 font-bold">
+                              Live Publication
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200">
+                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                            <Globe className="w-3.5 h-3.5 text-[#2563EB]" />
+                            Google Search &amp; News Cache
+                          </span>
+                          {newsPreviewMode === 'after' ? (
+                            <span className="font-mono text-[11px] text-[#2563EB] font-bold">
+                              De-Indexed &amp; Cache Cleared
+                            </span>
+                          ) : (
+                            <span className="font-mono text-[11px] text-rose-600 font-bold">
+                              Ranking for Target Keywords
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                            <Lock className="w-3.5 h-3.5 text-[#2563EB]" />
+                            Escrow.com Protection
+                          </span>
+                          {newsPreviewMode === 'after' ? (
+                            <span className="font-mono text-[11px] bg-blue-100 text-blue-900 px-2 py-0.5 rounded border border-blue-200 font-bold">
+                              VERIFIED &amp; RELEASED
+                            </span>
+                          ) : (
+                            <span className="font-mono text-[11px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-200 font-bold">
+                              HELD IN ESCROW
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] font-mono text-gray-500 pt-1">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
+                        Free-Fix Guarantee Included
+                      </span>
+                      <a href="#news-audit-form" className="text-[#2563EB] hover:underline font-bold">
+                        Audit Article URL →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 2. PROCESS BREAKDOWN SECTION */}
+        <section id="news-process" className="py-20 bg-white border-b border-gray-200">
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mb-14">
+              <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
+                01 // PROCESS BREAKDOWN
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] mb-4">
+                How We Remove News Articles &amp; Clear Search Indices
+              </h2>
+              <p className="text-gray-600 text-[16.5px] leading-relaxed">
+                Every media removal engagement follows a structured three-stage protocol combining editorial compliance, legal takedown filings, and search engine cache clearing.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Step 1 */}
+              <div className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-md shadow-blue-600/20">
+                      01
+                    </span>
+                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#2563EB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
+                      Step 1
+                    </span>
+                  </div>
+                  <h3 className="font-display text-xl font-extrabold text-[#111827] mb-3">
+                    Case Evaluation &amp; Scope Mapping
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    We audit the target publication, editorial standards, syndication network, and search indexing status to determine the most viable editorial, privacy, or legal removal pathway before any outreach begins.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-gray-200/80 font-mono text-[11px] font-bold text-gray-500 uppercase">
+                  Deliverable: Feasibility &amp; Scope Assessment
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-md shadow-blue-600/20">
+                      02
+                    </span>
+                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#2563EB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
+                      Step 2
+                    </span>
+                  </div>
+                  <h3 className="font-display text-xl font-extrabold text-[#111827] mb-3">
+                    Source Removal &amp; Legal / Privacy Takedowns
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Our team executes direct publisher representation and submits formal editorial standards reviews, defamation notices, copyright claims, and privacy compliance filings to unpublish or delete the article at the source.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-gray-200/80 font-mono text-[11px] font-bold text-gray-500 uppercase">
+                  Deliverable: Source Article Deletion
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-md shadow-blue-600/20">
+                      03
+                    </span>
+                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#2563EB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
+                      Step 3
+                    </span>
+                  </div>
+                  <h3 className="font-display text-xl font-extrabold text-[#111827] mb-3">
+                    Google Search Engine De-indexing &amp; Cache Clearing
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Once the source publication removes or retracts the article, we file expedited search engine de-indexing and cache-clearing requests across Google, Bing, and AI search indices so residual snippets are completely wiped.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-gray-200/80 font-mono text-[11px] font-bold text-gray-500 uppercase">
+                  Deliverable: Complete SERP &amp; Cache Purge
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 3. KEY FEATURES & RISK-FREE MODEL SECTION */}
+        <section id="news-features" className="py-20 bg-[#F4F6FB] border-b border-gray-200">
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mb-14">
+              <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
+                02 // KEY FEATURES &amp; RISK-FREE MODEL
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] mb-4">
+                Built on Verified Results, Escrow Security &amp; Strict Discretion
+              </h2>
+              <p className="text-gray-600 text-[16.5px] leading-relaxed">
+                We eliminate the financial and reputational risk of traditional PR retainers with performance-locked escrow protection and ongoing post-removal monitoring.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* 100% Escrow Protected */}
+              <div className="pw-card bg-white rounded-2xl p-7 border border-gray-200 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center mb-5">
+                    <Lock className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-display text-xl font-extrabold text-[#111827] mb-3">
+                    100% Escrow Protected
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Payment is held by a third-party escrow service and released only after successful removal and verification. If we do not remove the target article within the agreed scope, your deposit is refunded in full.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between font-mono text-xs font-bold text-[#2563EB]">
+                  <span>ESCROW.COM VERIFIED</span>
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+              </div>
+
+              {/* Free-Fix Guarantee */}
+              <div className="pw-card bg-white rounded-2xl p-7 border border-gray-200 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center mb-5">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-display text-xl font-extrabold text-[#111827] mb-3">
+                    Free-Fix Guarantee
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Post-removal monitoring with automatic remediation if the content resurfaces. Our system tracks search indices and syndicated mirrors to ensure deleted articles stay permanently offline.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between font-mono text-xs font-bold text-[#2563EB]">
+                  <span>AUTOMATIC REMEDIATION</span>
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+              </div>
+
+              {/* Complete Confidentiality */}
+              <div className="pw-card bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] text-white rounded-2xl p-7 border border-blue-700 shadow-lg flex flex-col justify-between">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-white/15 border border-white/25 text-white flex items-center justify-center mb-5">
+                    <EyeOff className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-display text-xl font-extrabold text-white mb-3">
+                    Complete Confidentiality
+                  </h3>
+                  <p className="text-blue-100 text-sm leading-relaxed">
+                    High privacy standards without publicity or media exposure. Every case is handled under strict mutual NDA through private legal and editorial channels.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-white/15 flex items-center justify-between font-mono text-xs font-bold text-blue-200">
+                  <span>ZERO MEDIA EXPOSURE</span>
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 4. FORM / CTA COMPONENT SECTION */}
+        <section id="news-audit-form" className="py-24 bg-white border-b border-gray-200">
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+              {/* Left Column: Audit Instructions & Direct Consultation */}
+              <div className="lg:col-span-5 space-y-6">
+                <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB]">
+                  03 // CONFIDENTIAL LINK AUDIT
+                </div>
+                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] leading-tight">
+                  Submit Your Article URL for a Feasibility Audit &amp; Quote
+                </h2>
+                <p className="text-gray-600 text-[16px] leading-relaxed">
+                  Provide the publication URL and target search keywords below. Our media compliance team will evaluate the publisher, map the removal pathway, and deliver a fixed-fee Escrow quote within 12 hours.
+                </p>
+
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-[#111827]">Direct Publisher &amp; Legal Assessment</div>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        We verify editorial jurisdiction, syndication copies, and de-indexing eligibility before quoting.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-[#111827]">100% Escrow.com Protection</div>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Zero upfront agency retainers. Funds remain locked in escrow until verified article removal.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-[#111827]">Strict NDA Confidentiality</div>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Your identity, brand, and submitted URLs are never shared outside our compliance team.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-3">
+                  <div className="text-xs font-mono uppercase tracking-wider text-gray-500 font-bold">
+                    Prefer a Live Consultation First?
+                  </div>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    Book a confidential 15-minute call with our senior media removal specialists via Google Meet.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCallBookedCase(null);
+                      setCallStep('slot');
+                      setIsCallModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-2 bg-white hover:bg-blue-50 text-[#1E3A8A] font-extrabold text-xs px-4 py-2.5 rounded-xl border border-blue-200 transition-all cursor-pointer"
+                  >
+                    <Video className="w-4 h-4 text-[#2563EB]" />
+                    <span>Schedule a Call (Google Meet)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: Clean Request Card */}
+              <div className="lg:col-span-7">
+                <div className="bg-white text-[#111827] rounded-2xl border-2 border-blue-100 shadow-xl shadow-blue-900/5 overflow-hidden">
+                  <div className="px-6 py-4 bg-[#F4F6FB] border-b border-gray-200 flex items-center justify-between">
+                    <div>
+                      <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#2563EB] block">
+                        NEWS &amp; MEDIA ARTICLE REMOVAL
+                      </span>
+                      <h3 className="font-display text-lg font-extrabold text-[#111827]">
+                        Request Link Audit &amp; Quote
+                      </h3>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 font-mono text-[11px] font-bold text-[#1E3A8A]">
+                      <Lock className="w-3.5 h-3.5 text-[#2563EB]" />
+                      100% Escrow Protected
+                    </span>
+                  </div>
+
+                  <div className="p-6 sm:p-8">
+                    {submittedNewsCase ? (
+                      <div className="space-y-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-xl bg-blue-100 text-[#2563EB] flex items-center justify-center shrink-0">
+                            <CheckCircle2 className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
+                              Article Audit Logged
+                            </div>
+                            <h4 className="font-display text-xl font-extrabold text-[#111827]">
+                              Case ID: {submittedNewsCase.caseId}
+                            </h4>
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-xl bg-[#F4F6FB] border border-gray-200 text-gray-700 text-sm leading-relaxed font-medium">
+                          Thank you for your submission. If you do not see our email reply within a few hours or if it lands in your spam folder, click below to chat with us instantly on WhatsApp.
+                        </div>
+
+                        <div className="rounded-xl bg-[#F4F6FB] border border-gray-200 p-4 font-mono text-xs space-y-1.5 text-gray-600">
+                          <div>
+                            <span className="text-gray-400">Client:</span>{' '}
+                            <strong className="text-gray-900">{submittedNewsCase.name}</strong> ({submittedNewsCase.email})
+                          </div>
+                          <div className="truncate">
+                            <span className="text-gray-400">Article URL:</span>{' '}
+                            <strong className="text-gray-900">{submittedNewsCase.url}</strong>
+                          </div>
+                        </div>
+
+                        <a
+                          href={buildWhatsAppUrl(submittedNewsCase)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full inline-flex items-center justify-center gap-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-[15px] py-4 px-6 rounded-xl shadow-lg shadow-blue-600/20 transition-all cursor-pointer"
+                        >
+                          <PhoneCall className="w-5 h-5" />
+                          <span>WhatsApp</span>
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSubmittedNewsCase(null);
+                            setNewsArticleUrl('');
+                            setNewsKeywords('');
+                            setNewsNotes('');
+                          }}
+                          className="w-full text-center text-xs text-gray-500 hover:text-gray-800 underline cursor-pointer pt-1"
+                        >
+                          Submit another article URL for evaluation
+                        </button>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleNewsAuditSubmit} className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label
+                              htmlFor="news-full-name"
+                              className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5"
+                            >
+                              Full Name *
+                            </label>
+                            <input
+                              id="news-full-name"
+                              type="text"
+                              required
+                              value={newsName}
+                              onChange={(e) => setNewsName(e.target.value)}
+                              placeholder="Jordan Vance"
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm transition-all"
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="news-email"
+                              className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5"
+                            >
+                              Email *
+                            </label>
+                            <input
+                              id="news-email"
+                              type="email"
+                              required
+                              value={newsEmail}
+                              onChange={(e) => setNewsEmail(e.target.value)}
+                              placeholder="jordan@organization.com"
+                              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="news-article-url"
+                            className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5"
+                          >
+                            Article URL to Audit *
+                          </label>
+                          <input
+                            id="news-article-url"
+                            type="url"
+                            required
+                            value={newsArticleUrl}
+                            onChange={(e) => setNewsArticleUrl(e.target.value)}
+                            placeholder="https://publication.com/article-slug..."
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm font-mono transition-all"
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="news-keywords"
+                            className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5"
+                          >
+                            Target Keywords
+                          </label>
+                          <input
+                            id="news-keywords"
+                            type="text"
+                            value={newsKeywords}
+                            onChange={(e) => setNewsKeywords(e.target.value)}
+                            placeholder="Full Name, Brand Name, Executive Title"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm transition-all"
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="news-notes"
+                            className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5"
+                          >
+                            Additional Notes
+                          </label>
+                          <textarea
+                            id="news-notes"
+                            rows={3}
+                            value={newsNotes}
+                            onChange={(e) => setNewsNotes(e.target.value)}
+                            placeholder="Factual inaccuracies, outdated claims, or syndication details..."
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm transition-all resize-none"
+                          />
+                        </div>
+
+                        {newsError && (
+                          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                            <span>{newsError}</span>
+                          </div>
+                        )}
+
+                        <button
+                          type="submit"
+                          disabled={isNewsSubmitting}
+                          className="w-full inline-flex items-center justify-center gap-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white font-extrabold text-[15.5px] py-4 px-6 rounded-xl shadow-lg shadow-blue-600/25 transition-all cursor-pointer"
+                        >
+                          <span>
+                            {isNewsSubmitting ? 'Submitting Article Audit...' : 'Request Link Audit & Quote'}
+                          </span>
+                          <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                        </button>
+
+                        <p className="text-center text-xs text-gray-500">
+                          100% Escrow Protected • Released only after verified removal &amp; Google de-indexing.
+                        </p>
+                      </form>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      )}
 
       {/* =========================================================
           FOOTER WITH POSTWIPE SHIELD LOGO (CLEAN LIGHT PALETTE)
@@ -1535,33 +2425,64 @@ export function App() {
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-10 border-b border-gray-200">
             <div className="space-y-3 max-w-md">
-              <a href="#" className="flex items-center gap-3">
+              <a
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  switchPage('reddit');
+                }}
+                className="flex items-center gap-3"
+              >
                 <PostWipeLogoMark className="w-9 h-9" />
                 <span className="font-display text-2xl font-extrabold tracking-tight text-[#111827]">
                   Post<span className="text-[#2563EB]">Wipe</span>
                 </span>
               </a>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Specialized Reddit post removal and Google/AI search de-indexing for founders, SaaS operators, and executives. Protected by Escrow.com and released only after delete verification.
+                Specialized Reddit post removal, news article takedowns, and Google/AI search de-indexing for founders, SaaS operators, and executives. Protected by Escrow.com and released only after delete verification.
               </p>
             </div>
 
             <div className="flex flex-wrap gap-6 text-xs font-semibold text-gray-700">
-              <a href="#why-postwipe" className="hover:text-[#2563EB] transition-colors">
-                Why Reddit Hurts
-              </a>
-              <a href="#removal-options" className="hover:text-[#2563EB] transition-colors">
-                Removal Scope
-              </a>
-              <a href="#escrow-workflow" className="hover:text-[#2563EB] transition-colors">
+              <button
+                type="button"
+                onClick={() => switchPage('reddit')}
+                className={`hover:text-[#2563EB] transition-colors cursor-pointer ${
+                  activePage === 'reddit' ? 'text-[#2563EB] font-extrabold' : ''
+                }`}
+              >
+                Reddit Removal Page
+              </button>
+              <button
+                type="button"
+                onClick={() => switchPage('news')}
+                className={`hover:text-[#2563EB] transition-colors cursor-pointer ${
+                  activePage === 'news' ? 'text-[#2563EB] font-extrabold' : ''
+                }`}
+              >
+                News &amp; Media Removal Page
+              </button>
+              <button
+                type="button"
+                onClick={() => switchPage('reddit', '#escrow-workflow')}
+                className="hover:text-[#2563EB] transition-colors cursor-pointer"
+              >
                 Escrow Process
-              </a>
-              <a href="#case-results" className="hover:text-[#2563EB] transition-colors">
+              </button>
+              <button
+                type="button"
+                onClick={() => switchPage('reddit', '#case-results')}
+                className="hover:text-[#2563EB] transition-colors cursor-pointer"
+              >
                 Case Studies
-              </a>
-              <a href="#audit-form" className="hover:text-[#2563EB] transition-colors">
+              </button>
+              <button
+                type="button"
+                onClick={() => switchPage(activePage, activePage === 'news' ? '#news-audit-form' : '#audit-form')}
+                className="hover:text-[#2563EB] transition-colors cursor-pointer"
+              >
                 12-Hour Audit
-              </a>
+              </button>
             </div>
           </div>
 
