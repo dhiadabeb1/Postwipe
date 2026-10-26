@@ -21,6 +21,8 @@ import {
   Calendar,
   X,
   Video,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 interface SubmittedCaseDetails {
@@ -206,39 +208,6 @@ function PostWipeLogoMark({ className = 'w-10 h-10' }: { className?: string }) {
   );
 }
 
-const CASE_STUDIES = [
-  {
-    id: 'PW-941',
-    sector: 'B2B SaaS Platform (Series A)',
-    subreddit: 'r/SaaS & r/entrepreneur',
-    issue: 'Viral competitor smear thread ranking #2 on Google for "[Brand] reviews" and cited by ChatGPT.',
-    scope: 'Full Thread Removal + Google & AI De-Index',
-    timeline: '8 Business Days',
-    escrowStatus: 'Escrow Released Post-Removal',
-    metrics: 'Page-1 Google snippet & ChatGPT citation purged within 48h of Reddit deletion.',
-  },
-  {
-    id: 'PW-884',
-    sector: 'DTC Health & Supplement Brand',
-    subreddit: 'r/Supplements',
-    issue: '3-year-old thread with unverified product safety claims driving a 28% drop in branded checkout conversion.',
-    scope: 'Complete Root Thread Deletion',
-    timeline: '11 Business Days',
-    escrowStatus: 'Escrow Released Post-Removal',
-    metrics: 'Root post permanently removed at source; Google URL removal completed in 36 hours.',
-  },
-  {
-    id: 'PW-917',
-    sector: 'Fintech Founder & Executive',
-    subreddit: 'r/fintech & r/startups',
-    issue: 'Doxxing and defamatory commentary by a former contractor appearing on page 1 for the founder’s full name.',
-    scope: 'Targeted Comment Tree Wipe + Search Cache Purge',
-    timeline: '5 Business Days',
-    escrowStatus: 'Escrow Released Post-Removal',
-    metrics: '14 defamatory comments wiped under harassment & PII policy without alerting the thread author.',
-  },
-];
-
 const FAQS = [
   {
     q: 'What if the subreddit moderators already ignored or rejected our takedown request?',
@@ -278,6 +247,75 @@ export function App() {
   const [submittedCase, setSubmittedCase] = useState<SubmittedCaseDetails | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [previewMode, setPreviewMode] = useState<'after' | 'before'>('after');
+  const [activeProofIndex, setActiveProofIndex] = useState<number>(0);
+
+  const clientProofSlides = [
+    {
+      id: 'PW-LGT-204',
+      subreddit: 'r/Lighting (45K Weekly Visitors)',
+      sector: 'D2C E-Commerce & Architectural Lighting',
+      metrics: '53 Upvotes • 35 Replies',
+      status: 'Removed by Reddit Filters',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_02.55.40_4bfa1df0.png',
+    },
+    {
+      id: 'PW-ENG-201',
+      subreddit: 'r/IndianEngineers (31K+ Members)',
+      sector: 'Engineering & Industrial Recruitment',
+      metrics: '2,000+ Upvotes • 22 Replies • 463 Shares',
+      status: 'Removed by Reddit Filters',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.49_b07a1d32.png',
+    },
+    {
+      id: 'PW-CAR-202',
+      subreddit: 'r/IndiaCareers (92K Weekly Visitors)',
+      sector: 'Enterprise Hiring & HR Tech',
+      metrics: '935 Upvotes • 33 Replies • 88 Shares',
+      status: 'Removed by Moderator & Locked',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.43_6ad6a35b.png',
+    },
+    {
+      id: 'PW-CSC-203',
+      subreddit: 'r/cscareerquestions (544K Weekly Visitors)',
+      sector: 'Software Training & EdTech Platform',
+      metrics: '10 Upvotes • 56 Replies • 32 Shares',
+      status: 'Removed by Moderators',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.56_496a2012.png',
+    },
+    {
+      id: 'PW-GMB-205',
+      subreddit: 'r/gambling (182K Members)',
+      sector: 'Regulated iGaming & Digital Entertainment',
+      metrics: '14 Upvotes • 21 Replies • 310 Shares',
+      status: 'Removed by Moderator & Archived',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.23.27_a3d91ed2.png',
+    },
+    {
+      id: 'PW-MED-206',
+      subreddit: 'r/PiratingWebsites (346K Weekly Visitors)',
+      sector: 'Sports Media & Digital Broadcasting',
+      metrics: '7 Upvotes • 2 Replies • 17 Shares',
+      status: 'Removed by Reddit Filters',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.30_ebca3f99.png',
+    },
+    {
+      id: 'PW-ARC-207',
+      subreddit: 'r/PiracyArchive (278K Weekly Visitors)',
+      sector: 'Digital Media & Content Protection',
+      metrics: '17 Replies • 12 Shares',
+      status: 'Removed by Reddit Filters',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.19_e5af89ad.png',
+    },
+    {
+      id: 'PW-WEB-208',
+      subreddit: 'r/website (20K Members)',
+      sector: 'Digital Platform & Brand Protection',
+      metrics: '1 Upvote • 2 Replies',
+      status: 'Removed by Reddit Filters',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.08_848815a3.png',
+    },
+  ];
+  const currentProofSlide = clientProofSlides[activeProofIndex] || clientProofSlides[0];
 
   const [activePage, setActivePage] = useState<'reddit' | 'news'>(() => {
     if (typeof window !== 'undefined') {
@@ -1316,16 +1354,16 @@ export function App() {
               </div>
             </div>
 
-            {/* FLAGSHIP CASE STUDY DOSSIER: E-COMMERCE & LIGHTING BRAND (r/Lighting) */}
-            <div className="mb-12 rounded-2xl border-2 border-blue-100 bg-white shadow-xl shadow-blue-900/5 overflow-hidden">
+            {/* MULTI-CLIENT VERIFIED REMOVAL PORTFOLIO & CASE DOSSIER */}
+            <div className="rounded-2xl border-2 border-blue-100 bg-white shadow-xl shadow-blue-900/5 overflow-hidden">
               {/* Dossier Top Header Bar */}
               <div className="px-6 py-4 bg-[#F4F6FB] border-b border-gray-200 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <span className="font-mono text-xs font-extrabold px-3 py-1 rounded-md bg-[#2563EB] text-white">
-                    FEATURED CASE DOSSIER // PW-LIGHT-204
+                    VERIFIED CLIENT PORTFOLIO // LIVE REMOVAL PROOFS
                   </span>
                   <span className="font-mono text-xs text-gray-600 font-semibold">
-                    Subreddit: r/Lighting (45K+ Weekly Visitors)
+                    Communities up to 544K+ Weekly Visitors • Brand Identities Redacted Under NDA
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1337,25 +1375,25 @@ export function App() {
               </div>
 
               {/* Dossier Main Content Grid */}
-              <div className="p-6 sm:p-8 lg:p-10 space-y-8">
-                {/* Headline & Screenshot Proof Split */}
+              <div className="p-6 sm:p-8 lg:p-10 space-y-10">
+                {/* Multi-Client Overview & Coverflow Proof Slider Split */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                  <div className="lg:col-span-6 space-y-4">
+                  <div className="lg:col-span-5 space-y-4">
                     <div className="text-xs font-mono uppercase tracking-wider text-[#2563EB] font-bold">
-                      Sector: Direct-to-Consumer E-Commerce &amp; Architectural Lighting Brand
+                      Previous Clients Across E-Commerce, Tech &amp; Engineering, EdTech, Digital Media &amp; iGaming
                     </div>
                     <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-[#111827] leading-tight">
-                      Eliminating a Page-1 Google Defamation Thread in r/Lighting (&ldquo;Is [Brand] a legit site?&rdquo;)
+                      Eliminating Page-1 Google Defamation &amp; Viral Crisis Threads Across High-Authority Subreddits
                     </h3>
                     <p className="text-sm sm:text-[15px] text-gray-600 leading-relaxed">
-                      A high-ranking thread in <strong className="text-[#111827]">r/Lighting</strong> accusing a growing lighting brand of 400% price markups, dropshipping, and coordinated comment manipulation was dominating Page 1 of Google for branded buyer-intent searches. PostWipe executed a forensic policy audit, administrative escalation, and rapid search cache purge under a 100% Pay-on-Success escrow structure.
+                      Our previous clients faced severe commercial and reputational damage from high-ranking Reddit threads dominating Page 1 of Google for branded searches, ranging from <strong className="text-[#111827]">2,000+ upvote viral scam alerts</strong> in engineering communities and <strong className="text-[#111827]">935+ upvote recruitment disputes</strong> to D2C e-commerce legitimacy attacks, career platform accusations, and unauthorized media threads. PostWipe executed forensic policy audits, official administrative escalations, and rapid search cache purges across every engagement under a 100% Pay-on-Success escrow structure.
                     </p>
 
                     <div className="grid grid-cols-3 gap-3 pt-2">
                       <div className="p-3.5 rounded-xl bg-[#F4F6FB] border border-gray-200">
-                        <div className="font-mono text-[10px] uppercase text-gray-500 font-bold">Target Thread</div>
+                        <div className="font-mono text-[10px] uppercase text-gray-500 font-bold">Thread Scale</div>
                         <div className="font-display font-extrabold text-sm sm:text-base text-[#111827] mt-0.5">
-                          53 Upvotes / 35 Replies
+                          Up to 2K+ Upvotes
                         </div>
                       </div>
                       <div className="p-3.5 rounded-xl bg-[#F4F6FB] border border-gray-200">
@@ -1373,38 +1411,100 @@ export function App() {
                     </div>
                   </div>
 
-                  {/* Verified Live Proof Screenshot */}
-                  <div className="lg:col-span-6">
-                    <div className="rounded-2xl overflow-hidden border-2 border-gray-200 bg-[#111827] shadow-lg">
-                      <div className="px-4 py-2.5 bg-gray-900 border-b border-gray-800 flex items-center justify-between">
-                        <span className="font-mono text-[11px] text-gray-300">
-                          Verified Removal Evidence // r/Lighting Thread Unpublishing
-                        </span>
-                        <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-[#2563EB] text-white font-bold">
-                          VERIFIED DELETED
-                        </span>
-                      </div>
-                      <img
-                        src="/assets/aistudio/Screenshot_2026-10-26_at_02.55.40_4bfa1df0.png"
-                        alt="Verified removal of r/Lighting Reddit thread showing post removed by Reddit filters"
-                        className="w-full h-auto object-cover"
+                  {/* Layered Coverflow Slide Showcase (Large Pictures, Compact Buttons, Slow Smooth Sliding) */}
+                  <div className="lg:col-span-7">
+                    <div className="relative rounded-2xl overflow-hidden bg-[#1A1D24] px-4 sm:px-6 py-4 sm:py-5 shadow-2xl border border-gray-800/80 select-none">
+                      {/* Soft Blurred Ambient Backdrop of Current Slide */}
+                      <div
+                        className="absolute inset-0 bg-cover bg-center opacity-25 blur-2xl scale-110 transition-all duration-1000 ease-in-out pointer-events-none"
+                        style={{ backgroundImage: `url(${currentProofSlide.image})` }}
                       />
+                      <div className="absolute inset-0 bg-gradient-to-b from-[#111827]/60 via-[#111827]/40 to-[#111827]/75 pointer-events-none" />
+
+                      {/* Layered 3-Card Stage (Prev Peeking Left, Active Centered, Next Peeking Right) */}
+                      <div className="relative w-full aspect-[2940/1608] flex items-center justify-center">
+                        {clientProofSlides.map((slide, idx) => {
+                          const total = clientProofSlides.length;
+                          const prevIdx = (activeProofIndex - 1 + total) % total;
+                          const nextIdx = (activeProofIndex + 1) % total;
+
+                          let positionClasses =
+                            'opacity-0 scale-75 translate-x-0 z-0 pointer-events-none';
+                          if (idx === activeProofIndex) {
+                            positionClasses =
+                              'opacity-100 scale-100 translate-x-0 z-20 shadow-[0_22px_55px_rgba(0,0,0,0.85)] ring-1 ring-white/15';
+                          } else if (idx === prevIdx) {
+                            positionClasses =
+                              'opacity-55 scale-[0.88] -translate-x-[10%] z-10 brightness-75 shadow-xl cursor-pointer';
+                          } else if (idx === nextIdx) {
+                            positionClasses =
+                              'opacity-55 scale-[0.88] translate-x-[10%] z-10 brightness-75 shadow-xl cursor-pointer';
+                          }
+
+                          return (
+                            <div
+                              key={slide.id}
+                              onClick={() => {
+                                if (idx === prevIdx || idx === nextIdx) {
+                                  setActiveProofIndex(idx);
+                                }
+                              }}
+                              className={`absolute inset-0 rounded-lg overflow-hidden bg-[#0B0F19] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${positionClasses}`}
+                            >
+                              <img
+                                src={slide.image}
+                                alt="Verified Reddit thread removal proof"
+                                className="w-full h-full object-cover"
+                                draggable={false}
+                              />
+                            </div>
+                          );
+                        })}
+
+                        {/* Compact Outlined Left Button */}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActiveProofIndex((prev) =>
+                              prev === 0 ? clientProofSlides.length - 1 : prev - 1
+                            )
+                          }
+                          aria-label="Previous slide"
+                          className="absolute -left-2 sm:-left-3 top-1/2 -translate-y-1/2 w-7 h-8 sm:w-8 sm:h-9 border border-[#60A5FA]/90 bg-[#111827]/65 hover:bg-[#2563EB]/90 backdrop-blur-xs text-white flex items-center justify-center transition-all duration-300 cursor-pointer z-30 shadow-md"
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2]" />
+                        </button>
+
+                        {/* Compact Outlined Right Button */}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActiveProofIndex((prev) =>
+                              prev === clientProofSlides.length - 1 ? 0 : prev + 1
+                            )
+                          }
+                          aria-label="Next slide"
+                          className="absolute -right-2 sm:-right-3 top-1/2 -translate-y-1/2 w-7 h-8 sm:w-8 sm:h-9 border border-[#60A5FA]/90 bg-[#111827]/65 hover:bg-[#2563EB]/90 backdrop-blur-xs text-white flex items-center justify-center transition-all duration-300 cursor-pointer z-30 shadow-md"
+                        >
+                          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2]" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* 4-Stage Institutional Case Study Breakdown */}
+                {/* 4-Stage Institutional Multi-Client Execution Breakdown */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
                   {/* 01. Executive Summary & Challenge */}
                   <div className="p-6 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-2.5">
                     <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
-                      01 // Executive Summary &amp; Challenge
+                      01 // Multi-Client Challenge &amp; Search Impact
                     </div>
                     <h4 className="font-display text-lg font-extrabold text-[#111827]">
-                      High-Intent Search Contamination &amp; Checkout Abandonment
+                      High-Intent Search Contamination Across Buyer &amp; Candidate Funnels
                     </h4>
                     <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                      Prospective customers researching the lighting brand prior to checkout encountered a viral thread in <strong className="text-[#111827]">r/Lighting</strong> titled <em>&ldquo;Is [Brand] a legit site? Price seems too good to be true.&rdquo;</em> The thread accumulated 53 upvotes and 35 comments containing unverified accusations of 400% price inflation, dropshipping, and subpar product quality, directly eroding high-ticket cart conversions and brand equity.
+                      Across our previous client engagements, hostile Reddit threads ranging from 50+ upvote e-commerce legitimacy debates to 2,000+ upvote viral scam accusations ranked on Page 1 of Google for exact brand names. Prospects, enterprise partners, and job applicants researching these companies encountered unverified allegations prior to checkout or contract signing.
                     </p>
                   </div>
 
@@ -1417,7 +1517,7 @@ export function App() {
                       Identifying Actionable Sitewide Policy Violations
                     </h4>
                     <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                      PostWipe’s compliance analysts performed a comprehensive forensic audit of the root submission and its 35-comment tree. Rather than arguing commercial opinions, our team isolated concrete violations of Reddit’s sitewide Content Policy, including coordinated brigading, vote and platform manipulation accusations, targeted commercial harassment, and unauthorized data sharing.
+                      PostWipe’s compliance analysts performed forensic audits of each root submission and its comment tree. Rather than arguing commercial opinions, our team isolated concrete violations of Reddit’s sitewide Content Policy, including targeted commercial harassment, coordinated brigading, vote manipulation, and unauthorized intellectual property or data sharing.
                     </p>
                   </div>
 
@@ -1427,10 +1527,10 @@ export function App() {
                       03 // Strategic Escalation &amp; Execution
                     </div>
                     <h4 className="font-display text-lg font-extrabold text-[#111827]">
-                      Administrative Takedown Without Triggering the Streisand Effect
+                      Administrative Takedowns Without Triggering the Streisand Effect
                     </h4>
                     <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                      Previous attempts to counter the narrative in the comments had backfired, prompting hostile users to accuse the brand of astroturfing. PostWipe bypassed volunteer <strong className="text-[#111827]">r/Lighting</strong> moderators completely and escalated a formal policy compliance dossier through official administrative channels, ensuring zero public footprint or secondary backlash.
+                      Publicly replying or messaging hostile volunteer moderators frequently backfires and triggers secondary threads. PostWipe executed structured compliance filings through official administrative and policy channels, achieving permanent filter and moderator removals across every client engagement with zero public blowback.
                     </p>
                   </div>
 
@@ -1443,47 +1543,11 @@ export function App() {
                       Permanent Thread Removal, Google De-Indexing &amp; Escrow Settlement
                     </h4>
                     <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                      The offending thread was permanently removed from public view at the source and immediately submitted for expedited Google search cache clearing. With the damaging snippet purged from branded search results, checkout conversion velocity normalized. Only after the client verified both source removal and search de-indexing were the funds released from neutral third-party escrow.
+                      Every offending thread was permanently removed from public view at the source and immediately submitted for expedited Google search cache clearing. Only after each client independently verified source deletion and search de-indexing were funds released from neutral Escrow.com protection.
                     </p>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {CASE_STUDIES.map((cs) => (
-                <div
-                  key={cs.id}
-                  className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200 flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-4">
-                      <span className="font-mono text-xs font-bold px-2.5 py-1 rounded bg-[#1E3A8A] text-white">
-                        CASE {cs.id}
-                      </span>
-                      <span className="font-mono text-xs font-semibold text-[#2563EB] bg-blue-100/80 px-2.5 py-1 rounded">
-                        {cs.timeline}
-                      </span>
-                    </div>
-
-                    <div className="text-xs font-mono text-gray-500 mb-1">{cs.subreddit}</div>
-                    <h3 className="font-display text-lg font-extrabold text-[#111827] mb-3">
-                      {cs.sector}
-                    </h3>
-                    <p className="text-sm text-gray-600 leading-relaxed mb-5">{cs.issue}</p>
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-200 space-y-2 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-500 font-medium">Action Executed:</span>
-                      <span className="font-mono font-bold text-[#111827]">{cs.scope}</span>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-200/80 text-blue-950 font-medium">
-                      {cs.metrics}
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </section>
