@@ -1304,15 +1304,149 @@ export function App() {
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
               <div>
                 <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
-                  05 // VERIFIED REMOVAL LEDGER
+                  05 // VERIFIED REMOVAL LEDGER &amp; CASE DOSSIER
                 </div>
                 <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827]">
-                  Recent Anonymized Reddit Removals
+                  Verified Reddit Crisis Removals
                 </h2>
               </div>
               <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-50 border border-blue-200 text-xs font-mono text-blue-900 font-semibold">
                 <CheckCircle2 className="w-4 h-4 text-[#2563EB]" />
-                <span>All cases settled via Escrow.com post-verification</span>
+                <span>100% Pay-on-Success via Escrow.com</span>
+              </div>
+            </div>
+
+            {/* FLAGSHIP CASE STUDY DOSSIER: E-COMMERCE & LIGHTING BRAND (r/Lighting) */}
+            <div className="mb-12 rounded-2xl border-2 border-blue-100 bg-white shadow-xl shadow-blue-900/5 overflow-hidden">
+              {/* Dossier Top Header Bar */}
+              <div className="px-6 py-4 bg-[#F4F6FB] border-b border-gray-200 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-xs font-extrabold px-3 py-1 rounded-md bg-[#2563EB] text-white">
+                    FEATURED CASE DOSSIER // PW-LIGHT-204
+                  </span>
+                  <span className="font-mono text-xs text-gray-600 font-semibold">
+                    Subreddit: r/Lighting (45K+ Weekly Visitors)
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-blue-50 border border-blue-200 font-mono text-xs font-bold text-[#1E3A8A]">
+                    <Lock className="w-3.5 h-3.5 text-[#2563EB]" />
+                    Escrow.com Settled Post-Verification
+                  </span>
+                </div>
+              </div>
+
+              {/* Dossier Main Content Grid */}
+              <div className="p-6 sm:p-8 lg:p-10 space-y-8">
+                {/* Headline & Screenshot Proof Split */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                  <div className="lg:col-span-6 space-y-4">
+                    <div className="text-xs font-mono uppercase tracking-wider text-[#2563EB] font-bold">
+                      Sector: Direct-to-Consumer E-Commerce &amp; Architectural Lighting Brand
+                    </div>
+                    <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-[#111827] leading-tight">
+                      Eliminating a Page-1 Google Defamation Thread in r/Lighting (&ldquo;Is [Brand] a legit site?&rdquo;)
+                    </h3>
+                    <p className="text-sm sm:text-[15px] text-gray-600 leading-relaxed">
+                      A high-ranking thread in <strong className="text-[#111827]">r/Lighting</strong> accusing a growing lighting brand of 400% price markups, dropshipping, and coordinated comment manipulation was dominating Page 1 of Google for branded buyer-intent searches. PostWipe executed a forensic policy audit, administrative escalation, and rapid search cache purge under a 100% Pay-on-Success escrow structure.
+                    </p>
+
+                    <div className="grid grid-cols-3 gap-3 pt-2">
+                      <div className="p-3.5 rounded-xl bg-[#F4F6FB] border border-gray-200">
+                        <div className="font-mono text-[10px] uppercase text-gray-500 font-bold">Target Thread</div>
+                        <div className="font-display font-extrabold text-sm sm:text-base text-[#111827] mt-0.5">
+                          53 Upvotes / 35 Replies
+                        </div>
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-[#F4F6FB] border border-gray-200">
+                        <div className="font-mono text-[10px] uppercase text-gray-500 font-bold">Outcome</div>
+                        <div className="font-display font-extrabold text-sm sm:text-base text-[#2563EB] mt-0.5">
+                          Removed at Source
+                        </div>
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-[#F4F6FB] border border-gray-200">
+                        <div className="font-mono text-[10px] uppercase text-gray-500 font-bold">Financial Risk</div>
+                        <div className="font-display font-extrabold text-sm sm:text-base text-[#111827] mt-0.5">
+                          $0 Upfront (Escrow)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Verified Live Proof Screenshot */}
+                  <div className="lg:col-span-6">
+                    <div className="rounded-2xl overflow-hidden border-2 border-gray-200 bg-[#111827] shadow-lg">
+                      <div className="px-4 py-2.5 bg-gray-900 border-b border-gray-800 flex items-center justify-between">
+                        <span className="font-mono text-[11px] text-gray-300">
+                          Verified Removal Evidence // r/Lighting Thread Unpublishing
+                        </span>
+                        <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-[#2563EB] text-white font-bold">
+                          VERIFIED DELETED
+                        </span>
+                      </div>
+                      <img
+                        src="/assets/aistudio/Screenshot_2026-10-26_at_02.55.40_4bfa1df0.png"
+                        alt="Verified removal of r/Lighting Reddit thread showing post removed by Reddit filters"
+                        className="w-full h-auto object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4-Stage Institutional Case Study Breakdown */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+                  {/* 01. Executive Summary & Challenge */}
+                  <div className="p-6 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-2.5">
+                    <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
+                      01 // Executive Summary &amp; Challenge
+                    </div>
+                    <h4 className="font-display text-lg font-extrabold text-[#111827]">
+                      High-Intent Search Contamination &amp; Checkout Abandonment
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                      Prospective customers researching the lighting brand prior to checkout encountered a viral thread in <strong className="text-[#111827]">r/Lighting</strong> titled <em>&ldquo;Is [Brand] a legit site? Price seems too good to be true.&rdquo;</em> The thread accumulated 53 upvotes and 35 comments containing unverified accusations of 400% price inflation, dropshipping, and subpar product quality, directly eroding high-ticket cart conversions and brand equity.
+                    </p>
+                  </div>
+
+                  {/* 02. Forensic Audit & Platform Policy Analysis */}
+                  <div className="p-6 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-2.5">
+                    <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
+                      02 // Forensic Audit &amp; Platform Policy Analysis
+                    </div>
+                    <h4 className="font-display text-lg font-extrabold text-[#111827]">
+                      Identifying Actionable Sitewide Policy Violations
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                      PostWipe’s compliance analysts performed a comprehensive forensic audit of the root submission and its 35-comment tree. Rather than arguing commercial opinions, our team isolated concrete violations of Reddit’s sitewide Content Policy, including coordinated brigading, vote and platform manipulation accusations, targeted commercial harassment, and unauthorized data sharing.
+                    </p>
+                  </div>
+
+                  {/* 03. Strategic Escalation & Execution */}
+                  <div className="p-6 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-2.5">
+                    <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
+                      03 // Strategic Escalation &amp; Execution
+                    </div>
+                    <h4 className="font-display text-lg font-extrabold text-[#111827]">
+                      Administrative Takedown Without Triggering the Streisand Effect
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                      Previous attempts to counter the narrative in the comments had backfired, prompting hostile users to accuse the brand of astroturfing. PostWipe bypassed volunteer <strong className="text-[#111827]">r/Lighting</strong> moderators completely and escalated a formal policy compliance dossier through official administrative channels, ensuring zero public footprint or secondary backlash.
+                    </p>
+                  </div>
+
+                  {/* 04. Outcome & Business Impact */}
+                  <div className="p-6 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-2.5">
+                    <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
+                      04 // Outcome &amp; Business Impact
+                    </div>
+                    <h4 className="font-display text-lg font-extrabold text-[#111827]">
+                      Permanent Thread Removal, Google De-Indexing &amp; Escrow Settlement
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                      The offending thread was permanently removed from public view at the source and immediately submitted for expedited Google search cache clearing. With the damaging snippet purged from branded search results, checkout conversion velocity normalized. Only after the client verified both source removal and search de-indexing were the funds released from neutral third-party escrow.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
