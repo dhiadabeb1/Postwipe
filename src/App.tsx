@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { InsightsAndCompliance } from './components/InsightsAndCompliance';
 
 interface SubmittedCaseDetails {
   caseId: string;
@@ -317,10 +318,13 @@ export function App() {
   ];
   const currentProofSlide = clientProofSlides[activeProofIndex] || clientProofSlides[0];
 
-  const [activePage, setActivePage] = useState<'reddit' | 'news'>(() => {
+  const [activePage, setActivePage] = useState<'reddit' | 'news' | 'insights'>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
+      if (path.includes('insights') || path.includes('blog') || hash.includes('insights') || hash.includes('blog')) {
+        return 'insights';
+      }
       if (path.includes('news') || hash.includes('news')) {
         return 'news';
       }
@@ -332,7 +336,9 @@ export function App() {
     const handlePopState = () => {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
-      if (path.includes('news') || hash.includes('news')) {
+      if (path.includes('insights') || path.includes('blog') || hash.includes('insights') || hash.includes('blog')) {
+        setActivePage('insights');
+      } else if (path.includes('news') || hash.includes('news')) {
         setActivePage('news');
       } else {
         setActivePage('reddit');
@@ -342,12 +348,14 @@ export function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const switchPage = (page: 'reddit' | 'news', targetHash?: string) => {
+  const switchPage = (page: 'reddit' | 'news' | 'insights', targetHash?: string) => {
     setActivePage(page);
     if (typeof window !== 'undefined') {
       const newUrl =
         page === 'news'
           ? `/news-removal${targetHash ? targetHash : ''}`
+          : page === 'insights'
+          ? `/insights${targetHash ? targetHash : ''}`
           : `/${targetHash ? targetHash : ''}`;
       try {
         window.history.pushState({ page }, '', newUrl);
@@ -596,19 +604,23 @@ export function App() {
                 Post<span className="text-[#2563EB]">Wipe</span>
               </span>
               <span className="font-mono text-[10px] uppercase tracking-widest text-gray-500 mt-0.5">
-                {activePage === 'news' ? 'News & Media Removal' : 'Reddit Removal & De-Indexing'}
+                {activePage === 'news'
+                  ? 'News & Media Removal'
+                  : activePage === 'insights'
+                  ? 'Insights & Compliance Blog'
+                  : 'Reddit Removal & De-Indexing'}
               </span>
             </div>
           </a>
 
           {/* Navigation Links & Dedicated Page Switcher */}
-          <nav className="hidden lg:flex items-center gap-6 text-[14px] font-semibold text-gray-600">
+          <nav className="hidden lg:flex items-center gap-5 text-[14px] font-semibold text-gray-600">
             {/* Dedicated Service Pages Pill Switcher */}
             <div className="inline-flex items-center p-1 rounded-xl bg-[#F4F6FB] border border-gray-200">
               <button
                 type="button"
                 onClick={() => switchPage('reddit')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
                   activePage === 'reddit'
                     ? 'bg-[#2563EB] text-white shadow-2xs'
                     : 'text-gray-600 hover:text-[#111827]'
@@ -619,13 +631,24 @@ export function App() {
               <button
                 type="button"
                 onClick={() => switchPage('news')}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
                   activePage === 'news'
                     ? 'bg-[#2563EB] text-white shadow-2xs'
                     : 'text-gray-600 hover:text-[#111827]'
                 }`}
               >
                 News &amp; Media Removal
+              </button>
+              <button
+                type="button"
+                onClick={() => switchPage('insights')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                  activePage === 'insights'
+                    ? 'bg-[#2563EB] text-white shadow-2xs'
+                    : 'text-gray-600 hover:text-[#111827]'
+                }`}
+              >
+                Insights &amp; Blog
               </button>
             </div>
 
@@ -647,7 +670,7 @@ export function App() {
                   FAQ
                 </a>
               </>
-            ) : (
+            ) : activePage === 'news' ? (
               <>
                 <a href="#news-process" className="hover:text-[#2563EB] transition-colors">
                   3-Step Process
@@ -659,27 +682,61 @@ export function App() {
                   Request Audit
                 </a>
               </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => switchPage('reddit', '#case-results')}
+                  className="hover:text-[#2563EB] transition-colors cursor-pointer"
+                >
+                  Case Dossiers
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchPage('reddit', '#escrow-workflow')}
+                  className="hover:text-[#2563EB] transition-colors cursor-pointer"
+                >
+                  Escrow Protocol
+                </button>
+              </>
             )}
           </nav>
 
           {/* Header Action Area */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Mobile Page Toggle */}
+            <div className="lg:hidden flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() =>
+                  switchPage(activePage === 'insights' ? 'reddit' : 'insights')
+                }
+                className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-[#F4F6FB] border border-blue-200 text-[#1E3A8A] font-bold text-xs cursor-pointer"
+              >
+                <span>{activePage === 'insights' ? '← Reddit' : 'Blog'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => switchPage(activePage === 'news' ? 'reddit' : 'news')}
+                className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-[#F4F6FB] border border-blue-200 text-[#1E3A8A] font-bold text-xs cursor-pointer"
+              >
+                <span>{activePage === 'news' ? '← Reddit' : 'News'}</span>
+              </button>
+            </div>
+
             <button
               type="button"
-              onClick={() => switchPage(activePage === 'reddit' ? 'news' : 'reddit')}
-              className="lg:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#F4F6FB] border border-blue-200 text-[#1E3A8A] font-bold text-xs cursor-pointer"
-            >
-              <span>{activePage === 'reddit' ? 'News Removal Page →' : '← Reddit Removal'}</span>
-            </button>
-
-            <a
-              href={activePage === 'news' ? '#news-audit-form' : '#audit-form'}
+              onClick={() =>
+                switchPage(
+                  activePage === 'news' ? 'news' : 'reddit',
+                  activePage === 'news' ? '#news-audit-form' : '#audit-form'
+                )
+              }
               className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-[13px] sm:text-[14px] px-4 sm:px-5 py-2.5 rounded-xl shadow-sm shadow-blue-600/20 hover:shadow-md transition-all cursor-pointer"
             >
               <span>{activePage === 'news' ? 'Request Link Audit' : 'Free 12h Link Audit'}</span>
               <ArrowRight className="w-4 h-4 text-blue-100 hidden sm:inline" />
-            </a>
+            </button>
           </div>
         </div>
       </header>
@@ -1900,7 +1957,7 @@ export function App() {
           </div>
         </section>
       </main>
-      ) : (
+      ) : activePage === 'news' ? (
       /* =========================================================
          DEDICATED PAGE: NEWS & MEDIA ARTICLE REMOVAL (/news-removal)
          ========================================================= */
@@ -2614,6 +2671,20 @@ export function App() {
           </div>
         </section>
       </main>
+      ) : (
+      /* =========================================================
+         DEDICATED PAGE: INSIGHTS & COMPLIANCE BLOG (/insights)
+         ========================================================= */
+      <main className="flex-1 bg-white">
+        <InsightsAndCompliance
+          onRequestAudit={(articleTitle) => {
+            if (articleTitle && !contextInput) {
+              setContextInput(`Compliance Briefing Inquiry: ${articleTitle}`);
+            }
+            switchPage('reddit', '#audit-form');
+          }}
+        />
+      </main>
       )}
 
       {/* =========================================================
@@ -2662,6 +2733,15 @@ export function App() {
               </button>
               <button
                 type="button"
+                onClick={() => switchPage('insights')}
+                className={`hover:text-[#2563EB] transition-colors cursor-pointer ${
+                  activePage === 'insights' ? 'text-[#2563EB] font-extrabold' : ''
+                }`}
+              >
+                Insights &amp; Compliance Blog
+              </button>
+              <button
+                type="button"
                 onClick={() => switchPage('reddit', '#escrow-workflow')}
                 className="hover:text-[#2563EB] transition-colors cursor-pointer"
               >
@@ -2676,7 +2756,7 @@ export function App() {
               </button>
               <button
                 type="button"
-                onClick={() => switchPage(activePage, activePage === 'news' ? '#news-audit-form' : '#audit-form')}
+                onClick={() => switchPage(activePage === 'news' ? 'news' : 'reddit', activePage === 'news' ? '#news-audit-form' : '#audit-form')}
                 className="hover:text-[#2563EB] transition-colors cursor-pointer"
               >
                 12-Hour Audit
