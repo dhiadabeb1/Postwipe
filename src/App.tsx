@@ -27,7 +27,7 @@ import {
   Mail,
 } from 'lucide-react';
 import { InsightsAndCompliance } from './components/InsightsAndCompliance';
-import { submitAuditLead, buildDirectEmailUrl } from './services/formSubmission';
+import { buildDirectEmailUrl } from './services/formSubmission';
 
 interface SubmittedCaseDetails {
   caseId: string;
@@ -39,6 +39,9 @@ interface SubmittedCaseDetails {
 }
 
 const WHATSAPP_BASE_URL = 'https://wa.me/21695022973';
+const WEB3FORMS_ACCESS_KEY =
+  (import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined) ||
+  'YOUR_WEB3FORMS_ACCESS_KEY';
 
 function buildWhatsAppUrl(details: SubmittedCaseDetails | null): string {
   if (!details) {
@@ -435,19 +438,31 @@ export function App() {
     });
 
     try {
-      const result = await submitAuditLead({
-        subject: `New PostWipe ${callPlatform} Scheduled (${generatedCaseId}) - ${cleanName}`,
-        caseId: generatedCaseId,
-        name: cleanName,
-        email: cleanEmail,
-        url: cleanUrl,
-        serviceType: `15-Minute Strategy Call (${callPlatform})`,
-        phone: cleanPhone || 'Not provided',
-        scheduledSlot: slotSummary,
-        calendarLink: gcalUrl,
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: `New PostWipe Strategy Call Scheduled (${generatedCaseId}) - ${cleanName}`,
+          from_name: 'PostWipe Calendar Desk',
+          case_reference: generatedCaseId,
+          service_type: `15-Minute Strategy Call (${callPlatform})`,
+          name: cleanName,
+          email: cleanEmail,
+          phone_or_whatsapp: cleanPhone || 'Not provided',
+          scheduled_slot: slotSummary,
+          target_reddit_url: cleanUrl,
+          google_calendar_link: gcalUrl,
+          botcheck: '',
+        }),
       });
 
-      if (result.success) {
+      const data = await response.json();
+
+      if (response.status === 200 && data.success) {
         const bookedDetails: SubmittedCaseDetails = {
           caseId: generatedCaseId,
           name: cleanName,
@@ -459,20 +474,15 @@ export function App() {
         setBookedCalendarUrl(gcalUrl);
         setCallBookedCase(bookedDetails);
       } else {
-        setCallError('Unable to schedule your call right now. Please connect directly via WhatsApp.');
+        setCallError(
+          data.message ||
+            'Unable to schedule call. Please verify your Web3Forms access key or reach out on WhatsApp.'
+        );
       }
-    } catch {
-      // Direct graceful fallback
-      const bookedDetails: SubmittedCaseDetails = {
-        caseId: generatedCaseId,
-        name: cleanName,
-        email: cleanEmail,
-        url: cleanUrl,
-        company: cleanPhone ? `${callPlatform} • ${cleanPhone}` : callPlatform,
-        context: slotSummary,
-      };
-      setBookedCalendarUrl(gcalUrl);
-      setCallBookedCase(bookedDetails);
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : 'Network error while scheduling call';
+      setCallError(`${errorMsg}. Please connect directly via WhatsApp.`);
     } finally {
       setIsCallSubmitting(false);
     }
@@ -491,24 +501,37 @@ export function App() {
     const cleanUrl = urlInput.trim();
     const cleanCompany = companyInput.trim();
     const cleanContext = contextInput.trim();
+    const cleanScope =
+      removalScope === 'full-thread'
+        ? 'Full Thread Deletion + Search De-Index'
+        : 'Targeted Comment / Mention Wipe';
 
     try {
-      const result = await submitAuditLead({
-        subject: `New PostWipe Audit Request (${generatedCaseId}) - ${cleanName}`,
-        caseId: generatedCaseId,
-        name: cleanName,
-        email: cleanEmail,
-        url: cleanUrl,
-        serviceType: 'Reddit Post & Comment Removal',
-        scope:
-          removalScope === 'full-thread'
-            ? 'Full Thread Deletion + Search De-Index'
-            : 'Targeted Comment / Mention Wipe',
-        company: cleanCompany || 'Not provided',
-        context: cleanContext || 'Not provided',
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: `New PostWipe Reddit Audit Request (${generatedCaseId}) - ${cleanName}`,
+          from_name: 'PostWipe Audit Desk',
+          case_reference: generatedCaseId,
+          service_type: 'Reddit Post & Comment Removal',
+          name: cleanName,
+          email: cleanEmail,
+          company: cleanCompany || 'Not provided',
+          target_reddit_url: cleanUrl,
+          audit_scope: cleanScope,
+          context: cleanContext || 'Not provided',
+          botcheck: '',
+        }),
       });
 
-      if (result.success) {
+      const data = await response.json();
+
+      if (response.status === 200 && data.success) {
         setSubmittedCase({
           caseId: generatedCaseId,
           name: cleanName,
@@ -518,18 +541,17 @@ export function App() {
           context: cleanContext,
         });
       } else {
-        setSubmitError('Unable to submit audit at this moment. Please use WhatsApp or email directly.');
+        setSubmitError(
+          data.message ||
+            'Submission was not accepted by Web3Forms. Please check your access key or use WhatsApp.'
+        );
       }
-    } catch {
-      // Direct graceful fallback
-      setSubmittedCase({
-        caseId: generatedCaseId,
-        name: cleanName,
-        email: cleanEmail,
-        url: cleanUrl,
-        company: cleanCompany,
-        context: cleanContext,
-      });
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : 'Network error while sending audit request';
+      setSubmitError(
+        `${errorMsg}. Please verify your connection or reach out directly on WhatsApp.`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -550,18 +572,30 @@ export function App() {
     const cleanNotes = newsNotes.trim();
 
     try {
-      const result = await submitAuditLead({
-        subject: `New PostWipe News & Media Article Removal Audit (${generatedCaseId}) - ${cleanName}`,
-        caseId: generatedCaseId,
-        name: cleanName,
-        email: cleanEmail,
-        url: cleanUrl,
-        serviceType: 'News & Media Article Removal',
-        company: cleanKeywords ? `Target Keywords: ${cleanKeywords}` : 'News & Media Article Removal',
-        context: cleanNotes || 'Not provided',
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: `New PostWipe News & Media Removal Audit (${generatedCaseId}) - ${cleanName}`,
+          from_name: 'PostWipe News Desk',
+          case_reference: generatedCaseId,
+          service_type: 'News & Media Article Removal',
+          name: cleanName,
+          email: cleanEmail,
+          article_url_to_audit: cleanUrl,
+          target_keywords: cleanKeywords || 'Not provided',
+          additional_notes: cleanNotes || 'Not provided',
+          botcheck: '',
+        }),
       });
 
-      if (result.success) {
+      const data = await response.json();
+
+      if (response.status === 200 && data.success) {
         const newsDetails: SubmittedCaseDetails = {
           caseId: generatedCaseId,
           name: cleanName,
@@ -573,20 +607,17 @@ export function App() {
         setSubmittedNewsCase(newsDetails);
         setSubmittedCase(newsDetails);
       } else {
-        setNewsError('Unable to submit article audit request. Please use WhatsApp or email directly.');
+        setNewsError(
+          data.message ||
+            'Submission was not accepted by Web3Forms. Please check your access key or use WhatsApp.'
+        );
       }
-    } catch {
-      // Direct graceful fallback
-      const newsDetails: SubmittedCaseDetails = {
-        caseId: generatedCaseId,
-        name: cleanName,
-        email: cleanEmail,
-        url: cleanUrl,
-        company: cleanKeywords ? `Target Keywords: ${cleanKeywords}` : 'News & Media Article Removal',
-        context: cleanNotes,
-      };
-      setSubmittedNewsCase(newsDetails);
-      setSubmittedCase(newsDetails);
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : 'Network error while sending article audit request';
+      setNewsError(
+        `${errorMsg}. Please verify your connection or reach out directly on WhatsApp.`
+      );
     } finally {
       setIsNewsSubmitting(false);
     }
