@@ -7,22 +7,23 @@
 }
 
 :root {
-  --pw-blue: #2563eb;
-  --pw-blue-deep: #1d4ed8;
-  --pw-blue-bright: #3b82f6;
-  --pw-blue-soft: #eff6ff;
-  --pw-blue-border: #dbeafe;
-  --pw-indigo: #4f46e5;
-  --pw-danger: #e11d48;
-  --pw-danger-soft: #fff1f2;
-  --pw-ink: #0f172a;
-  --pw-ink-2: #1e293b;
-  --pw-muted: #475569;
-  --pw-surface: #f8fafc;
-  --pw-line: #e2e8f0;
-  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.03), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.04), 0 12px 28px -6px rgba(37, 99, 235, 0.10);
-  --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 20px 48px -12px rgba(37, 99, 235, 0.14);
+  --pw-blue: #3b82f6;
+  --pw-blue-deep: #2563eb;
+  --pw-blue-bright: #60a5fa;
+  --pw-blue-soft: #172554;
+  --pw-blue-border: #1e3a8a;
+  --pw-indigo: #6366f1;
+  --pw-danger: #f43f5e;
+  --pw-danger-soft: #4c0519;
+  --pw-ink: #f8fafc;
+  --pw-ink-2: #e2e8f0;
+  --pw-muted: #94a3b8;
+  --pw-surface: #0b0f19;
+  --pw-surface-card: #0f172a;
+  --pw-line: #1e293b;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 12px 28px -6px rgba(37, 99, 235, 0.18);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 20px 48px -12px rgba(37, 99, 235, 0.25);
 }
 
 @layer base {
@@ -32,12 +33,14 @@
     scroll-padding-top: 84px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #090d16;
+    color: #f8fafc;
   }
 
   body {
     font-family: var(--font-sans);
     font-weight: 500;
-    background-color: #ffffff;
+    background-color: #090d16;
     color: var(--pw-ink);
     line-height: 1.62;
     overflow-x: hidden;
@@ -57,12 +60,12 @@
   position: relative;
   isolation: isolate;
   display: inline-block;
-  color: #2563eb;
+  color: #60a5fa;
 }
 
 .pw-hl::after {
   content: "";
-  background: linear-gradient(90deg, rgba(37, 99, 235, 0.14) 0%, rgba(59, 130, 246, 0.22) 100%);
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.35) 0%, rgba(59, 130, 246, 0.45) 100%);
   z-index: -1;
   border-radius: 6px;
   height: 0.34em;
@@ -72,11 +75,11 @@
   right: -4px;
 }
 
-/* Subtle Architectural Line Grid */
+/* Subtle Architectural Line Grid for Dark Mode */
 .pw-grid-bg {
   background-image:
-    linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -84,6 +87,8 @@
 .pw-card {
   position: relative;
   overflow: hidden;
+  background-color: #0f172a;
+  border-color: #1e293b;
   box-shadow: var(--shadow-sm);
   transition:
     transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
@@ -93,7 +98,7 @@
 
 .pw-card::before {
   content: "";
-  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
   width: 0;
   height: 2px;
   transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -105,7 +110,7 @@
 .pw-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-md);
-  border-color: #bfdbfe;
+  border-color: #3b82f6;
 }
 
 .pw-card:hover::before {
@@ -116,9 +121,9 @@
 .pw-btn-primary {
   background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
-    0 1px 2px 0 rgba(15, 23, 42, 0.08),
-    0 8px 20px -4px rgba(37, 99, 235, 0.35);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
+    0 1px 2px 0 rgba(0, 0, 0, 0.4),
+    0 8px 24px -4px rgba(37, 99, 235, 0.5);
   transition:
     transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1),
@@ -126,12 +131,12 @@
 }
 
 .pw-btn-primary:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.08);
   transform: translateY(-1px);
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
-    0 4px 10px -2px rgba(15, 23, 42, 0.12),
-    0 12px 26px -4px rgba(37, 99, 235, 0.45);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35),
+    0 4px 12px -2px rgba(0, 0, 0, 0.5),
+    0 14px 30px -4px rgba(37, 99, 235, 0.65);
 }
 
 .pw-btn-primary:active {

@@ -323,30 +323,30 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
   return (
     <section
       id="insights-compliance"
-      className="py-20 bg-white border-b border-gray-200 text-[#111827]"
+      className="py-20 bg-[#090D16] border-b border-slate-800 text-[#F8FAFC]"
     >
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* =========================================================
-            INSTITUTIONAL SECTION HEADER (VORYS / ENTERPRISE LEGAL STYLE)
+            INSTITUTIONAL SECTION HEADER (VORYS / ENTERPRISE LEGAL STYLE - DARK)
            ========================================================= */}
-        <div className="border-b border-gray-200 pb-6 mb-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div className="border-b border-slate-800 pb-6 mb-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div className="space-y-2.5 max-w-3xl">
-            <div className="inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB]">
+            <div className="inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-[#60A5FA]">
               <Scale className="w-3.5 h-3.5" />
               <span>PUBLICATIONS • INSIGHTS, COMPLIANCE &amp; CASE BRIEFS</span>
             </div>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight">
+            <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
               Insights &amp; Compliance Briefings
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
               Authoritative legal-grade analysis on platform policy enforcement, non-public Reddit
               crisis remediation, DMCA compliance, and permanent Google search de-indexing.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#F8FAFC] border border-gray-200 text-xs font-mono text-slate-700 font-semibold">
-              <FileText className="w-3.5 h-3.5 text-[#2563EB]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#0F172A] border border-slate-800 text-xs font-mono text-slate-300 font-semibold shadow-xs">
+              <FileText className="w-3.5 h-3.5 text-[#60A5FA]" />
               <span>Corporate Reputation &amp; Platform Governance Practice</span>
             </div>
           </div>
@@ -355,26 +355,26 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
         {/* =========================================================
             MAIN HERO ARTICLE VIEW (EDITORIAL PUBLICATION + AUTHOR SIDEBAR)
            ========================================================= */}
-        <article className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden mb-14">
+        <article className="rounded-2xl border border-slate-800 bg-[#0F172A] shadow-2xl overflow-hidden mb-14">
           {/* Minimalist Publication Metadata Bar */}
-          <div className="px-6 sm:px-10 py-4 bg-[#F8FAFC] border-b border-gray-200 flex flex-wrap items-center justify-between gap-4">
+          <div className="px-6 sm:px-10 py-4 bg-[#0B0F19] border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#0F172A] text-white font-mono font-bold uppercase tracking-wider">
-                <BookOpen className="w-3 h-3 text-[#60A5FA]" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#2563EB] text-white font-mono font-bold uppercase tracking-wider">
+                <BookOpen className="w-3 h-3 text-white" />
                 {activeArticle.publicationType}
               </span>
-              <span className="text-gray-300">|</span>
-              <span className="inline-flex items-center gap-1.5 font-mono text-slate-600 font-medium">
-                <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />
+              <span className="text-slate-700">|</span>
+              <span className="inline-flex items-center gap-1.5 font-mono text-slate-300 font-medium">
+                <Calendar className="w-3.5 h-3.5 text-[#60A5FA]" />
                 Published: {activeArticle.publishedDate}
               </span>
-              <span className="text-gray-300 hidden sm:inline">|</span>
-              <span className="inline-flex items-center gap-1.5 font-mono text-slate-600 font-medium">
-                <Clock className="w-3.5 h-3.5 text-[#2563EB]" />
+              <span className="text-slate-700 hidden sm:inline">|</span>
+              <span className="inline-flex items-center gap-1.5 font-mono text-slate-300 font-medium">
+                <Clock className="w-3.5 h-3.5 text-[#60A5FA]" />
                 {activeArticle.readTime}
               </span>
-              <span className="text-gray-300 hidden md:inline">|</span>
-              <span className="font-mono text-slate-500 hidden md:inline">
+              <span className="text-slate-700 hidden md:inline">|</span>
+              <span className="font-mono text-slate-400 hidden md:inline">
                 Ref: {activeArticle.docketRef}
               </span>
             </div>
@@ -384,7 +384,7 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
               {activeArticle.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 font-mono text-[11px] font-semibold text-[#1E3A8A]"
+                  className="px-2.5 py-0.5 rounded bg-blue-950/60 border border-blue-500/30 font-mono text-[11px] font-semibold text-blue-300"
                 >
                   {tag}
                 </span>
@@ -395,11 +395,11 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
           {/* Main Hero Article Header & 12-Column Institutional Layout */}
           <div className="p-6 sm:p-10 lg:p-12">
             {/* Article Title & Subheadline */}
-            <div className="max-w-4xl border-b border-gray-200 pb-8 mb-10 space-y-4">
-              <h3 className="font-display text-2xl sm:text-3xl lg:text-[34px] font-extrabold text-[#0F172A] leading-[1.18] tracking-tight">
+            <div className="max-w-4xl border-b border-slate-800 pb-8 mb-10 space-y-4">
+              <h3 className="font-display text-2xl sm:text-3xl lg:text-[34px] font-extrabold text-white leading-[1.18] tracking-tight">
                 {activeArticle.title}
               </h3>
-              <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+              <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
                 {activeArticle.subheadline}
               </p>
             </div>
@@ -409,35 +409,35 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
               {/* LEFT SIDEBAR: AUTHOR / COMPLIANCE SPECIALIST CARD & KEY METADATA */}
               <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
                 {/* Author / Compliance Specialist Card */}
-                <div className="rounded-xl border border-gray-200 bg-[#F8FAFC] p-6 space-y-5 shadow-2xs">
-                  <div className="flex items-center justify-between border-b border-gray-200 pb-3">
-                    <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#2563EB]">
+                <div className="rounded-xl border border-slate-800 bg-[#0B0F19] p-6 space-y-5 shadow-lg">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#60A5FA]">
                       AUTHOR &amp; PRACTICE LEAD
                     </span>
-                    <UserCheck className="w-4 h-4 text-[#2563EB]" />
+                    <UserCheck className="w-4 h-4 text-[#60A5FA]" />
                   </div>
 
                   <div className="space-y-1.5">
-                    <div className="font-display text-lg font-extrabold text-[#0F172A]">
+                    <div className="font-display text-lg font-extrabold text-white">
                       {activeArticle.author.name}
                     </div>
-                    <div className="text-xs font-semibold text-[#1E3A8A]">
+                    <div className="text-xs font-semibold text-blue-400">
                       {activeArticle.author.role}
                     </div>
-                    <div className="text-[11px] font-mono text-slate-500 pt-0.5">
+                    <div className="text-[11px] font-mono text-slate-400 pt-0.5">
                       {activeArticle.author.credentials}
                     </div>
                   </div>
 
-                  <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed border-t border-gray-200 pt-4">
+                  <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed border-t border-slate-800 pt-4">
                     {activeArticle.author.bio}
                   </p>
 
-                  <div className="pt-2 space-y-2.5 border-t border-gray-200">
-                    <div className="font-mono text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                  <div className="pt-2 space-y-2.5 border-t border-slate-800">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-slate-400 font-bold">
                       Practice Area Focus
                     </div>
-                    <div className="text-xs font-medium text-[#0F172A]">
+                    <div className="text-xs font-medium text-slate-200">
                       {activeArticle.author.practiceArea}
                     </div>
                   </div>
@@ -447,10 +447,10 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                       href={activeArticle.author.directContactUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full inline-flex items-center justify-between px-4 py-2.5 rounded-lg bg-white hover:bg-blue-50 text-[#1E3A8A] border border-gray-200 hover:border-blue-200 font-semibold text-xs transition-all"
+                      className="w-full inline-flex items-center justify-between px-4 py-2.5 rounded-lg bg-[#0F172A] hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-slate-600 font-semibold text-xs transition-all"
                     >
                       <span>{activeArticle.author.directContactLabel}</span>
-                      <ExternalLink className="w-3.5 h-3.5 text-[#2563EB]" />
+                      <ExternalLink className="w-3.5 h-3.5 text-[#60A5FA]" />
                     </a>
                     <button
                       type="button"
@@ -464,12 +464,12 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                 </div>
 
                 {/* Quick Publication Switcher in Sidebar */}
-                <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-3 shadow-2xs">
-                  <div className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-gray-200 pb-2.5 flex items-center justify-between">
+                <div className="rounded-xl border border-slate-800 bg-[#0B0F19] p-5 space-y-3 shadow-lg">
+                  <div className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2.5 flex items-center justify-between">
                     <span>In This Briefing Series</span>
-                    <Bookmark className="w-3.5 h-3.5 text-[#2563EB]" />
+                    <Bookmark className="w-3.5 h-3.5 text-[#60A5FA]" />
                   </div>
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-slate-800/80">
                     {INSIGHTS_ARTICLES_DATA.map((item, idx) => {
                       const isCurrent = item.id === activeArticle.id;
                       return (
@@ -478,7 +478,7 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                           type="button"
                           onClick={() => setSelectedArticleId(item.id)}
                           className={`w-full text-left py-3 first:pt-1 last:pb-1 transition-colors cursor-pointer group ${
-                            isCurrent ? 'text-[#2563EB]' : 'text-slate-700 hover:text-[#2563EB]'
+                            isCurrent ? 'text-[#60A5FA]' : 'text-slate-300 hover:text-white'
                           }`}
                         >
                           <div className="font-mono text-[10px] text-slate-400 mb-0.5">
@@ -486,7 +486,7 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                           </div>
                           <div
                             className={`text-xs leading-snug ${
-                              isCurrent ? 'font-bold text-[#1E3A8A]' : 'font-medium'
+                              isCurrent ? 'font-bold text-blue-400' : 'font-medium'
                             }`}
                           >
                             {item.title}
@@ -501,11 +501,11 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
               {/* RIGHT MAIN COLUMN: EXECUTIVE SUMMARY, BODY TEXT, QUOTE CALLOUTS & FRAMEWORKS */}
               <div className="lg:col-span-8 space-y-8">
                 {/* Executive Summary Box */}
-                <div className="p-6 rounded-xl bg-[#F8FAFC] border border-gray-200 border-l-4 border-l-[#2563EB] space-y-2">
-                  <div className="font-mono text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">
+                <div className="p-6 rounded-xl bg-[#0B0F19] border border-slate-800 border-l-4 border-l-[#2563EB] space-y-2">
+                  <div className="font-mono text-xs font-bold uppercase tracking-wider text-blue-400">
                     Executive Summary
                   </div>
-                  <p className="text-sm sm:text-[15.5px] text-[#0F172A] leading-[1.75] font-medium">
+                  <p className="text-sm sm:text-[15.5px] text-slate-200 leading-[1.75] font-medium">
                     {activeArticle.executiveSummary}
                   </p>
                 </div>
@@ -515,9 +515,9 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                   {activeArticle.sections.map((sec, idx) => (
                     <div
                       key={idx}
-                      className="space-y-4 border-b border-gray-200 pb-8 last:border-b-0 last:pb-0"
+                      className="space-y-4 border-b border-slate-800 pb-8 last:border-b-0 last:pb-0"
                     >
-                      <h4 className="font-display text-xl sm:text-2xl font-extrabold text-[#0F172A] leading-snug">
+                      <h4 className="font-display text-xl sm:text-2xl font-extrabold text-white leading-snug">
                         {sec.heading}
                       </h4>
 
@@ -525,7 +525,7 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                         {sec.paragraphs.map((para, pIdx) => (
                           <p
                             key={pIdx}
-                            className="text-[15.5px] sm:text-[16.5px] text-slate-700 leading-[1.8]"
+                            className="text-[15.5px] sm:text-[16.5px] text-slate-300 leading-[1.8]"
                           >
                             {para}
                           </p>
@@ -534,16 +534,16 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
 
                       {/* Structured Quote Callout Box */}
                       {sec.calloutQuote && (
-                        <blockquote className="my-6 p-6 rounded-xl bg-white border border-gray-200 shadow-xs relative overflow-hidden">
+                        <blockquote className="my-6 p-6 rounded-xl bg-[#0B0F19] border border-slate-800 shadow-md relative overflow-hidden">
                           <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#2563EB]" />
                           <div className="pl-3 space-y-2.5">
-                            <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-[#2563EB]">
+                            <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-[#60A5FA]">
                               {sec.calloutQuote.label}
                             </div>
-                            <p className="font-display text-base sm:text-[17px] font-bold text-[#0F172A] leading-relaxed">
+                            <p className="font-display text-base sm:text-[17px] font-bold text-white leading-relaxed">
                               &ldquo;{sec.calloutQuote.quote}&rdquo;
                             </p>
-                            <footer className="font-mono text-xs text-slate-500 pt-1">
+                            <footer className="font-mono text-xs text-slate-400 pt-1">
                               Source: {sec.calloutQuote.citation}
                             </footer>
                           </div>
@@ -556,15 +556,15 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                           {sec.frameworkPoints.map((fp, fIdx) => (
                             <div
                               key={fIdx}
-                              className="p-4 rounded-xl bg-[#F8FAFC] border border-gray-200 space-y-1.5"
+                              className="p-4 rounded-xl bg-[#0B0F19] border border-slate-800 space-y-1.5"
                             >
                               <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-[#2563EB] shrink-0" />
-                                <h5 className="font-display text-sm font-extrabold text-[#0F172A]">
+                                <CheckCircle2 className="w-4 h-4 text-[#60A5FA] shrink-0" />
+                                <h5 className="font-display text-sm font-extrabold text-white">
                                   {fp.title}
                                 </h5>
                               </div>
-                              <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed pl-6">
+                              <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed pl-6">
                                 {fp.detail}
                               </p>
                             </div>
@@ -578,17 +578,17 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                 {/* =========================================================
                     PRIMARY FULL-WIDTH CTA BANNER AT END OF ARTICLE
                    ========================================================= */}
-                <div className="mt-10 rounded-2xl bg-gradient-to-br from-[#0F172A] via-[#1E3A8A] to-[#2563EB] text-white p-7 sm:p-9 border border-white/10 shadow-lg">
+                <div className="mt-10 rounded-2xl bg-gradient-to-br from-[#0B0F19] via-[#0F172A] to-blue-950 text-white p-7 sm:p-9 border border-blue-500/30 shadow-2xl">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="space-y-2.5 max-w-xl">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 font-mono text-[11px] font-semibold text-white">
-                        <Lock className="w-3.5 h-3.5 text-blue-300" />
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-500/40 font-mono text-[11px] font-semibold text-blue-300">
+                        <Lock className="w-3.5 h-3.5 text-blue-400" />
                         <span>CONFIDENTIAL 12-HOUR FEASIBILITY AUDIT</span>
                       </div>
                       <h4 className="font-display text-xl sm:text-2xl font-extrabold text-white leading-tight">
                         Facing an Active Defamatory Reddit Thread or Page-1 Search Result?
                       </h4>
-                      <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                         Submit the offending URL for a confidential 12-hour policy audit. Our
                         compliance specialists will verify removal eligibility and provide a fixed
                         Escrow.com quote with zero upfront financial risk.
@@ -599,13 +599,13 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                       <button
                         type="button"
                         onClick={() => handleTriggerAudit(activeArticle.title)}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-blue-50 text-[#0F172A] font-extrabold text-sm shadow-md transition-all cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#2563EB] hover:bg-blue-600 text-white font-extrabold text-sm shadow-md transition-all cursor-pointer"
                       >
                         <span>Request Confidential 12-Hour Audit</span>
-                        <ArrowRight className="w-4 h-4 text-[#2563EB]" />
+                        <ArrowRight className="w-4 h-4 text-white" />
                       </button>
-                      <div className="flex items-center justify-center gap-1.5 text-[11px] font-mono text-blue-200">
-                        <ShieldCheck className="w-3.5 h-3.5" />
+                      <div className="flex items-center justify-center gap-1.5 text-[11px] font-mono text-slate-400">
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#60A5FA]" />
                         <span>100% Pay-on-Success • NDA Protected</span>
                       </div>
                     </div>
@@ -620,12 +620,12 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
             GRID VIEW FOR RECENT ARTICLES (WITH CATEGORY TAG FILTERS)
            ========================================================= */}
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
             <div>
-              <h3 className="font-display text-xl sm:text-2xl font-extrabold text-[#0F172A]">
+              <h3 className="font-display text-xl sm:text-2xl font-extrabold text-white">
                 Recent Compliance Publications &amp; Guides
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
                 Select any briefing below to load the full compliance analysis above.
               </p>
             </div>
@@ -642,7 +642,7 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                     className={`px-3 py-1.5 rounded-lg font-mono text-xs font-semibold transition-all cursor-pointer ${
                       isActive
                         ? 'bg-[#2563EB] text-white shadow-xs'
-                        : 'bg-[#F8FAFC] text-slate-700 hover:bg-blue-50 hover:text-[#1E3A8A] border border-gray-200'
+                        : 'bg-[#0B0F19] text-slate-300 hover:bg-[#0F172A] hover:text-white border border-slate-800'
                     }`}
                   >
                     {tag}
@@ -668,17 +668,17 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                   }}
                   className={`pw-card rounded-2xl border p-6 flex flex-col justify-between transition-all cursor-pointer ${
                     isSelected
-                      ? 'border-[#2563EB] ring-1 ring-blue-500/20 bg-blue-50/15'
-                      : 'border-gray-200 bg-[#F8FAFC] hover:bg-white'
+                      ? 'border-[#2563EB] ring-1 ring-blue-500/30 bg-[#0F172A]'
+                      : 'border-slate-800 bg-[#0B0F19] hover:bg-[#0F172A] hover:border-slate-700'
                   }`}
                 >
                   <div className="space-y-4">
                     {/* Top Meta & Category Tags */}
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-white border border-gray-200 text-gray-700">
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-[#090D16] border border-slate-800 text-slate-300">
                         {article.publicationType}
                       </span>
-                      <span className="font-mono text-[11px] text-gray-500">
+                      <span className="font-mono text-[11px] text-slate-400">
                         {article.readTime}
                       </span>
                     </div>
@@ -687,31 +687,31 @@ export function InsightsAndCompliance({ onRequestAudit }: InsightsAndComplianceP
                       {article.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-2 py-0.5 rounded bg-blue-50 border border-blue-200 font-mono text-[10px] font-bold text-[#2563EB]"
+                          className="px-2 py-0.5 rounded bg-blue-950/60 border border-blue-500/30 font-mono text-[10px] font-bold text-blue-300"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
 
-                    <h4 className="font-display text-lg font-extrabold text-[#111827] leading-snug">
+                    <h4 className="font-display text-lg font-extrabold text-white leading-snug">
                       {article.title}
                     </h4>
 
-                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed line-clamp-3">
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed line-clamp-3">
                       {article.executiveSummary}
                     </p>
                   </div>
 
-                  <div className="pt-5 mt-5 border-t border-gray-200 flex items-center justify-between gap-2">
+                  <div className="pt-5 mt-5 border-t border-slate-800 flex items-center justify-between gap-2">
                     <div className="text-xs">
-                      <div className="font-bold text-[#111827]">{article.author.name}</div>
-                      <div className="font-mono text-[10px] text-gray-500">
+                      <div className="font-bold text-white">{article.author.name}</div>
+                      <div className="font-mono text-[10px] text-slate-400">
                         {article.publishedDate}
                       </div>
                     </div>
 
-                    <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-[#2563EB]">
+                    <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-[#60A5FA]">
                       <span>{isSelected ? 'Reading Now' : 'Read Briefing'}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </span>
