@@ -23,6 +23,7 @@ import {
   Video,
   ChevronLeft,
   ChevronRight,
+  XCircle,
 } from 'lucide-react';
 import { InsightsAndCompliance } from './components/InsightsAndCompliance';
 
@@ -582,145 +583,292 @@ export function App() {
     }
   };
 
+  const [openNavDropdown, setOpenNavDropdown] = useState<'solutions' | 'protocol' | null>(null);
+
   const activeWhatsAppUrl = buildWhatsAppUrl(submittedCase || submittedNewsCase);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#111827] selection:bg-blue-600/15 selection:text-blue-950">
-      {/* Sticky Header with User's PostWipe Logo & Page Switcher */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-          {/* PostWipe Brand Logo */}
+    <div className="min-h-screen flex flex-col bg-white text-[#0F172A] selection:bg-blue-600/15 selection:text-blue-950">
+      {/* Sticky Enterprise Header with Streamlined Navigation & Dropdowns */}
+      <header
+        className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-200/80 shadow-xs"
+        onMouseLeave={() => setOpenNavDropdown(null)}
+      >
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between gap-4">
+          {/* PostWipe Brand Lockup */}
           <a
             href="/"
             onClick={(e) => {
               e.preventDefault();
+              setOpenNavDropdown(null);
               switchPage('reddit');
             }}
-            className="flex items-center gap-3 group focus:outline-none"
+            className="flex items-center gap-2.5 group focus:outline-none shrink-0"
           >
-            <PostWipeLogoMark className="w-10 h-10 shadow-md shadow-blue-600/20 group-hover:scale-105 transition-transform" />
-            <div className="flex flex-col">
-              <span className="font-display text-2xl font-extrabold tracking-tight text-[#111827] leading-none">
-                Post<span className="text-[#2563EB]">Wipe</span>
-              </span>
-              <span className="font-mono text-[10px] uppercase tracking-widest text-gray-500 mt-0.5">
-                {activePage === 'news'
-                  ? 'News & Media Removal'
-                  : activePage === 'insights'
-                  ? 'Insights & Compliance Blog'
-                  : 'Reddit Removal & De-Indexing'}
-              </span>
-            </div>
+            <PostWipeLogoMark className="w-9 h-9 shadow-sm shadow-blue-600/15 group-hover:scale-[1.03] transition-transform duration-200" />
+            <span className="font-display text-[22px] font-extrabold tracking-tight text-[#0F172A] leading-none">
+              Post<span className="text-[#2563EB]">Wipe</span>
+            </span>
           </a>
 
-          {/* Navigation Links & Dedicated Page Switcher */}
-          <nav className="hidden lg:flex items-center gap-5 text-[14px] font-semibold text-gray-600">
-            {/* Dedicated Service Pages Pill Switcher */}
-            <div className="inline-flex items-center p-1 rounded-xl bg-[#F4F6FB] border border-gray-200">
+          {/* Streamlined Primary Navigation with Clean Dropdown Menus */}
+          <nav className="hidden lg:flex items-center gap-1.5 text-[13.5px] font-semibold text-slate-600">
+            {/* Solutions Dropdown (Reddit Removal & News Removal) */}
+            <div
+              className="relative"
+              onMouseEnter={() => setOpenNavDropdown('solutions')}
+            >
               <button
                 type="button"
-                onClick={() => switchPage('reddit')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
-                  activePage === 'reddit'
-                    ? 'bg-[#2563EB] text-white shadow-2xs'
-                    : 'text-gray-600 hover:text-[#111827]'
+                onClick={() =>
+                  setOpenNavDropdown(openNavDropdown === 'solutions' ? null : 'solutions')
+                }
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all cursor-pointer ${
+                  activePage === 'reddit' || activePage === 'news'
+                    ? 'text-[#0F172A] bg-slate-100/80'
+                    : 'hover:text-[#0F172A] hover:bg-slate-50'
                 }`}
               >
-                Reddit Removal
+                <span>Solutions</span>
+                <span className="px-1.5 py-0.5 rounded bg-blue-50 text-[#2563EB] font-mono text-[10px] font-bold">
+                  {activePage === 'news' ? 'News & Media' : 'Reddit'}
+                </span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                    openNavDropdown === 'solutions' ? 'rotate-180 text-[#2563EB]' : ''
+                  }`}
+                />
               </button>
-              <button
-                type="button"
-                onClick={() => switchPage('news')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
-                  activePage === 'news'
-                    ? 'bg-[#2563EB] text-white shadow-2xs'
-                    : 'text-gray-600 hover:text-[#111827]'
-                }`}
-              >
-                News &amp; Media Removal
-              </button>
-              <button
-                type="button"
-                onClick={() => switchPage('insights')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
-                  activePage === 'insights'
-                    ? 'bg-[#2563EB] text-white shadow-2xs'
-                    : 'text-gray-600 hover:text-[#111827]'
-                }`}
-              >
-                Insights &amp; Blog
-              </button>
+
+              {openNavDropdown === 'solutions' && (
+                <div className="absolute left-0 top-full pt-2 w-80 z-50">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-2 space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpenNavDropdown(null);
+                        switchPage('reddit');
+                      }}
+                      className={`w-full text-left p-3 rounded-lg transition-all flex items-start gap-3 cursor-pointer ${
+                        activePage === 'reddit'
+                          ? 'bg-blue-50/70 border border-blue-200/80'
+                          : 'hover:bg-slate-50 border border-transparent'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-[#2563EB] text-white flex items-center justify-center shrink-0 mt-0.5">
+                        <ShieldCheck className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-extrabold text-[#0F172A] flex items-center gap-1.5">
+                          <span>Reddit Thread &amp; Comment Removal</span>
+                          {activePage === 'reddit' && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-500 leading-snug mt-0.5 font-normal">
+                          Source deletion + Google &amp; AI search cache purge
+                        </p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpenNavDropdown(null);
+                        switchPage('news');
+                      }}
+                      className={`w-full text-left p-3 rounded-lg transition-all flex items-start gap-3 cursor-pointer ${
+                        activePage === 'news'
+                          ? 'bg-blue-50/70 border border-blue-200/80'
+                          : 'hover:bg-slate-50 border border-transparent'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center shrink-0 mt-0.5">
+                        <Globe className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-extrabold text-[#0F172A] flex items-center gap-1.5">
+                          <span>News &amp; Media Article Removal</span>
+                          {activePage === 'news' && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-500 leading-snug mt-0.5 font-normal">
+                          Publisher legal takedowns &amp; Google News de-indexing
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {activePage === 'reddit' ? (
-              <>
-                <a href="#why-postwipe" className="hover:text-[#2563EB] transition-colors">
-                  Why Reddit Hurts
-                </a>
-                <a href="#removal-options" className="hover:text-[#2563EB] transition-colors">
-                  Removal Scope
-                </a>
-                <a href="#escrow-workflow" className="hover:text-[#2563EB] transition-colors">
-                  Escrow Process
-                </a>
-                <a href="#case-results" className="hover:text-[#2563EB] transition-colors">
-                  Case Studies
-                </a>
-                <a href="#faq" className="hover:text-[#2563EB] transition-colors">
-                  FAQ
-                </a>
-              </>
-            ) : activePage === 'news' ? (
-              <>
-                <a href="#news-process" className="hover:text-[#2563EB] transition-colors">
-                  3-Step Process
-                </a>
-                <a href="#news-features" className="hover:text-[#2563EB] transition-colors">
-                  Risk-Free Model
-                </a>
-                <a href="#news-audit-form" className="hover:text-[#2563EB] transition-colors">
-                  Request Audit
-                </a>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => switchPage('reddit', '#case-results')}
-                  className="hover:text-[#2563EB] transition-colors cursor-pointer"
-                >
-                  Case Dossiers
-                </button>
-                <button
-                  type="button"
-                  onClick={() => switchPage('reddit', '#escrow-workflow')}
-                  className="hover:text-[#2563EB] transition-colors cursor-pointer"
-                >
-                  Escrow Protocol
-                </button>
-              </>
-            )}
+            {/* Secondary Section Links Grouped into Clean Protocol Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setOpenNavDropdown('protocol')}
+            >
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenNavDropdown(openNavDropdown === 'protocol' ? null : 'protocol')
+                }
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg hover:text-[#0F172A] hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                <span>Platform &amp; Protocol</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                    openNavDropdown === 'protocol' ? 'rotate-180 text-[#2563EB]' : ''
+                  }`}
+                />
+              </button>
+
+              {openNavDropdown === 'protocol' && (
+                <div className="absolute left-0 top-full pt-2 w-72 z-50">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-2 space-y-0.5">
+                    {activePage === 'news' ? (
+                      <>
+                        <a
+                          href="#news-process"
+                          onClick={() => setOpenNavDropdown(null)}
+                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="text-xs font-bold text-[#0F172A]">3-Stage Publisher Protocol</div>
+                          <div className="text-[11px] text-slate-500 font-normal">Editorial, legal &amp; SERP de-indexing</div>
+                        </a>
+                        <a
+                          href="#news-features"
+                          onClick={() => setOpenNavDropdown(null)}
+                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="text-xs font-bold text-[#0F172A]">Escrow &amp; Free-Fix Guarantee</div>
+                          <div className="text-[11px] text-slate-500 font-normal">Zero upfront retainer risk model</div>
+                        </a>
+                        <a
+                          href="#news-audit-form"
+                          onClick={() => setOpenNavDropdown(null)}
+                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="text-xs font-bold text-[#2563EB]">Submit Article URL for Audit →</div>
+                        </a>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenNavDropdown(null);
+                            switchPage('reddit', '#why-postwipe');
+                          }}
+                          className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                        >
+                          <div className="text-xs font-bold text-[#0F172A]">Why Hostile Reddit Threads Hurt</div>
+                          <div className="text-[11px] text-slate-500 font-normal">Google SERP &amp; AI search contamination</div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenNavDropdown(null);
+                            switchPage('reddit', '#removal-options');
+                          }}
+                          className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                        >
+                          <div className="text-xs font-bold text-[#0F172A]">Surgical Removal Scope</div>
+                          <div className="text-[11px] text-slate-500 font-normal">Comment wipe vs. full thread deletion</div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenNavDropdown(null);
+                            switchPage('reddit', '#escrow-workflow');
+                          }}
+                          className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                        >
+                          <div className="text-xs font-bold text-[#0F172A]">4-Step Escrow.com Workflow</div>
+                          <div className="text-[11px] text-slate-500 font-normal">Pay only after verified deletion</div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenNavDropdown(null);
+                            switchPage('reddit', '#faq');
+                          }}
+                          className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                        >
+                          <div className="text-xs font-bold text-[#0F172A]">Due Diligence &amp; Escrow FAQ</div>
+                          <div className="text-[11px] text-slate-500 font-normal">Timelines, guarantees &amp; NDA terms</div>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Direct Top-Level Links */}
+            <button
+              type="button"
+              onClick={() => {
+                setOpenNavDropdown(null);
+                switchPage('reddit', '#case-results');
+              }}
+              className="px-3.5 py-2 rounded-lg hover:text-[#0F172A] hover:bg-slate-50 transition-all cursor-pointer"
+            >
+              Case Studies
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setOpenNavDropdown(null);
+                switchPage('insights');
+              }}
+              className={`px-3.5 py-2 rounded-lg transition-all cursor-pointer ${
+                activePage === 'insights'
+                  ? 'text-[#2563EB] bg-blue-50/80 font-bold'
+                  : 'hover:text-[#0F172A] hover:bg-slate-50'
+              }`}
+            >
+              Insights &amp; Blog
+            </button>
           </nav>
 
           {/* Header Action Area */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Mobile Page Toggle */}
-            <div className="lg:hidden flex items-center gap-1">
+            {/* Compact Mobile Page Switcher */}
+            <div className="lg:hidden flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-gray-200">
               <button
                 type="button"
-                onClick={() =>
-                  switchPage(activePage === 'insights' ? 'reddit' : 'insights')
-                }
-                className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-[#F4F6FB] border border-blue-200 text-[#1E3A8A] font-bold text-xs cursor-pointer"
+                onClick={() => switchPage('reddit')}
+                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  activePage === 'reddit'
+                    ? 'bg-white text-[#2563EB] shadow-2xs'
+                    : 'text-slate-600'
+                }`}
               >
-                <span>{activePage === 'insights' ? '← Reddit' : 'Blog'}</span>
+                Reddit
               </button>
               <button
                 type="button"
-                onClick={() => switchPage(activePage === 'news' ? 'reddit' : 'news')}
-                className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-[#F4F6FB] border border-blue-200 text-[#1E3A8A] font-bold text-xs cursor-pointer"
+                onClick={() => switchPage('news')}
+                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  activePage === 'news'
+                    ? 'bg-white text-[#2563EB] shadow-2xs'
+                    : 'text-slate-600'
+                }`}
               >
-                <span>{activePage === 'news' ? '← Reddit' : 'News'}</span>
+                News
+              </button>
+              <button
+                type="button"
+                onClick={() => switchPage('insights')}
+                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  activePage === 'insights'
+                    ? 'bg-white text-[#2563EB] shadow-2xs'
+                    : 'text-slate-600'
+                }`}
+              >
+                Blog
               </button>
             </div>
 
@@ -732,7 +880,7 @@ export function App() {
                   activePage === 'news' ? '#news-audit-form' : '#audit-form'
                 )
               }
-              className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-[13px] sm:text-[14px] px-4 sm:px-5 py-2.5 rounded-xl shadow-sm shadow-blue-600/20 hover:shadow-md transition-all cursor-pointer"
+              className="pw-btn-primary inline-flex items-center gap-2 text-white font-bold text-[13px] sm:text-[13.5px] px-4 sm:px-5 py-2.5 rounded-xl border border-blue-500/40 cursor-pointer"
             >
               <span>{activePage === 'news' ? 'Request Link Audit' : 'Free 12h Link Audit'}</span>
               <ArrowRight className="w-4 h-4 text-blue-100 hidden sm:inline" />
@@ -744,46 +892,46 @@ export function App() {
       {activePage === 'reddit' ? (
       <main className="flex-1">
         {/* =========================================================
-            SECTION 1: HERO — CLEAR VALUE PROPOSITION + ESCROW + LIVE 404 CONSOLE
+            SECTION 1: HERO — CLEAR VALUE PROPOSITION + ESCROW + LIVE VERIFICATION DASHBOARD
            ========================================================= */}
-        <section className="relative pt-10 pb-20 lg:pt-16 lg:pb-24 overflow-hidden bg-gradient-to-b from-[#F4F6FB] to-white pw-grid-bg border-b border-gray-200">
+        <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-28 overflow-hidden bg-gradient-to-b from-[#F8FAFC] via-white to-white pw-grid-bg border-b border-gray-200">
           {/* Soft ambient cobalt-indigo glow */}
           <div
-            className="pointer-events-none absolute -top-24 right-1/4 w-[520px] h-[520px] rounded-full bg-blue-500/10 blur-3xl"
+            className="pointer-events-none absolute -top-28 right-1/4 w-[560px] h-[560px] rounded-full bg-blue-600/8 blur-3xl"
             aria-hidden="true"
           />
 
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-12 items-center">
               {/* Left Column: Core Pitch, Pricing + Escrow, 3 Trust Pillars */}
               <div className="lg:col-span-7">
                 {/* Category Pill */}
-                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-bold tracking-wide uppercase mb-6 shadow-2xs">
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-50/90 border border-blue-200/80 text-blue-950 text-xs font-bold tracking-wide uppercase mb-6 shadow-2xs">
                   <ShieldCheck className="w-4 h-4 text-[#2563EB] shrink-0" />
                   <span>Corporate Policy Escalation • No Moderator Begging</span>
                 </div>
 
                 {/* Main Headline */}
-                <h1 className="font-display text-[38px] sm:text-[50px] lg:text-[56px] font-extrabold text-[#111827] tracking-tight leading-[1.05] mb-6">
+                <h1 className="font-display text-[38px] sm:text-[50px] lg:text-[56px] font-extrabold text-[#0F172A] tracking-tight leading-[1.05] mb-6">
                   Permanently Erase Defamatory <span className="pw-hl">Reddit Threads</span> &amp; Google Search Snippets.
                 </h1>
 
                 {/* Two concise supporting lines explaining who it's for, what is removed/de-indexed, and Escrow terms */}
-                <div className="space-y-3 text-[16px] sm:text-[17.5px] text-gray-600 leading-relaxed max-w-2xl mb-8">
+                <div className="space-y-3.5 text-[16px] sm:text-[17.5px] text-slate-600 leading-relaxed max-w-2xl mb-8">
                   <p>
-                    Built for <strong className="text-[#111827] font-semibold">founders, SaaS operators, and executives</strong>: we remove damaging Reddit posts and comments at the source and de-index dead links from <strong className="text-[#111827] font-semibold">Google, Bing, ChatGPT, and Perplexity</strong>.
+                    Built for <strong className="text-[#0F172A] font-semibold">founders, SaaS operators, and executives</strong>: we remove damaging Reddit posts and comments at the source and de-index dead links from <strong className="text-[#0F172A] font-semibold">Google, Bing, ChatGPT, and Perplexity</strong>.
                   </p>
                   <p>
-                    Every engagement is protected by <strong className="text-[#111827] font-semibold">Escrow.com</strong>, where your deposit stays locked and is <span className="underline decoration-[#2563EB] decoration-2 underline-offset-4 font-semibold text-[#111827]">released only after delete verification</span>.
+                    Every engagement is protected by <strong className="text-[#0F172A] font-semibold">Escrow.com</strong>, where your deposit stays locked and is <span className="underline decoration-[#2563EB] decoration-2 underline-offset-4 font-semibold text-[#0F172A]">released only after delete verification</span>.
                   </p>
                 </div>
 
                 {/* Primary CTA + Schedule a Call + Pricing & Escrow Terms */}
-                <div className="space-y-4 mb-9">
+                <div className="space-y-4 mb-10">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3.5">
                     <a
                       href="#audit-form"
-                      className="inline-flex items-center justify-center gap-3 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-[16px] px-7 py-4 rounded-xl shadow-lg shadow-blue-600/25 hover:shadow-blue-600/35 transition-all cursor-pointer shrink-0"
+                      className="pw-btn-primary inline-flex items-center justify-center gap-3 text-white font-extrabold text-[15.5px] px-7 py-4 rounded-xl border border-blue-500/40 cursor-pointer shrink-0"
                     >
                       <span>Submit Reddit Link for Audit</span>
                       <ArrowRight className="w-5 h-5 stroke-[2.5]" />
@@ -796,7 +944,7 @@ export function App() {
                         setCallStep('slot');
                         setIsCallModalOpen(true);
                       }}
-                      className="inline-flex items-center justify-center gap-2.5 bg-white hover:bg-blue-50/60 text-[#111827] font-extrabold text-[15.5px] px-6 py-4 rounded-xl border-2 border-blue-200 hover:border-[#2563EB] shadow-2xs transition-all cursor-pointer shrink-0"
+                      className="inline-flex items-center justify-center gap-2.5 bg-white hover:bg-slate-50 text-[#0F172A] font-bold text-[15px] px-6 py-4 rounded-xl border border-gray-200 hover:border-blue-300 shadow-xs transition-all cursor-pointer shrink-0"
                     >
                       <Video className="w-5 h-5 text-[#2563EB]" />
                       <span>Schedule a Call (Google Meet)</span>
@@ -804,20 +952,20 @@ export function App() {
                   </div>
 
                   {/* Pricing + Escrow Badge directly beneath/beside CTA */}
-                  <div className="inline-flex items-center gap-3.5 bg-white px-4 py-3 rounded-xl border border-blue-200/90 shadow-2xs">
-                    <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
+                  <div className="inline-flex items-center gap-3.5 bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-xs">
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200/80 flex items-center justify-center shrink-0">
                       <Lock className="w-5 h-5 text-[#2563EB]" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-display font-extrabold text-[15px] text-[#111827]">
+                        <span className="font-display font-extrabold text-[15px] text-[#0F172A]">
                           Starts from $300
                         </span>
-                        <span className="text-[11px] font-mono font-semibold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                        <span className="text-[11px] font-mono font-semibold uppercase px-2 py-0.5 rounded bg-blue-50 border border-blue-200/80 text-[#2563EB]">
                           Escrow.com
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
                         Released only after delete verification • $0 if unsuccessful
                       </p>
                     </div>
@@ -825,38 +973,38 @@ export function App() {
                 </div>
 
                 {/* 3 First-Screen Trust Elements */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-6 border-t border-gray-200">
-                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-gray-200/80">
+                  <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-[13px] font-bold text-[#111827]">Escrow.com Protected</div>
-                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                      <div className="text-[13px] font-bold text-[#0F172A]">Escrow.com Protected</div>
+                      <p className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
                         Funds held safely until target URL is permanently deleted.
                       </p>
                     </div>
                   </div>
 
-                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                  <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
                       <FileCheck2 className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-[13px] font-bold text-[#111827]">Source + SERP Wipe</div>
-                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                      <div className="text-[13px] font-bold text-[#0F172A]">Source + SERP Wipe</div>
+                      <p className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
                         Deletes Reddit source &amp; purges Google / AI search cache.
                       </p>
                     </div>
                   </div>
 
-                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                  <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
                       <Scale className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-[13px] font-bold text-[#111827]">Direct Policy Escalation</div>
-                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                      <div className="text-[13px] font-bold text-[#0F172A]">Direct Policy Escalation</div>
+                      <p className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
                         100% NDA compliance via internal Trust &amp; Safety filings.
                       </p>
                     </div>
@@ -864,29 +1012,27 @@ export function App() {
                 </div>
               </div>
 
-              {/* Right Column: Clean Light-Mode Interactive 404 & SERP Verification Console */}
+              {/* Right Column: Sleek Live Verification Dashboard with Crisp Status Badges */}
               <div className="lg:col-span-5">
-                <div className="bg-white text-[#111827] rounded-2xl border-2 border-blue-100 shadow-xl shadow-blue-900/5 overflow-hidden">
-                  {/* Console Top Bar */}
-                  <div className="px-5 py-3.5 bg-[#F4F6FB] border-b border-gray-200 flex items-center justify-between gap-2">
+                <div className="bg-white text-[#0F172A] rounded-2xl border border-gray-200 shadow-md overflow-hidden">
+                  {/* Dashboard Top Header Bar */}
+                  <div className="px-5 py-3.5 bg-[#0F172A] text-white border-b border-white/10 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                      <span className="ml-2 font-mono text-[11px] text-gray-500 font-semibold">
-                        postwipe://live-verification
+                      <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
+                      <span className="font-mono text-[11px] text-slate-200 font-semibold tracking-wide">
+                        LIVE VERIFICATION DASHBOARD
                       </span>
                     </div>
 
                     {/* Interactive Before / After State Toggle */}
-                    <div className="inline-flex rounded-lg bg-white p-0.5 border border-gray-200 text-[11px] font-mono">
+                    <div className="inline-flex rounded-lg bg-slate-800/90 p-0.5 border border-white/10 text-[11px] font-mono">
                       <button
                         type="button"
                         onClick={() => setPreviewMode('before')}
-                        className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
                           previewMode === 'before'
-                            ? 'bg-rose-50 text-rose-700 font-bold border border-rose-200'
-                            : 'text-gray-500 hover:text-gray-900'
+                            ? 'bg-rose-500/20 text-rose-200 font-bold border border-rose-400/30'
+                            : 'text-slate-400 hover:text-white'
                         }`}
                       >
                         Before
@@ -894,10 +1040,10 @@ export function App() {
                       <button
                         type="button"
                         onClick={() => setPreviewMode('after')}
-                        className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
                           previewMode === 'after'
-                            ? 'bg-[#2563EB] text-white font-bold'
-                            : 'text-gray-500 hover:text-gray-900'
+                            ? 'bg-[#2563EB] text-white font-bold shadow-xs'
+                            : 'text-slate-400 hover:text-white'
                         }`}
                       >
                         After Removal
@@ -905,18 +1051,50 @@ export function App() {
                     </div>
                   </div>
 
-                  {/* Console Body */}
+                  {/* Crisp Verification Status Badges Bar */}
+                  <div className="px-5 py-3 bg-[#F8FAFC] border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-mono text-[10.5px] font-bold border transition-all ${
+                          previewMode === 'after'
+                            ? 'bg-blue-50 text-[#2563EB] border-blue-200'
+                            : 'bg-rose-50 text-rose-700 border-rose-200'
+                        }`}
+                      >
+                        <CheckCircle2 className="w-3 h-3 shrink-0" />
+                        <span>{previewMode === 'after' ? 'De-Indexed' : 'Indexed Page 1'}</span>
+                      </span>
+
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-mono text-[10.5px] font-bold border transition-all ${
+                          previewMode === 'after'
+                            ? 'bg-blue-50 text-[#2563EB] border-blue-200'
+                            : 'bg-amber-50 text-amber-800 border-amber-200'
+                        }`}
+                      >
+                        <Sparkles className="w-3 h-3 shrink-0" />
+                        <span>{previewMode === 'after' ? 'Cache Purged' : 'AI Cited'}</span>
+                      </span>
+
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900 text-white font-mono text-[10.5px] font-bold border border-slate-800">
+                        <Lock className="w-3 h-3 text-blue-400 shrink-0" />
+                        <span>Escrow Protected</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Dashboard Body */}
                   <div className="p-5 sm:p-6 space-y-4">
                     {/* 1. Target Reddit Thread Card */}
                     <div
                       className={`rounded-xl p-4 border transition-all ${
                         previewMode === 'after'
-                          ? 'bg-blue-50/50 border-blue-200'
-                          : 'bg-rose-50/50 border-rose-200'
+                          ? 'bg-blue-50/40 border-blue-200/90'
+                          : 'bg-rose-50/40 border-rose-200/90'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2 mb-2.5">
-                        <span className="font-mono text-[11px] text-gray-500 truncate">
+                        <span className="font-mono text-[11px] text-slate-500 truncate">
                           reddit.com/r/SaaS/comments/1x9k2a/avoid_acme_software...
                         </span>
                         {previewMode === 'after' ? (
@@ -931,20 +1109,20 @@ export function App() {
                       </div>
 
                       {previewMode === 'after' ? (
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                           <div className="relative inline-block">
-                            <p className="text-sm font-semibold text-gray-400 line-through">
+                            <p className="text-sm font-semibold text-slate-400 line-through">
                               Avoid AcmeCloud: deceptive billing &amp; terrible support [248 upvotes]
                             </p>
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-blue-900 font-mono bg-blue-100/80 border border-blue-200 rounded-lg px-3 py-2">
+                          <div className="flex items-center gap-2 text-xs text-blue-950 font-mono bg-blue-100/70 border border-blue-200 rounded-lg px-3 py-2">
                             <CheckCircle2 className="w-4 h-4 shrink-0 text-[#2563EB]" />
                             <span>[removed by Reddit in response to policy violation]</span>
                           </div>
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          <p className="text-sm font-semibold text-gray-900">
+                          <p className="text-sm font-semibold text-[#0F172A]">
                             Avoid AcmeCloud: deceptive billing &amp; terrible support [248 upvotes]
                           </p>
                           <p className="text-xs text-rose-700">
@@ -954,24 +1132,25 @@ export function App() {
                       )}
                     </div>
 
-                    {/* 2. Search Engine & AI Citation Status */}
-                    <div className="rounded-xl bg-[#F4F6FB] border border-gray-200 p-4">
-                      <div className="text-[11px] font-mono uppercase tracking-wider text-gray-500 mb-3 flex items-center justify-between">
-                        <span>Search &amp; AI Index Propagation</span>
+                    {/* 2. Search Engine & AI Citation Telemetry */}
+                    <div className="rounded-xl bg-[#F8FAFC] border border-gray-200 p-4">
+                      <div className="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-3 flex items-center justify-between">
+                        <span>Search &amp; AI Index Verification</span>
                         <span className="text-[#2563EB] font-bold">
-                          {previewMode === 'after' ? '3 / 3 PURGED' : 'EXPOSED'}
+                          {previewMode === 'after' ? '3 / 3 VERIFIED CLEAN' : 'EXPOSED'}
                         </span>
                       </div>
 
                       <div className="space-y-2.5 text-xs">
-                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200">
-                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200/80">
+                          <span className="text-slate-700 font-medium flex items-center gap-2">
                             <Globe className="w-3.5 h-3.5 text-[#2563EB]" />
-                            Google Search &amp; Cached Snippet
+                            Google Search &amp; SERP Snippet
                           </span>
                           {previewMode === 'after' ? (
-                            <span className="font-mono text-[11px] text-[#2563EB] font-bold">
-                              De-Indexed (Cache Purged)
+                            <span className="inline-flex items-center gap-1 font-mono text-[11px] text-[#2563EB] font-bold">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              De-Indexed
                             </span>
                           ) : (
                             <span className="font-mono text-[11px] text-rose-600 font-bold">
@@ -980,14 +1159,15 @@ export function App() {
                           )}
                         </div>
 
-                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200">
-                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200/80">
+                          <span className="text-slate-700 font-medium flex items-center gap-2">
                             <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" />
-                            ChatGPT &amp; Perplexity Brand Summary
+                            Google Cache &amp; AI Overview
                           </span>
                           {previewMode === 'after' ? (
-                            <span className="font-mono text-[11px] text-[#2563EB] font-bold">
-                              Citation Cleared
+                            <span className="inline-flex items-center gap-1 font-mono text-[11px] text-[#2563EB] font-bold">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Cache Purged
                             </span>
                           ) : (
                             <span className="font-mono text-[11px] text-rose-600 font-bold">
@@ -997,17 +1177,17 @@ export function App() {
                         </div>
 
                         <div className="flex items-center justify-between pt-1">
-                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                          <span className="text-slate-700 font-medium flex items-center gap-2">
                             <Lock className="w-3.5 h-3.5 text-[#2563EB]" />
-                            Escrow.com Milestone Status
+                            Escrow.com Settlement Status
                           </span>
                           {previewMode === 'after' ? (
-                            <span className="font-mono text-[11px] bg-blue-100 text-blue-900 px-2 py-0.5 rounded border border-blue-200 font-bold">
-                              VERIFIED &amp; RELEASED
+                            <span className="font-mono text-[11px] bg-blue-50 text-[#1E3A8A] px-2 py-0.5 rounded border border-blue-200 font-bold">
+                              ESCROW PROTECTED • RELEASED
                             </span>
                           ) : (
-                            <span className="font-mono text-[11px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-200 font-bold">
-                              LOCKED IN ESCROW
+                            <span className="font-mono text-[11px] bg-amber-50 text-amber-900 px-2 py-0.5 rounded border border-amber-200 font-bold">
+                              ESCROW PROTECTED • LOCKED
                             </span>
                           )}
                         </div>
@@ -1015,13 +1195,13 @@ export function App() {
                     </div>
 
                     {/* Console Bottom Status Strip */}
-                    <div className="flex items-center justify-between text-[11px] font-mono text-gray-500 pt-1">
+                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 pt-1">
                       <span className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
-                        90-Day Re-Post Protection Included
+                        90-Day Re-Post Warranty Included
                       </span>
                       <a href="#audit-form" className="text-[#2563EB] hover:underline font-bold">
-                        Check Your URL →
+                        Audit Your URL →
                       </a>
                     </div>
                   </div>
@@ -1034,53 +1214,53 @@ export function App() {
         {/* =========================================================
             SECTION 2: WHY NEGATIVE REDDIT THREADS HURT FOUNDERS & SAAS
            ========================================================= */}
-        <section id="why-postwipe" className="py-20 bg-white border-b border-gray-200">
+        <section id="why-postwipe" className="py-24 bg-white border-b border-gray-200">
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mb-14">
               <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
-                01 // THE REPUTATION BOTTLENECK
+                01. THE REPUTATION BOTTLENECK
               </div>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] mb-4">
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#0F172A] mb-4">
                 Why One Hostile Reddit Thread Quietly Destroys High-Intent Deals
               </h2>
-              <p className="text-gray-600 text-[16.5px] leading-relaxed">
+              <p className="text-slate-600 text-[16.5px] leading-relaxed">
                 Google’s search algorithm now prioritizes Reddit discussions above review sites, while AI engines scrape those exact threads to answer buyer due-diligence queries.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200">
+              <div className="pw-card bg-[#F8FAFC] rounded-2xl p-8 border border-gray-200">
                 <div className="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 flex items-center justify-center mb-5">
                   <Search className="w-5 h-5" />
                 </div>
                 <div className="font-mono text-xs font-bold text-rose-600 uppercase mb-1.5">
                   Google SERP Priority
                 </div>
-                <h3 className="font-display text-xl font-bold text-[#111827] mb-3">
+                <h3 className="font-display text-xl font-bold text-[#0F172A] mb-3">
                   Pinned to Page 1 for “[Brand] Reviews”
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-slate-600 text-sm leading-relaxed">
                   Because Google treats Reddit as high-authority user-generated content, a single thread from an angry ex-employee, competitor, or troll often outranks your own website and G2/Trustpilot profiles.
                 </p>
               </div>
 
-              <div className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200">
-                <div className="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 flex items-center justify-center mb-5">
+              <div className="pw-card bg-[#F8FAFC] rounded-2xl p-8 border border-gray-200">
+                <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[#2563EB] flex items-center justify-center mb-5">
                   <Sparkles className="w-5 h-5" />
                 </div>
-                <div className="font-mono text-xs font-bold text-indigo-600 uppercase mb-1.5">
+                <div className="font-mono text-xs font-bold text-[#2563EB] uppercase mb-1.5">
                   AI Search Contamination
                 </div>
-                <h3 className="font-display text-xl font-bold text-[#111827] mb-3">
+                <h3 className="font-display text-xl font-bold text-[#0F172A] mb-3">
                   Repeated as “Fact” by ChatGPT &amp; Perplexity
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-slate-600 text-sm leading-relaxed">
                   When prospects ask ChatGPT, Gemini, or Perplexity whether your company is trustworthy, LLMs synthesize unverified Reddit accusations directly into their buying recommendations.
                 </p>
               </div>
 
-              <div className="pw-card bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] text-white rounded-2xl p-7 border border-blue-700 shadow-lg">
-                <div className="w-11 h-11 rounded-xl bg-white/15 border border-white/25 text-white flex items-center justify-center mb-5">
+              <div className="pw-card bg-gradient-to-br from-[#0F172A] via-[#1E3A8A] to-[#2563EB] text-white rounded-2xl p-8 border border-white/10 shadow-md">
+                <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/15 text-white flex items-center justify-center mb-5">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div className="font-mono text-xs font-bold text-blue-200 uppercase mb-1.5">
@@ -1098,53 +1278,53 @@ export function App() {
         </section>
 
         {/* =========================================================
-            SECTION 3: TWO REMOVAL SCOPES (COMMENT WIPE VS FULL THREAD 404)
+            SECTION 3: TWO REMOVAL SCOPES (COMMENT WIPE VS FULL THREAD)
            ========================================================= */}
-        <section id="removal-options" className="py-20 bg-[#F4F6FB] border-b border-gray-200">
+        <section id="removal-options" className="py-24 bg-[#F8FAFC] border-b border-gray-200">
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-14 gap-6">
               <div className="max-w-2xl">
                 <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
-                  02 // SURGICAL SCOPE SELECTION
+                  02. SURGICAL SCOPE SELECTION
                 </div>
-                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827]">
+                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#0F172A]">
                   Choose the Right Removal Scope for Your Situation
                 </h2>
               </div>
-              <p className="text-gray-600 text-sm max-w-md">
+              <p className="text-slate-600 text-sm max-w-md">
                 Not every thread needs the same intervention. During your free 12-hour audit, we map out whether surgical comment deletion or full thread removal will best protect your search footprint.
               </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Scope A: Targeted Comment / Mention Wipe */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-2xs flex flex-col justify-between">
+              <div className="pw-card bg-white rounded-2xl border border-gray-200 p-8 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-3 mb-6">
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-gray-100 text-gray-800 font-mono text-xs font-bold">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-100 text-slate-800 border border-gray-200 font-mono text-xs font-bold">
                       <MessageSquareOff className="w-4 h-4 text-[#2563EB]" />
                       OPTION A • TARGETED COMMENT WIPE
                     </span>
-                    <span className="font-mono text-xs font-semibold text-gray-500">
+                    <span className="font-mono text-xs font-semibold text-slate-500">
                       Starts from $300
                     </span>
                   </div>
 
-                  <h3 className="font-display text-2xl font-extrabold text-[#111827] mb-3">
+                  <h3 className="font-display text-2xl font-extrabold text-[#0F172A] mb-3">
                     Surgical Comment &amp; Brand Mention Removal
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                  <p className="text-slate-600 text-sm leading-relaxed mb-6">
                     Ideal when the main Reddit post is a general industry discussion (e.g., <em>&ldquo;What CRM do you use?&rdquo;</em>) and a specific reply attacks your company, leaks confidential info, or spreads false claims.
                   </p>
 
                   {/* Visual Mockup of Comment Wipe */}
-                  <div className="bg-[#F4F6FB] rounded-xl p-4 border border-gray-200 mb-6 space-y-2.5 font-mono text-xs">
-                    <div className="text-gray-500 flex items-center justify-between">
+                  <div className="bg-[#F8FAFC] rounded-xl p-4 border border-gray-200 mb-6 space-y-2.5 font-mono text-xs">
+                    <div className="text-slate-500 flex items-center justify-between">
                       <span>Root Thread: &ldquo;Best tools for Q4?&rdquo;</span>
-                      <span className="text-gray-400">Remains Intact</span>
+                      <span className="text-slate-400">Remains Intact</span>
                     </div>
-                    <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-950 flex items-center justify-between">
-                      <span className="line-through text-gray-400">
+                    <div className="p-3 rounded-lg bg-blue-50/80 border border-blue-200 text-blue-950 flex items-center justify-between">
+                      <span className="line-through text-slate-400">
                         u/competitor_bot: &ldquo;Stay away from [Your Brand]...&rdquo;
                       </span>
                       <span className="px-2 py-0.5 rounded bg-[#2563EB] text-white text-[10px] font-bold">
@@ -1153,7 +1333,7 @@ export function App() {
                     </div>
                   </div>
 
-                  <ul className="space-y-3 text-sm text-gray-700 mb-8">
+                  <ul className="space-y-3 text-sm text-slate-700 mb-8">
                     <li className="flex items-start gap-2.5">
                       <Check className="w-4 h-4 text-[#2563EB] shrink-0 mt-1" />
                       <span>Eliminates specific defamatory comments or nested reply chains</span>
@@ -1172,7 +1352,7 @@ export function App() {
                 <a
                   href="#audit-form"
                   onClick={() => setRemovalScope('comment-only')}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-sm transition-all"
                 >
                   <span>Audit a Specific Reddit Comment</span>
                   <ArrowRight className="w-4 h-4 text-blue-300" />
@@ -1180,7 +1360,7 @@ export function App() {
               </div>
 
               {/* Scope B: Full Thread Wipe + Google & AI De-Index */}
-              <div className="bg-white rounded-2xl border-2 border-[#2563EB] p-8 shadow-xl shadow-blue-600/10 relative flex flex-col justify-between">
+              <div className="pw-card bg-white rounded-2xl border border-blue-300 ring-1 ring-blue-500/20 p-8 relative flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-3 mb-6">
                     <span className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-50 text-[#2563EB] border border-blue-200 font-mono text-xs font-bold">
@@ -1192,28 +1372,28 @@ export function App() {
                     </span>
                   </div>
 
-                  <h3 className="font-display text-2xl font-extrabold text-[#111827] mb-3">
+                  <h3 className="font-display text-2xl font-extrabold text-[#0F172A] mb-3">
                     Complete Thread Deletion + Google &amp; AI De-Indexing
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                  <p className="text-slate-600 text-sm leading-relaxed mb-6">
                     Required when the Reddit thread title itself contains your brand or executive name alongside damaging keywords and ranks on Page 1 of Google or appears in ChatGPT/Perplexity answers.
                   </p>
 
                   {/* Visual Mockup of Full Thread Wipe */}
-                  <div className="bg-blue-50/60 rounded-xl p-4 border border-blue-200 mb-6 space-y-2.5 font-mono text-xs">
+                  <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-200/80 mb-6 space-y-2.5 font-mono text-xs">
                     <div className="flex items-center justify-between text-[#1E3A8A]">
                       <span className="font-semibold">Root Thread URL Status:</span>
                       <span className="px-2 py-0.5 rounded bg-[#2563EB] text-white font-bold">
                         PERMANENTLY DELETED
                       </span>
                     </div>
-                    <div className="p-3 rounded-lg bg-white border border-blue-200 text-gray-700 flex items-center justify-between">
+                    <div className="p-3 rounded-lg bg-white border border-blue-200/80 text-slate-700 flex items-center justify-between">
                       <span>Google SERP &amp; AI Search Cache:</span>
                       <span className="text-[#2563EB] font-bold">DE-INDEXED IN 24 TO 72H</span>
                     </div>
                   </div>
 
-                  <ul className="space-y-3 text-sm text-gray-700 mb-8">
+                  <ul className="space-y-3 text-sm text-slate-700 mb-8">
                     <li className="flex items-start gap-2.5">
                       <Check className="w-4 h-4 text-[#2563EB] shrink-0 mt-1" />
                       <span>Permanently deletes the entire root Reddit thread &amp; all comments</span>
@@ -1232,7 +1412,7 @@ export function App() {
                 <a
                   href="#audit-form"
                   onClick={() => setRemovalScope('full-thread')}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-sm transition-colors shadow-lg shadow-blue-600/20"
+                  className="pw-btn-primary w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl text-white font-extrabold text-sm"
                 >
                   <span>Audit a Full Reddit Thread for Removal</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
@@ -1245,16 +1425,16 @@ export function App() {
         {/* =========================================================
             SECTION 4: 4-STEP ESCROW.COM WORKFLOW
            ========================================================= */}
-        <section id="escrow-workflow" className="py-20 bg-white border-b border-gray-200">
+        <section id="escrow-workflow" className="py-24 bg-white border-b border-gray-200">
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-14">
               <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
-                03 // ZERO-RISK EXECUTION PROTOCOL
+                03. ZERO-RISK EXECUTION PROTOCOL
               </div>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] mb-4">
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#0F172A] mb-4">
                 How PostWipe’s Escrow-Protected Removal Process Works
               </h2>
-              <p className="text-gray-600 text-[16px]">
+              <p className="text-slate-600 text-[16px]">
                 No retainers, no vague “suppression” promises, and zero upfront risk. You only release payment once the target URL is provably gone.
               </p>
             </div>
@@ -1288,21 +1468,21 @@ export function App() {
               ].map((item, idx) => (
                 <div
                   key={idx}
-                  className="pw-card bg-[#F4F6FB] rounded-2xl p-6 border border-gray-200 flex flex-col justify-between"
+                  className="pw-card bg-[#F8FAFC] rounded-2xl p-7 border border-gray-200 flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-5">
                       <span className="font-mono text-xs font-extrabold px-2.5 py-1 rounded bg-[#2563EB] text-white">
                         {item.step}
                       </span>
-                      <span className="font-mono text-[11px] text-gray-500 font-semibold">
+                      <span className="font-mono text-[11px] text-slate-500 font-semibold">
                         {item.time}
                       </span>
                     </div>
-                    <h3 className="font-display text-xl font-bold text-[#111827] mb-2.5">
+                    <h3 className="font-display text-xl font-bold text-[#0F172A] mb-2.5">
                       {item.title}
                     </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+                    <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
                   </div>
                   <div className="mt-6 pt-4 border-t border-gray-200/80 flex items-center justify-between text-xs font-mono text-[#2563EB] font-semibold">
                     <span>NDA Protected</span>
@@ -1317,16 +1497,16 @@ export function App() {
         {/* =========================================================
             SECTION 5: COMPARISON — POSTWIPE VS DIY MOD APPEALS VS PR AGENCIES
            ========================================================= */}
-        <section className="py-20 bg-[#F4F6FB] border-b border-gray-200">
+        <section className="py-24 bg-[#F8FAFC] border-b border-gray-200">
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mb-12">
               <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
-                04 // WHY TRADITIONAL METHODS BACKFIRE
+                04. WHY TRADITIONAL METHODS BACKFIRE
               </div>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] mb-3">
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#0F172A] mb-3">
                 PostWipe Corporate Escalation vs. Alternatives
               </h2>
-              <p className="text-gray-600 text-[16px]">
+              <p className="text-slate-600 text-[16px]">
                 Replying in the thread or buying upvotes only boosts engagement velocity, locking the negative post even higher on Google.
               </p>
             </div>
@@ -1335,54 +1515,107 @@ export function App() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50 text-xs font-mono uppercase text-gray-500">
-                      <th className="py-4 px-6">Evaluation Criteria</th>
-                      <th className="py-4 px-6 bg-blue-50/80 text-blue-950 font-extrabold border-x border-blue-200">
-                        <div className="flex items-center gap-2">
-                          <PostWipeLogoMark className="w-5 h-5" />
-                          <span>PostWipe Direct Escalation</span>
+                    <tr className="border-b border-gray-200 bg-[#F8FAFC] text-xs font-mono uppercase text-slate-500">
+                      <th className="py-4 px-6 w-1/5">Evaluation Criteria</th>
+                      <th className="py-4 px-6 bg-blue-50/90 text-[#0F172A] font-extrabold border-x border-blue-200 w-1/3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <PostWipeLogoMark className="w-5 h-5" />
+                            <span>PostWipe Corporate Escalation</span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded bg-[#2563EB] text-white text-[10px] font-mono">
+                            RECOMMENDED
+                          </span>
                         </div>
                       </th>
-                      <th className="py-4 px-6">Messaging Subreddit Mods</th>
-                      <th className="py-4 px-6">Traditional ORM / PR Agencies</th>
+                      <th className="py-4 px-6 text-slate-600">Messaging Subreddit Mods</th>
+                      <th className="py-4 px-6 text-slate-600">Traditional ORM / PR Agencies</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 text-sm">
-                    <tr>
-                      <td className="py-4 px-6 font-semibold text-[#111827]">Outcome on Target URL</td>
-                      <td className="py-4 px-6 bg-blue-50/30 border-x border-blue-200/70 font-bold text-[#1E3A8A]">
-                        Permanent Source Deletion + Google De-Index
+                    <tr className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-5 px-6 font-bold text-[#0F172A]">Outcome on Target URL</td>
+                      <td className="py-5 px-6 bg-blue-50/35 border-x border-blue-200/80 font-bold text-[#1E3A8A]">
+                        <div className="flex items-start gap-2.5">
+                          <CheckCircle2 className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" />
+                          <span>Permanent Source Deletion + Google De-Index</span>
+                        </div>
                       </td>
-                      <td className="py-4 px-6 text-gray-600">Ignored or publicly mocked by mods</td>
-                      <td className="py-4 px-6 text-gray-600">Leaves thread live; publishes fluff blog posts</td>
-                    </tr>
-                    <tr>
-                      <td className="py-4 px-6 font-semibold text-[#111827]">Payment Structure</td>
-                      <td className="py-4 px-6 bg-blue-50/30 border-x border-blue-200/70 font-bold text-[#1E3A8A]">
-                        Starts from $300 • Held in Escrow.com until verified deletion
+                      <td className="py-5 px-6 text-slate-600">
+                        <div className="flex items-start gap-2.5">
+                          <XCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                          <span>Ignored or publicly mocked by mods</span>
+                        </div>
                       </td>
-                      <td className="py-4 px-6 text-gray-600">Free, but high brand backfire risk</td>
-                      <td className="py-4 px-6 text-gray-600">$3,000 to $10,000/mo upfront retainers</td>
-                    </tr>
-                    <tr>
-                      <td className="py-4 px-6 font-semibold text-[#111827]">Streisand / Backlash Risk</td>
-                      <td className="py-4 px-6 bg-blue-50/30 border-x border-blue-200/70 font-bold text-[#1E3A8A]">
-                        Zero, executed via confidential corporate filings
-                      </td>
-                      <td className="py-4 px-6 text-rose-600 font-medium">
-                        Extreme, mods often pin your DM to the thread
-                      </td>
-                      <td className="py-4 px-6 text-amber-700 font-medium">
-                        High if using fake accounts or downvote bots
+                      <td className="py-5 px-6 text-slate-600">
+                        <div className="flex items-start gap-2.5">
+                          <XCircle className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                          <span>Leaves thread live; publishes fluff blog posts</span>
+                        </div>
                       </td>
                     </tr>
-                    <tr>
-                      <td className="py-4 px-6 font-semibold text-[#111827]">ChatGPT &amp; Perplexity Cleanup</td>
-                      <td className="py-4 px-6 bg-blue-50/30 border-x border-blue-200/70 font-bold text-[#1E3A8A]">
-                        Included via expedited search cache purge
+                    <tr className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-5 px-6 font-bold text-[#0F172A]">Payment Structure</td>
+                      <td className="py-5 px-6 bg-blue-50/35 border-x border-blue-200/80 font-bold text-[#1E3A8A]">
+                        <div className="flex items-start gap-2.5">
+                          <CheckCircle2 className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" />
+                          <span>Starts from $300 • Held in Escrow.com until verified deletion</span>
+                        </div>
                       </td>
-                      <td className="py-4 px-6 text-gray-600">None</td>
-                      <td className="py-4 px-6 text-gray-600">Does not remove source citation</td>
+                      <td className="py-5 px-6 text-slate-600">
+                        <div className="flex items-start gap-2.5">
+                          <XCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                          <span>Free, but severe brand backfire risk</span>
+                        </div>
+                      </td>
+                      <td className="py-5 px-6 text-slate-600">
+                        <div className="flex items-start gap-2.5">
+                          <XCircle className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                          <span>$3,000 to $10,000/mo upfront retainers</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-5 px-6 font-bold text-[#0F172A]">Streisand / Backlash Risk</td>
+                      <td className="py-5 px-6 bg-blue-50/35 border-x border-blue-200/80 font-bold text-[#1E3A8A]">
+                        <div className="flex items-start gap-2.5">
+                          <CheckCircle2 className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" />
+                          <span>Zero, executed via confidential corporate filings</span>
+                        </div>
+                      </td>
+                      <td className="py-5 px-6 text-rose-700 font-medium">
+                        <div className="flex items-start gap-2.5">
+                          <XCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                          <span>Extreme, mods often pin your DM to the thread</span>
+                        </div>
+                      </td>
+                      <td className="py-5 px-6 text-amber-800 font-medium">
+                        <div className="flex items-start gap-2.5">
+                          <XCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                          <span>High if using fake accounts or downvote bots</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-5 px-6 font-bold text-[#0F172A]">ChatGPT &amp; Perplexity Cleanup</td>
+                      <td className="py-5 px-6 bg-blue-50/35 border-x border-blue-200/80 font-bold text-[#1E3A8A]">
+                        <div className="flex items-start gap-2.5">
+                          <CheckCircle2 className="w-5 h-5 text-[#2563EB] shrink-0 mt-0.5" />
+                          <span>Included via expedited search cache purge</span>
+                        </div>
+                      </td>
+                      <td className="py-5 px-6 text-slate-600">
+                        <div className="flex items-start gap-2.5">
+                          <XCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                          <span>None</span>
+                        </div>
+                      </td>
+                      <td className="py-5 px-6 text-slate-600">
+                        <div className="flex items-start gap-2.5">
+                          <XCircle className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                          <span>Does not remove source citation</span>
+                        </div>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -1394,14 +1627,14 @@ export function App() {
         {/* =========================================================
             SECTION 6: VERIFIED CASE STUDIES (FOUNDERS & SAAS)
            ========================================================= */}
-        <section id="case-results" className="py-20 bg-white border-b border-gray-200">
+        <section id="case-results" className="py-24 bg-white border-b border-gray-200">
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
               <div>
                 <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
-                  05 // VERIFIED REMOVAL LEDGER &amp; CASE DOSSIER
+                  05. VERIFIED REMOVAL LEDGER &amp; CASE DOSSIER
                 </div>
-                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827]">
+                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#0F172A]">
                   Verified Reddit Crisis Removals
                 </h2>
               </div>
@@ -1412,7 +1645,7 @@ export function App() {
             </div>
 
             {/* MULTI-CLIENT VERIFIED REMOVAL PORTFOLIO & CASE DOSSIER */}
-            <div className="rounded-2xl border-2 border-blue-100 bg-white shadow-xl shadow-blue-900/5 overflow-hidden">
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-md overflow-hidden">
               {/* Dossier Top Header Bar */}
               <div className="px-6 py-4 bg-[#F4F6FB] border-b border-gray-200 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-3">
@@ -1553,53 +1786,53 @@ export function App() {
                 {/* 4-Stage Institutional Multi-Client Execution Breakdown */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
                   {/* 01. Executive Summary & Challenge */}
-                  <div className="p-6 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-2.5">
+                  <div className="pw-card p-6 rounded-2xl bg-[#F8FAFC] border border-gray-200 space-y-2.5">
                     <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
-                      01 // Multi-Client Challenge &amp; Search Impact
+                      01. Multi-Client Challenge &amp; Search Impact
                     </div>
-                    <h4 className="font-display text-lg font-extrabold text-[#111827]">
+                    <h4 className="font-display text-lg font-extrabold text-[#0F172A]">
                       High-Intent Search Contamination Across Buyer &amp; Candidate Funnels
                     </h4>
-                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                       Across our previous client engagements, hostile Reddit threads ranging from 50+ upvote e-commerce legitimacy debates to 2,000+ upvote viral scam accusations ranked on Page 1 of Google for exact brand names. Prospects, enterprise partners, and job applicants researching these companies encountered unverified allegations prior to checkout or contract signing.
                     </p>
                   </div>
 
                   {/* 02. Forensic Audit & Platform Policy Analysis */}
-                  <div className="p-6 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-2.5">
+                  <div className="pw-card p-6 rounded-2xl bg-[#F8FAFC] border border-gray-200 space-y-2.5">
                     <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
-                      02 // Forensic Audit &amp; Platform Policy Analysis
+                      02. Forensic Audit &amp; Platform Policy Analysis
                     </div>
-                    <h4 className="font-display text-lg font-extrabold text-[#111827]">
+                    <h4 className="font-display text-lg font-extrabold text-[#0F172A]">
                       Identifying Actionable Sitewide Policy Violations
                     </h4>
-                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                       PostWipe’s compliance analysts performed forensic audits of each root submission and its comment tree. Rather than arguing commercial opinions, our team isolated concrete violations of Reddit’s sitewide Content Policy, including targeted commercial harassment, coordinated brigading, vote manipulation, and unauthorized intellectual property or data sharing.
                     </p>
                   </div>
 
                   {/* 03. Strategic Escalation & Execution */}
-                  <div className="p-6 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-2.5">
+                  <div className="pw-card p-6 rounded-2xl bg-[#F8FAFC] border border-gray-200 space-y-2.5">
                     <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
-                      03 // Strategic Escalation &amp; Execution
+                      03. Strategic Escalation &amp; Execution
                     </div>
-                    <h4 className="font-display text-lg font-extrabold text-[#111827]">
+                    <h4 className="font-display text-lg font-extrabold text-[#0F172A]">
                       Administrative Takedowns Without Triggering the Streisand Effect
                     </h4>
-                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                       Publicly replying or messaging hostile volunteer moderators frequently backfires and triggers secondary threads. PostWipe executed structured compliance filings through official administrative and policy channels, achieving permanent filter and moderator removals across every client engagement with zero public blowback.
                     </p>
                   </div>
 
                   {/* 04. Outcome & Business Impact */}
-                  <div className="p-6 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-2.5">
+                  <div className="pw-card p-6 rounded-2xl bg-[#F8FAFC] border border-gray-200 space-y-2.5">
                     <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
-                      04 // Outcome &amp; Business Impact
+                      04. Outcome &amp; Business Impact
                     </div>
-                    <h4 className="font-display text-lg font-extrabold text-[#111827]">
+                    <h4 className="font-display text-lg font-extrabold text-[#0F172A]">
                       Permanent Thread Removal, Google De-Indexing &amp; Escrow Settlement
                     </h4>
-                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                       Every offending thread was permanently removed from public view at the source and immediately submitted for expedited Google search cache clearing. Only after each client independently verified source deletion and search de-indexing were funds released from neutral Escrow.com protection.
                     </p>
                   </div>
@@ -1612,13 +1845,13 @@ export function App() {
         {/* =========================================================
             SECTION 7: FREE 12-HOUR CASE AUDIT FORM + INSTANT WHATSAPP FOLLOW-UP
            ========================================================= */}
-        <section id="audit-form" className="py-20 bg-gradient-to-br from-[#1E3A8A] via-[#1D4ED8] to-[#312E81] text-white border-b border-blue-900">
+        <section id="audit-form" className="py-24 bg-gradient-to-b from-[#0F172A] via-[#111827] to-[#0F172A] text-white border-b border-slate-800">
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
               {/* Left Column: Audit Guarantee & What Happens Next */}
               <div className="lg:col-span-5 space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-white font-mono text-xs font-semibold">
-                  <Clock className="w-3.5 h-3.5" />
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/25 text-blue-300 font-mono text-xs font-semibold">
+                  <Clock className="w-3.5 h-3.5 text-[#3B82F6]" />
                   <span>FREE 12-HOUR FEASIBILITY AUDIT</span>
                 </div>
 
@@ -1626,34 +1859,34 @@ export function App() {
                   Submit Your Target Reddit Link for a Confidential Audit
                 </h2>
 
-                <p className="text-blue-100 text-[15.5px] leading-relaxed">
+                <p className="text-slate-300 text-[15.5px] leading-relaxed">
                   Paste the offending Reddit thread or comment URL. Within 12 hours, our policy specialists will confirm whether it qualifies for permanent removal and send your fixed Escrow.com quote.
                 </p>
 
                 <div className="space-y-4 pt-2">
-                  <div className="flex items-start gap-3.5 p-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-xs">
-                    <div className="w-9 h-9 rounded-lg bg-white/15 text-white flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="flex items-start gap-3.5 p-4 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-xs">
+                    <div className="w-9 h-9 rounded-lg bg-blue-500/15 border border-blue-400/20 text-blue-300 flex items-center justify-center shrink-0 mt-0.5">
                       <Lock className="w-4 h-4" />
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-white">
                         Starts from $300 • Held in Escrow.com
                       </h3>
-                      <p className="text-xs text-blue-100 mt-1 leading-relaxed">
+                      <p className="text-xs text-slate-300 mt-1 leading-relaxed">
                         You never pay upfront retainers. Funds are held in Escrow.com and released only after delete verification confirms the link is permanently removed.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3.5 p-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-xs">
-                    <div className="w-9 h-9 rounded-lg bg-white/15 text-white flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="flex items-start gap-3.5 p-4 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-xs">
+                    <div className="w-9 h-9 rounded-lg bg-blue-500/15 border border-blue-400/20 text-blue-300 flex items-center justify-center shrink-0 mt-0.5">
                       <EyeOff className="w-4 h-4" />
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-white">
                         Strict Non-Disclosure Protection
                       </h3>
-                      <p className="text-xs text-blue-100 mt-1 leading-relaxed">
+                      <p className="text-xs text-slate-300 mt-1 leading-relaxed">
                         Your identity, brand name, and submitted URLs are protected under mutual NDA from the moment you submit this form.
                       </p>
                     </div>
@@ -1667,30 +1900,30 @@ export function App() {
                         setCallStep('slot');
                         setIsCallModalOpen(true);
                       }}
-                      className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-xl bg-white hover:bg-blue-50 text-[#1E3A8A] font-extrabold text-sm shadow-lg transition-all cursor-pointer"
+                      className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-sm transition-all cursor-pointer"
                     >
-                      <Video className="w-4 h-4 text-[#2563EB]" />
+                      <Video className="w-4 h-4 text-[#60A5FA]" />
                       <span>Schedule a Google Meet / Strategy Call</span>
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Interactive Form or Post-Submission Confirmation + WhatsApp Action */}
+              {/* Right Column: High-Converting Audit Form Card with Official Trust Badges */}
               <div className="lg:col-span-7">
-                <div className="bg-white text-[#111827] rounded-2xl p-6 sm:p-9 shadow-2xl border border-blue-100">
+                <div className="bg-white text-[#0F172A] rounded-2xl p-6 sm:p-9 shadow-2xl border border-gray-200">
                   {submittedCase ? (
                     <div className="py-4 space-y-6">
                       <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-gray-200">
                         <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-xl bg-blue-100 text-[#2563EB] flex items-center justify-center">
+                          <div className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center">
                             <CheckCircle2 className="w-6 h-6" />
                           </div>
                           <div>
                             <span className="font-mono text-xs uppercase font-bold text-[#2563EB]">
                               Audit Request Logged
                             </span>
-                            <h3 className="font-display text-2xl font-extrabold text-[#111827]">
+                            <h3 className="font-display text-2xl font-extrabold text-[#0F172A]">
                               Case Reference: {submittedCase.caseId}
                             </h3>
                           </div>
@@ -1701,23 +1934,23 @@ export function App() {
                       </div>
 
                       {/* Mandatory Exact Confirmation Message */}
-                      <div className="p-5 rounded-xl bg-[#F4F6FB] border border-gray-200 text-gray-700 text-[15px] leading-relaxed font-medium">
+                      <div className="p-5 rounded-xl bg-[#F8FAFC] border border-gray-200 text-slate-700 text-[15px] leading-relaxed font-medium">
                         Thank you for your submission. If you do not see our email reply within a few hours or if it lands in your spam folder, click below to chat with us instantly on WhatsApp.
                       </div>
 
                       {/* Case Summary Box */}
-                      <div className="rounded-xl bg-[#F4F6FB] border border-blue-200 text-gray-800 p-4 font-mono text-xs space-y-1.5">
+                      <div className="rounded-xl bg-[#F8FAFC] border border-blue-200 text-slate-800 p-4 font-mono text-xs space-y-1.5">
                         <div>
-                          <span className="text-gray-500">Client Name:</span>{' '}
-                          <span className="text-[#111827] font-semibold">{submittedCase.name}</span>
+                          <span className="text-slate-500">Client Name:</span>{' '}
+                          <span className="text-[#0F172A] font-semibold">{submittedCase.name}</span>
                         </div>
                         <div>
-                          <span className="text-gray-500">Case ID:</span>{' '}
+                          <span className="text-slate-500">Case ID:</span>{' '}
                           <span className="text-[#2563EB] font-bold">{submittedCase.caseId}</span>
                         </div>
                         <div className="truncate">
-                          <span className="text-gray-500">Target URL:</span>{' '}
-                          <span className="text-gray-800">{submittedCase.url}</span>
+                          <span className="text-slate-500">Target URL:</span>{' '}
+                          <span className="text-slate-800">{submittedCase.url}</span>
                         </div>
                       </div>
 
@@ -1727,7 +1960,7 @@ export function App() {
                           href={activeWhatsAppUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full inline-flex items-center justify-center gap-3 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-base py-4 px-6 rounded-xl shadow-lg transition-all cursor-pointer"
+                          className="pw-btn-primary w-full inline-flex items-center justify-center gap-3 text-white font-extrabold text-base py-4 px-6 rounded-xl cursor-pointer"
                         >
                           <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.124.556 4.119 1.528 5.847l-1.528 5.583 5.714-1.499c1.688.918 3.621 1.442 5.686 1.442 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z" />
@@ -1743,7 +1976,7 @@ export function App() {
                             setUrlInput('');
                             setContextInput('');
                           }}
-                          className="w-full text-center text-xs font-mono text-gray-500 hover:text-gray-800 py-2 cursor-pointer"
+                          className="w-full text-center text-xs font-mono text-slate-500 hover:text-slate-800 py-2 cursor-pointer"
                         >
                           Submit another Reddit URL for review
                         </button>
@@ -1753,21 +1986,21 @@ export function App() {
                     <form onSubmit={handleAuditSubmit} className="space-y-5">
                       <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                         <div>
-                          <h3 className="font-display text-xl font-extrabold text-[#111827]">
+                          <h3 className="font-display text-xl font-extrabold text-[#0F172A]">
                             Request Your Free 12-Hour Case Review
                           </h3>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            No upfront payment required • Protected by NDA
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            No upfront payment required • Protected by Mutual NDA
                           </p>
                         </div>
-                        <span className="font-mono text-xs font-bold px-2.5 py-1 rounded bg-blue-50 text-[#2563EB] border border-blue-200">
+                        <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-blue-50 text-[#2563EB] border border-blue-200">
                           From $300
                         </span>
                       </div>
 
                       {/* Target Reddit URL */}
                       <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                           Target Reddit Post or Comment URL *
                         </label>
                         <input
@@ -1776,27 +2009,27 @@ export function App() {
                           value={urlInput}
                           onChange={(e) => setUrlInput(e.target.value)}
                           placeholder="https://www.reddit.com/r/..."
-                          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm font-mono bg-[#F4F6FB]"
+                          className="w-full px-4 py-3.5 rounded-xl border border-gray-300 bg-[#F8FAFC] text-[#0F172A] placeholder:text-slate-400 focus:bg-white focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 outline-none text-sm font-mono transition-all"
                         />
                       </div>
 
                       {/* Scope Selector */}
                       <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                           Preferred Removal Scope
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <button
                             type="button"
                             onClick={() => setRemovalScope('full-thread')}
-                            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                               removalScope === 'full-thread'
-                                ? 'border-[#2563EB] bg-blue-50/70 text-blue-950 font-semibold'
-                                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                                ? 'border-[#2563EB] ring-2 ring-blue-500/15 bg-blue-50/60 text-blue-950 font-semibold'
+                                : 'border-gray-200 bg-white text-slate-600 hover:border-gray-300'
                             }`}
                           >
-                            <div className="text-xs font-bold">Full Thread + SERP Wipe</div>
-                            <div className="text-[11px] text-gray-500 mt-0.5">
+                            <div className="text-xs font-bold text-[#0F172A]">Full Thread + SERP Wipe</div>
+                            <div className="text-[11px] text-slate-500 mt-0.5">
                               Erase entire post &amp; Google/AI cache
                             </div>
                           </button>
@@ -1804,14 +2037,14 @@ export function App() {
                           <button
                             type="button"
                             onClick={() => setRemovalScope('comment-only')}
-                            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                               removalScope === 'comment-only'
-                                ? 'border-[#2563EB] bg-blue-50/70 text-blue-950 font-semibold'
-                                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                                ? 'border-[#2563EB] ring-2 ring-blue-500/15 bg-blue-50/60 text-blue-950 font-semibold'
+                                : 'border-gray-200 bg-white text-slate-600 hover:border-gray-300'
                             }`}
                           >
-                            <div className="text-xs font-bold">Targeted Comment Wipe</div>
-                            <div className="text-[11px] text-gray-500 mt-0.5">
+                            <div className="text-xs font-bold text-[#0F172A]">Targeted Comment Wipe</div>
+                            <div className="text-[11px] text-slate-500 mt-0.5">
                               Remove specific reply or brand mention
                             </div>
                           </button>
@@ -1821,7 +2054,7 @@ export function App() {
                       {/* Name & Work Email */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                             Your Name *
                           </label>
                           <input
@@ -1830,12 +2063,12 @@ export function App() {
                             value={nameInput}
                             onChange={(e) => setNameInput(e.target.value)}
                             placeholder="Alex Rivera"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+                            className="w-full px-4 py-3.5 rounded-xl border border-gray-300 bg-white text-[#0F172A] placeholder:text-slate-400 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 outline-none text-sm transition-all"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                             Work Email *
                           </label>
                           <input
@@ -1844,7 +2077,7 @@ export function App() {
                             value={emailInput}
                             onChange={(e) => setEmailInput(e.target.value)}
                             placeholder="alex@company.com"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+                            className="w-full px-4 py-3.5 rounded-xl border border-gray-300 bg-white text-[#0F172A] placeholder:text-slate-400 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 outline-none text-sm transition-all"
                           />
                         </div>
                       </div>
@@ -1852,7 +2085,7 @@ export function App() {
                       {/* Company & Context */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                             Brand / Company Name
                           </label>
                           <input
@@ -1860,12 +2093,12 @@ export function App() {
                             value={companyInput}
                             onChange={(e) => setCompanyInput(e.target.value)}
                             placeholder="Acme Inc."
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+                            className="w-full px-4 py-3.5 rounded-xl border border-gray-300 bg-white text-[#0F172A] placeholder:text-slate-400 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 outline-none text-sm transition-all"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                             Brief Context (Optional)
                           </label>
                           <input
@@ -1873,7 +2106,7 @@ export function App() {
                             value={contextInput}
                             onChange={(e) => setContextInput(e.target.value)}
                             placeholder="e.g. False claims by competitor / ex-employee"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
+                            className="w-full px-4 py-3.5 rounded-xl border border-gray-300 bg-white text-[#0F172A] placeholder:text-slate-400 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 outline-none text-sm transition-all"
                           />
                         </div>
                       </div>
@@ -1888,7 +2121,7 @@ export function App() {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full inline-flex items-center justify-center gap-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white font-extrabold text-[15.5px] py-4 px-6 rounded-xl shadow-lg shadow-blue-600/25 transition-all cursor-pointer"
+                        className="pw-btn-primary w-full inline-flex items-center justify-center gap-2.5 disabled:opacity-60 text-white font-extrabold text-[15.5px] py-4 px-6 rounded-xl cursor-pointer"
                       >
                         <span>
                           {isSubmitting
@@ -1898,9 +2131,36 @@ export function App() {
                         <ArrowRight className="w-5 h-5 stroke-[2.5]" />
                       </button>
 
-                      <p className="text-center text-xs text-gray-500">
-                        Protected by Escrow.com • Payment is released only after delete verification.
-                      </p>
+                      {/* Official Trust Badges Directly Under Submit Button */}
+                      <div className="pt-3 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-gray-200">
+                          <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center shrink-0">
+                            <Lock className="w-3.5 h-3.5" />
+                          </div>
+                          <div>
+                            <div className="text-[11.5px] font-extrabold text-[#0F172A] leading-tight">
+                              Escrow.com Security Verified
+                            </div>
+                            <div className="text-[10.5px] text-slate-500 leading-tight mt-0.5">
+                              Payment released only post-deletion
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-gray-200">
+                          <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center shrink-0">
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                          </div>
+                          <div>
+                            <div className="text-[11.5px] font-extrabold text-[#0F172A] leading-tight">
+                              Mutual NDA Guaranteed
+                            </div>
+                            <div className="text-[10.5px] text-slate-500 leading-tight mt-0.5">
+                              100% confidential case handling
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </form>
                   )}
                 </div>
@@ -1912,13 +2172,13 @@ export function App() {
         {/* =========================================================
             SECTION 8: FREQUENTLY ASKED QUESTIONS
            ========================================================= */}
-        <section id="faq" className="py-20 bg-[#F4F6FB] border-b border-gray-200">
+        <section id="faq" className="py-24 bg-[#F8FAFC] border-b border-gray-200">
           <div className="max-w-[920px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
-                06 // DUE DILIGENCE &amp; ESCROW FAQ
+                06. DUE DILIGENCE &amp; ESCROW FAQ
               </div>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827]">
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#0F172A]">
                 Frequently Asked Questions
               </h2>
             </div>
@@ -1929,14 +2189,14 @@ export function App() {
                 return (
                   <div
                     key={idx}
-                    className="bg-white rounded-2xl border border-gray-200 overflow-hidden transition-all"
+                    className="bg-white rounded-2xl border border-gray-200 shadow-2xs overflow-hidden transition-all"
                   >
                     <button
                       type="button"
                       onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                      className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-gray-50/70 transition-colors"
+                      className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/80 transition-colors"
                     >
-                      <span className="font-display text-[17px] font-bold text-[#111827]">
+                      <span className="font-display text-[17px] font-bold text-[#0F172A]">
                         {item.q}
                       </span>
                       <ChevronDown
@@ -1946,7 +2206,7 @@ export function App() {
                       />
                     </button>
                     {isOpen && (
-                      <div className="px-6 pb-5 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-3">
+                      <div className="px-6 pb-5 text-sm text-slate-600 leading-relaxed border-t border-gray-100 pt-3.5">
                         {item.a}
                       </div>
                     )}
@@ -1963,39 +2223,39 @@ export function App() {
          ========================================================= */
       <main className="flex-1">
         {/* 1. HERO SECTION: HEADLINE, SUBHEADLINE & MEDIA DE-INDEXING CONSOLE */}
-        <section className="relative pt-12 pb-20 lg:pt-16 lg:pb-24 overflow-hidden bg-gradient-to-b from-[#F4F6FB] to-white pw-grid-bg border-b border-gray-200">
+        <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-28 overflow-hidden bg-gradient-to-b from-[#F8FAFC] via-white to-white pw-grid-bg border-b border-gray-200">
           <div
-            className="pointer-events-none absolute -top-24 right-1/4 w-[520px] h-[520px] rounded-full bg-blue-500/10 blur-3xl"
+            className="pointer-events-none absolute -top-28 right-1/4 w-[560px] h-[560px] rounded-full bg-blue-600/8 blur-3xl"
             aria-hidden="true"
           />
 
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-12 items-center">
               {/* Left Column: Headline, Subheadline, Primary CTAs */}
               <div className="lg:col-span-7">
-                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-bold tracking-wide uppercase mb-6 shadow-2xs">
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-50/90 border border-blue-200/80 text-blue-950 text-xs font-bold tracking-wide uppercase mb-6 shadow-2xs">
                   <Globe className="w-4 h-4 text-[#2563EB] shrink-0" />
                   <span>News &amp; Media Article Removal • Legal &amp; Publisher Escalation</span>
                 </div>
 
-                <h1 className="font-display text-[36px] sm:text-[48px] lg:text-[54px] font-extrabold text-[#111827] tracking-tight leading-[1.06] mb-6">
+                <h1 className="font-display text-[36px] sm:text-[48px] lg:text-[54px] font-extrabold text-[#0F172A] tracking-tight leading-[1.06] mb-6">
                   Complete Removal of Damaging <span className="pw-hl">News Articles</span> &amp; Online Media Publications.
                 </h1>
 
-                <div className="space-y-3 text-[16px] sm:text-[17.5px] text-gray-600 leading-relaxed max-w-2xl mb-8">
+                <div className="space-y-3.5 text-[16px] sm:text-[17.5px] text-slate-600 leading-relaxed max-w-2xl mb-8">
                   <p>
-                    We handle direct <strong className="text-[#111827] font-semibold">publisher outreach, legal and editorial compliance pathways, and complete Google de-indexing</strong> to permanently eliminate defamatory press, outdated news coverage, and digital media articles at the source.
+                    We handle direct <strong className="text-[#0F172A] font-semibold">publisher outreach, legal and editorial compliance pathways, and complete Google de-indexing</strong> to permanently eliminate defamatory press, outdated news coverage, and digital media articles at the source.
                   </p>
                   <p>
-                    Every case is backed by <strong className="text-[#111827] font-semibold">100% Escrow.com protection</strong>, our <strong className="text-[#111827] font-semibold">Free-Fix Guarantee</strong>, and strict <span className="underline decoration-[#2563EB] decoration-2 underline-offset-4 font-semibold text-[#111827]">NDA confidentiality</span> with zero secondary media exposure.
+                    Every case is backed by <strong className="text-[#0F172A] font-semibold">100% Escrow.com protection</strong>, our <strong className="text-[#0F172A] font-semibold">Free-Fix Guarantee</strong>, and strict <span className="underline decoration-[#2563EB] decoration-2 underline-offset-4 font-semibold text-[#0F172A]">NDA confidentiality</span> with zero secondary media exposure.
                   </p>
                 </div>
 
-                <div className="space-y-4 mb-9">
+                <div className="space-y-4 mb-10">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3.5">
                     <a
                       href="#news-audit-form"
-                      className="inline-flex items-center justify-center gap-3 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-[16px] px-7 py-4 rounded-xl shadow-lg shadow-blue-600/25 hover:shadow-blue-600/35 transition-all cursor-pointer shrink-0"
+                      className="pw-btn-primary inline-flex items-center justify-center gap-3 text-white font-extrabold text-[15.5px] px-7 py-4 rounded-xl border border-blue-500/40 cursor-pointer shrink-0"
                     >
                       <span>Request Link Audit &amp; Quote</span>
                       <ArrowRight className="w-5 h-5 stroke-[2.5]" />
@@ -2008,7 +2268,7 @@ export function App() {
                         setCallStep('slot');
                         setIsCallModalOpen(true);
                       }}
-                      className="inline-flex items-center justify-center gap-2.5 bg-white hover:bg-blue-50/60 text-[#111827] font-extrabold text-[15.5px] px-6 py-4 rounded-xl border-2 border-blue-200 hover:border-[#2563EB] shadow-2xs transition-all cursor-pointer shrink-0"
+                      className="inline-flex items-center justify-center gap-2.5 bg-white hover:bg-slate-50 text-[#0F172A] font-bold text-[15px] px-6 py-4 rounded-xl border border-gray-200 hover:border-blue-300 shadow-xs transition-all cursor-pointer shrink-0"
                     >
                       <Video className="w-5 h-5 text-[#2563EB]" />
                       <span>Schedule a Call (Google Meet)</span>
@@ -2016,20 +2276,20 @@ export function App() {
                   </div>
 
                   {/* Escrow & Risk-Free Summary Strip */}
-                  <div className="inline-flex items-center gap-3.5 bg-white px-4 py-3 rounded-xl border border-blue-200/90 shadow-2xs">
-                    <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
+                  <div className="inline-flex items-center gap-3.5 bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-xs">
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200/80 flex items-center justify-center shrink-0">
                       <Lock className="w-5 h-5 text-[#2563EB]" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-display font-extrabold text-[15px] text-[#111827]">
+                        <span className="font-display font-extrabold text-[15px] text-[#0F172A]">
                           100% Escrow Protected
                         </span>
-                        <span className="text-[11px] font-mono font-semibold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                        <span className="text-[11px] font-mono font-semibold uppercase px-2 py-0.5 rounded bg-blue-50 border border-blue-200/80 text-[#2563EB]">
                           Escrow.com
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
                         Payment released only after verified source removal &amp; Google de-indexing
                       </p>
                     </div>
@@ -2037,38 +2297,38 @@ export function App() {
                 </div>
 
                 {/* 3 Quick Highlight Pillars */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-6 border-t border-gray-200">
-                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-gray-200/80">
+                  <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
                       <Lock className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-[13px] font-bold text-[#111827]">100% Escrow Protected</div>
-                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                      <div className="text-[13px] font-bold text-[#0F172A]">100% Escrow Protected</div>
+                      <p className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
                         Funds held in third-party escrow until verified removal.
                       </p>
                     </div>
                   </div>
 
-                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                  <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-[13px] font-bold text-[#111827]">Free-Fix Guarantee</div>
-                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                      <div className="text-[13px] font-bold text-[#0F172A]">Free-Fix Guarantee</div>
+                      <p className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
                         Ongoing monitoring &amp; automatic remediation if content resurfaces.
                       </p>
                     </div>
                   </div>
 
-                  <div className="bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs flex items-start gap-3">
+                  <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
                       <EyeOff className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-[13px] font-bold text-[#111827]">Complete Confidentiality</div>
-                      <p className="text-[11.5px] text-gray-500 leading-snug mt-0.5">
+                      <div className="text-[13px] font-bold text-[#0F172A]">Complete Confidentiality</div>
+                      <p className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
                         Zero publicity or media exposure under strict NDA.
                       </p>
                     </div>
@@ -2078,25 +2338,23 @@ export function App() {
 
               {/* Right Column: Interactive Media Takedown & De-Indexing Verification Console */}
               <div className="lg:col-span-5">
-                <div className="bg-white text-[#111827] rounded-2xl border-2 border-blue-100 shadow-xl shadow-blue-900/5 overflow-hidden">
-                  <div className="px-5 py-3.5 bg-[#F4F6FB] border-b border-gray-200 flex items-center justify-between gap-2">
+                <div className="bg-white text-[#0F172A] rounded-2xl border border-gray-200 shadow-md overflow-hidden">
+                  <div className="px-5 py-3.5 bg-[#0F172A] text-white border-b border-white/10 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                      <span className="ml-2 font-mono text-[11px] text-gray-500 font-semibold">
-                        postwipe://media-deindex-status
+                      <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
+                      <span className="font-mono text-[11px] text-slate-200 font-semibold tracking-wide">
+                        MEDIA VERIFICATION DASHBOARD
                       </span>
                     </div>
 
-                    <div className="inline-flex rounded-lg bg-white p-0.5 border border-gray-200 text-[11px] font-mono">
+                    <div className="inline-flex rounded-lg bg-slate-800/90 p-0.5 border border-white/10 text-[11px] font-mono">
                       <button
                         type="button"
                         onClick={() => setNewsPreviewMode('before')}
-                        className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
                           newsPreviewMode === 'before'
-                            ? 'bg-rose-50 text-rose-700 font-bold border border-rose-200'
-                            : 'text-gray-500 hover:text-gray-900'
+                            ? 'bg-rose-500/20 text-rose-200 font-bold border border-rose-400/30'
+                            : 'text-slate-400 hover:text-white'
                         }`}
                       >
                         Before
@@ -2104,10 +2362,10 @@ export function App() {
                       <button
                         type="button"
                         onClick={() => setNewsPreviewMode('after')}
-                        className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
                           newsPreviewMode === 'after'
-                            ? 'bg-[#2563EB] text-white font-bold'
-                            : 'text-gray-500 hover:text-gray-900'
+                            ? 'bg-[#2563EB] text-white font-bold shadow-xs'
+                            : 'text-slate-400 hover:text-white'
                         }`}
                       >
                         After Removal
@@ -2115,16 +2373,48 @@ export function App() {
                     </div>
                   </div>
 
+                  {/* Crisp Verification Status Badges Bar */}
+                  <div className="px-5 py-3 bg-[#F8FAFC] border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-mono text-[10.5px] font-bold border transition-all ${
+                          newsPreviewMode === 'after'
+                            ? 'bg-blue-50 text-[#2563EB] border-blue-200'
+                            : 'bg-rose-50 text-rose-700 border-rose-200'
+                        }`}
+                      >
+                        <CheckCircle2 className="w-3 h-3 shrink-0" />
+                        <span>{newsPreviewMode === 'after' ? 'De-Indexed' : 'Page 1 News'}</span>
+                      </span>
+
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-mono text-[10.5px] font-bold border transition-all ${
+                          newsPreviewMode === 'after'
+                            ? 'bg-blue-50 text-[#2563EB] border-blue-200'
+                            : 'bg-amber-50 text-amber-800 border-amber-200'
+                        }`}
+                      >
+                        <Sparkles className="w-3 h-3 shrink-0" />
+                        <span>{newsPreviewMode === 'after' ? 'Cache Purged' : 'Syndicated'}</span>
+                      </span>
+
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900 text-white font-mono text-[10.5px] font-bold border border-slate-800">
+                        <Lock className="w-3 h-3 text-blue-400 shrink-0" />
+                        <span>Escrow Protected</span>
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="p-5 sm:p-6 space-y-4">
                     <div
                       className={`rounded-xl p-4 border transition-all ${
                         newsPreviewMode === 'after'
-                          ? 'bg-blue-50/50 border-blue-200'
-                          : 'bg-rose-50/50 border-rose-200'
+                          ? 'bg-blue-50/40 border-blue-200/90'
+                          : 'bg-rose-50/40 border-rose-200/90'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2 mb-2.5">
-                        <span className="font-mono text-[11px] text-gray-500 truncate">
+                        <span className="font-mono text-[11px] text-slate-500 truncate">
                           digitalpressdaily.com/business/executive-inquiry-report...
                         </span>
                         {newsPreviewMode === 'after' ? (
@@ -2139,18 +2429,18 @@ export function App() {
                       </div>
 
                       {newsPreviewMode === 'after' ? (
-                        <div className="space-y-2">
-                          <p className="text-sm font-semibold text-gray-400 line-through">
+                        <div className="space-y-2.5">
+                          <p className="text-sm font-semibold text-slate-400 line-through">
                              Investigation into Former Biotech Executive Raises Governance Questions
                           </p>
-                          <div className="flex items-center gap-2 text-xs text-blue-900 font-mono bg-blue-100/80 border border-blue-200 rounded-lg px-3 py-2">
+                          <div className="flex items-center gap-2 text-xs text-blue-950 font-mono bg-blue-100/70 border border-blue-200 rounded-lg px-3 py-2">
                             <CheckCircle2 className="w-4 h-4 shrink-0 text-[#2563EB]" />
                             <span>[Article permanently removed via publisher legal compliance]</span>
                           </div>
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          <p className="text-sm font-semibold text-gray-900">
+                          <p className="text-sm font-semibold text-[#0F172A]">
                             Investigation into Former Biotech Executive Raises Governance Questions
                           </p>
                           <p className="text-xs text-rose-700">
@@ -2160,8 +2450,8 @@ export function App() {
                       )}
                     </div>
 
-                    <div className="rounded-xl bg-[#F4F6FB] border border-gray-200 p-4">
-                      <div className="text-[11px] font-mono uppercase tracking-wider text-gray-500 mb-3 flex items-center justify-between">
+                    <div className="rounded-xl bg-[#F8FAFC] border border-gray-200 p-4">
+                      <div className="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-3 flex items-center justify-between">
                         <span>Publisher &amp; Search De-Indexing Status</span>
                         <span className="text-[#2563EB] font-bold">
                           {newsPreviewMode === 'after' ? 'VERIFIED CLEAN' : 'ACTIVE EXPOSURE'}
@@ -2169,8 +2459,8 @@ export function App() {
                       </div>
 
                       <div className="space-y-2.5 text-xs">
-                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200">
-                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200/80">
+                          <span className="text-slate-700 font-medium flex items-center gap-2">
                             <Scale className="w-3.5 h-3.5 text-[#2563EB]" />
                             Publisher Source URL
                           </span>
@@ -2185,14 +2475,14 @@ export function App() {
                           )}
                         </div>
 
-                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200">
-                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                        <div className="flex items-center justify-between py-1.5 border-b border-gray-200/80">
+                          <span className="text-slate-700 font-medium flex items-center gap-2">
                             <Globe className="w-3.5 h-3.5 text-[#2563EB]" />
                             Google Search &amp; News Cache
                           </span>
                           {newsPreviewMode === 'after' ? (
                             <span className="font-mono text-[11px] text-[#2563EB] font-bold">
-                              De-Indexed &amp; Cache Cleared
+                              De-Indexed &amp; Cache Purged
                             </span>
                           ) : (
                             <span className="font-mono text-[11px] text-rose-600 font-bold">
@@ -2202,24 +2492,24 @@ export function App() {
                         </div>
 
                         <div className="flex items-center justify-between pt-1">
-                          <span className="text-gray-700 font-medium flex items-center gap-2">
+                          <span className="text-slate-700 font-medium flex items-center gap-2">
                             <Lock className="w-3.5 h-3.5 text-[#2563EB]" />
                             Escrow.com Protection
                           </span>
                           {newsPreviewMode === 'after' ? (
-                            <span className="font-mono text-[11px] bg-blue-100 text-blue-900 px-2 py-0.5 rounded border border-blue-200 font-bold">
-                              VERIFIED &amp; RELEASED
+                            <span className="font-mono text-[11px] bg-blue-50 text-[#1E3A8A] px-2 py-0.5 rounded border border-blue-200 font-bold">
+                              ESCROW PROTECTED • RELEASED
                             </span>
                           ) : (
-                            <span className="font-mono text-[11px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-200 font-bold">
-                              HELD IN ESCROW
+                            <span className="font-mono text-[11px] bg-amber-50 text-amber-900 px-2 py-0.5 rounded border border-amber-200 font-bold">
+                              ESCROW PROTECTED • LOCKED
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] font-mono text-gray-500 pt-1">
+                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 pt-1">
                       <span className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
                         Free-Fix Guarantee Included
@@ -2236,86 +2526,86 @@ export function App() {
         </section>
 
         {/* 2. PROCESS BREAKDOWN SECTION */}
-        <section id="news-process" className="py-20 bg-white border-b border-gray-200">
+        <section id="news-process" className="py-24 bg-white border-b border-gray-200">
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mb-14">
               <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
-                01 // PROCESS BREAKDOWN
+                01. PROCESS BREAKDOWN
               </div>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] mb-4">
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#0F172A] mb-4">
                 How We Remove News Articles &amp; Clear Search Indices
               </h2>
-              <p className="text-gray-600 text-[16.5px] leading-relaxed">
+              <p className="text-slate-600 text-[16.5px] leading-relaxed">
                 Every media removal engagement follows a structured three-stage protocol combining editorial compliance, legal takedown filings, and search engine cache clearing.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Step 1 */}
-              <div className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200 flex flex-col justify-between">
+              <div className="pw-card bg-[#F8FAFC] rounded-2xl p-8 border border-gray-200 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-6">
-                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-md shadow-blue-600/20">
+                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-sm shadow-blue-600/20">
                       01
                     </span>
                     <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#2563EB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
                       Step 1
                     </span>
                   </div>
-                  <h3 className="font-display text-xl font-extrabold text-[#111827] mb-3">
+                  <h3 className="font-display text-xl font-extrabold text-[#0F172A] mb-3">
                     Case Evaluation &amp; Scope Mapping
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-slate-600 text-sm leading-relaxed">
                     We audit the target publication, editorial standards, syndication network, and search indexing status to determine the most viable editorial, privacy, or legal removal pathway before any outreach begins.
                   </p>
                 </div>
-                <div className="mt-6 pt-4 border-t border-gray-200/80 font-mono text-[11px] font-bold text-gray-500 uppercase">
+                <div className="mt-6 pt-4 border-t border-gray-200/80 font-mono text-[11px] font-bold text-slate-500 uppercase">
                   Deliverable: Feasibility &amp; Scope Assessment
                 </div>
               </div>
 
               {/* Step 2 */}
-              <div className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200 flex flex-col justify-between">
+              <div className="pw-card bg-[#F8FAFC] rounded-2xl p-8 border border-gray-200 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-6">
-                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-md shadow-blue-600/20">
+                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-sm shadow-blue-600/20">
                       02
                     </span>
                     <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#2563EB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
                       Step 2
                     </span>
                   </div>
-                  <h3 className="font-display text-xl font-extrabold text-[#111827] mb-3">
+                  <h3 className="font-display text-xl font-extrabold text-[#0F172A] mb-3">
                     Source Removal &amp; Legal / Privacy Takedowns
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-slate-600 text-sm leading-relaxed">
                     Our team executes direct publisher representation and submits formal editorial standards reviews, defamation notices, copyright claims, and privacy compliance filings to unpublish or delete the article at the source.
                   </p>
                 </div>
-                <div className="mt-6 pt-4 border-t border-gray-200/80 font-mono text-[11px] font-bold text-gray-500 uppercase">
+                <div className="mt-6 pt-4 border-t border-gray-200/80 font-mono text-[11px] font-bold text-slate-500 uppercase">
                   Deliverable: Source Article Deletion
                 </div>
               </div>
 
               {/* Step 3 */}
-              <div className="pw-card bg-[#F4F6FB] rounded-2xl p-7 border border-gray-200 flex flex-col justify-between">
+              <div className="pw-card bg-[#F8FAFC] rounded-2xl p-8 border border-gray-200 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-6">
-                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-md shadow-blue-600/20">
+                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-sm shadow-blue-600/20">
                       03
                     </span>
                     <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#2563EB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
                       Step 3
                     </span>
                   </div>
-                  <h3 className="font-display text-xl font-extrabold text-[#111827] mb-3">
+                  <h3 className="font-display text-xl font-extrabold text-[#0F172A] mb-3">
                     Google Search Engine De-indexing &amp; Cache Clearing
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-slate-600 text-sm leading-relaxed">
                     Once the source publication removes or retracts the article, we file expedited search engine de-indexing and cache-clearing requests across Google, Bing, and AI search indices so residual snippets are completely wiped.
                   </p>
                 </div>
-                <div className="mt-6 pt-4 border-t border-gray-200/80 font-mono text-[11px] font-bold text-gray-500 uppercase">
+                <div className="mt-6 pt-4 border-t border-gray-200/80 font-mono text-[11px] font-bold text-slate-500 uppercase">
                   Deliverable: Complete SERP &amp; Cache Purge
                 </div>
               </div>
@@ -2324,31 +2614,31 @@ export function App() {
         </section>
 
         {/* 3. KEY FEATURES & RISK-FREE MODEL SECTION */}
-        <section id="news-features" className="py-20 bg-[#F4F6FB] border-b border-gray-200">
+        <section id="news-features" className="py-24 bg-[#F8FAFC] border-b border-gray-200">
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mb-14">
               <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB] mb-3">
-                02 // KEY FEATURES &amp; RISK-FREE MODEL
+                02. KEY FEATURES &amp; RISK-FREE MODEL
               </div>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] mb-4">
+              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#0F172A] mb-4">
                 Built on Verified Results, Escrow Security &amp; Strict Discretion
               </h2>
-              <p className="text-gray-600 text-[16.5px] leading-relaxed">
+              <p className="text-slate-600 text-[16.5px] leading-relaxed">
                 We eliminate the financial and reputational risk of traditional PR retainers with performance-locked escrow protection and ongoing post-removal monitoring.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* 100% Escrow Protected */}
-              <div className="pw-card bg-white rounded-2xl p-7 border border-gray-200 shadow-2xs flex flex-col justify-between">
+              <div className="pw-card bg-white rounded-2xl p-8 border border-gray-200 flex flex-col justify-between">
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center mb-5">
                     <Lock className="w-6 h-6" />
                   </div>
-                  <h3 className="font-display text-xl font-extrabold text-[#111827] mb-3">
+                  <h3 className="font-display text-xl font-extrabold text-[#0F172A] mb-3">
                     100% Escrow Protected
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-slate-600 text-sm leading-relaxed">
                     Payment is held by a third-party escrow service and released only after successful removal and verification. If we do not remove the target article within the agreed scope, your deposit is refunded in full.
                   </p>
                 </div>
@@ -2359,15 +2649,15 @@ export function App() {
               </div>
 
               {/* Free-Fix Guarantee */}
-              <div className="pw-card bg-white rounded-2xl p-7 border border-gray-200 shadow-2xs flex flex-col justify-between">
+              <div className="pw-card bg-white rounded-2xl p-8 border border-gray-200 flex flex-col justify-between">
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center mb-5">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
-                  <h3 className="font-display text-xl font-extrabold text-[#111827] mb-3">
+                  <h3 className="font-display text-xl font-extrabold text-[#0F172A] mb-3">
                     Free-Fix Guarantee
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-slate-600 text-sm leading-relaxed">
                     Post-removal monitoring with automatic remediation if the content resurfaces. Our system tracks search indices and syndicated mirrors to ensure deleted articles stay permanently offline.
                   </p>
                 </div>
@@ -2378,9 +2668,9 @@ export function App() {
               </div>
 
               {/* Complete Confidentiality */}
-              <div className="pw-card bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] text-white rounded-2xl p-7 border border-blue-700 shadow-lg flex flex-col justify-between">
+              <div className="pw-card bg-gradient-to-br from-[#0F172A] via-[#1E3A8A] to-[#2563EB] text-white rounded-2xl p-8 border border-white/10 shadow-md flex flex-col justify-between">
                 <div>
-                  <div className="w-12 h-12 rounded-xl bg-white/15 border border-white/25 text-white flex items-center justify-center mb-5">
+                  <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 text-white flex items-center justify-center mb-5">
                     <EyeOff className="w-6 h-6" />
                   </div>
                   <h3 className="font-display text-xl font-extrabold text-white mb-3">
@@ -2406,12 +2696,12 @@ export function App() {
               {/* Left Column: Audit Instructions & Direct Consultation */}
               <div className="lg:col-span-5 space-y-6">
                 <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#2563EB]">
-                  03 // CONFIDENTIAL LINK AUDIT
+                  03. CONFIDENTIAL LINK AUDIT
                 </div>
-                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#111827] leading-tight">
+                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[#0F172A] leading-tight">
                   Submit Your Article URL for a Feasibility Audit &amp; Quote
                 </h2>
-                <p className="text-gray-600 text-[16px] leading-relaxed">
+                <p className="text-slate-600 text-[16px] leading-relaxed">
                   Provide the publication URL and target search keywords below. Our media compliance team will evaluate the publisher, map the removal pathway, and deliver a fixed-fee Escrow quote within 12 hours.
                 </p>
 
@@ -2421,8 +2711,8 @@ export function App() {
                       <Check className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-[#111827]">Direct Publisher &amp; Legal Assessment</div>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <div className="text-sm font-bold text-[#0F172A]">Direct Publisher &amp; Legal Assessment</div>
+                      <p className="text-xs text-slate-500 mt-0.5">
                         We verify editorial jurisdiction, syndication copies, and de-indexing eligibility before quoting.
                       </p>
                     </div>
@@ -2433,8 +2723,8 @@ export function App() {
                       <Check className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-[#111827]">100% Escrow.com Protection</div>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <div className="text-sm font-bold text-[#0F172A]">100% Escrow.com Protection</div>
+                      <p className="text-xs text-slate-500 mt-0.5">
                         Zero upfront agency retainers. Funds remain locked in escrow until verified article removal.
                       </p>
                     </div>
@@ -2445,19 +2735,19 @@ export function App() {
                       <Check className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-[#111827]">Strict NDA Confidentiality</div>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <div className="text-sm font-bold text-[#0F172A]">Strict NDA Confidentiality</div>
+                      <p className="text-xs text-slate-500 mt-0.5">
                         Your identity, brand, and submitted URLs are never shared outside our compliance team.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#F4F6FB] border border-gray-200 space-y-3">
-                  <div className="text-xs font-mono uppercase tracking-wider text-gray-500 font-bold">
+                <div className="p-5 rounded-2xl bg-[#F8FAFC] border border-gray-200 space-y-3">
+                  <div className="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold">
                     Prefer a Live Consultation First?
                   </div>
-                  <p className="text-xs text-gray-600 leading-relaxed">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     Book a confidential 15-minute call with our senior media removal specialists via Google Meet.
                   </p>
                   <button
@@ -2477,13 +2767,13 @@ export function App() {
 
               {/* Right Column: Clean Request Card */}
               <div className="lg:col-span-7">
-                <div className="bg-white text-[#111827] rounded-2xl border-2 border-blue-100 shadow-xl shadow-blue-900/5 overflow-hidden">
-                  <div className="px-6 py-4 bg-[#F4F6FB] border-b border-gray-200 flex items-center justify-between">
+                <div className="bg-white text-[#0F172A] rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+                  <div className="px-6 py-4 bg-[#F8FAFC] border-b border-gray-200 flex items-center justify-between">
                     <div>
                       <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#2563EB] block">
                         NEWS &amp; MEDIA ARTICLE REMOVAL
                       </span>
-                      <h3 className="font-display text-lg font-extrabold text-[#111827]">
+                      <h3 className="font-display text-lg font-extrabold text-[#0F172A]">
                         Request Link Audit &amp; Quote
                       </h3>
                     </div>
@@ -2497,31 +2787,31 @@ export function App() {
                     {submittedNewsCase ? (
                       <div className="space-y-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-xl bg-blue-100 text-[#2563EB] flex items-center justify-center shrink-0">
+                          <div className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center shrink-0">
                             <CheckCircle2 className="w-6 h-6" />
                           </div>
                           <div>
                             <div className="font-mono text-xs font-bold uppercase text-[#2563EB]">
                               Article Audit Logged
                             </div>
-                            <h4 className="font-display text-xl font-extrabold text-[#111827]">
+                            <h4 className="font-display text-xl font-extrabold text-[#0F172A]">
                               Case ID: {submittedNewsCase.caseId}
                             </h4>
                           </div>
                         </div>
 
-                        <div className="p-4 rounded-xl bg-[#F4F6FB] border border-gray-200 text-gray-700 text-sm leading-relaxed font-medium">
+                        <div className="p-4 rounded-xl bg-[#F8FAFC] border border-gray-200 text-slate-700 text-sm leading-relaxed font-medium">
                           Thank you for your submission. If you do not see our email reply within a few hours or if it lands in your spam folder, click below to chat with us instantly on WhatsApp.
                         </div>
 
-                        <div className="rounded-xl bg-[#F4F6FB] border border-gray-200 p-4 font-mono text-xs space-y-1.5 text-gray-600">
+                        <div className="rounded-xl bg-[#F8FAFC] border border-gray-200 p-4 font-mono text-xs space-y-1.5 text-slate-600">
                           <div>
-                            <span className="text-gray-400">Client:</span>{' '}
-                            <strong className="text-gray-900">{submittedNewsCase.name}</strong> ({submittedNewsCase.email})
+                            <span className="text-slate-400">Client:</span>{' '}
+                            <strong className="text-[#0F172A]">{submittedNewsCase.name}</strong> ({submittedNewsCase.email})
                           </div>
                           <div className="truncate">
-                            <span className="text-gray-400">Article URL:</span>{' '}
-                            <strong className="text-gray-900">{submittedNewsCase.url}</strong>
+                            <span className="text-slate-400">Article URL:</span>{' '}
+                            <strong className="text-[#0F172A]">{submittedNewsCase.url}</strong>
                           </div>
                         </div>
 
@@ -2529,7 +2819,7 @@ export function App() {
                           href={buildWhatsAppUrl(submittedNewsCase)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full inline-flex items-center justify-center gap-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-[15px] py-4 px-6 rounded-xl shadow-lg shadow-blue-600/20 transition-all cursor-pointer"
+                          className="pw-btn-primary w-full inline-flex items-center justify-center gap-2.5 text-white font-extrabold text-[15px] py-4 px-6 rounded-xl cursor-pointer"
                         >
                           <PhoneCall className="w-5 h-5" />
                           <span>WhatsApp</span>
@@ -2544,7 +2834,7 @@ export function App() {
                             setNewsKeywords('');
                             setNewsNotes('');
                           }}
-                          className="w-full text-center text-xs text-gray-500 hover:text-gray-800 underline cursor-pointer pt-1"
+                          className="w-full text-center text-xs text-slate-500 hover:text-slate-800 underline cursor-pointer pt-1"
                         >
                           Submit another article URL for evaluation
                         </button>
@@ -2555,7 +2845,7 @@ export function App() {
                           <div>
                             <label
                               htmlFor="news-full-name"
-                              className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5"
+                              className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2"
                             >
                               Full Name *
                             </label>
@@ -2566,14 +2856,14 @@ export function App() {
                               value={newsName}
                               onChange={(e) => setNewsName(e.target.value)}
                               placeholder="Jordan Vance"
-                              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm transition-all"
+                              className="w-full px-4 py-3.5 rounded-xl border border-gray-300 bg-white text-[#0F172A] placeholder:text-slate-400 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 outline-none text-sm transition-all"
                             />
                           </div>
 
                           <div>
                             <label
                               htmlFor="news-email"
-                              className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5"
+                              className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2"
                             >
                               Email *
                             </label>
@@ -2584,7 +2874,7 @@ export function App() {
                               value={newsEmail}
                               onChange={(e) => setNewsEmail(e.target.value)}
                               placeholder="jordan@organization.com"
-                              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm transition-all"
+                              className="w-full px-4 py-3.5 rounded-xl border border-gray-300 bg-white text-[#0F172A] placeholder:text-slate-400 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 outline-none text-sm transition-all"
                             />
                           </div>
                         </div>
@@ -2592,7 +2882,7 @@ export function App() {
                         <div>
                           <label
                             htmlFor="news-article-url"
-                            className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5"
+                            className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2"
                           >
                             Article URL to Audit *
                           </label>
@@ -2603,14 +2893,14 @@ export function App() {
                             value={newsArticleUrl}
                             onChange={(e) => setNewsArticleUrl(e.target.value)}
                             placeholder="https://publication.com/article-slug..."
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm font-mono transition-all"
+                            className="w-full px-4 py-3.5 rounded-xl border border-gray-300 bg-[#F8FAFC] text-[#0F172A] placeholder:text-slate-400 focus:bg-white focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 outline-none text-sm font-mono transition-all"
                           />
                         </div>
 
                         <div>
                           <label
                             htmlFor="news-keywords"
-                            className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5"
+                            className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2"
                           >
                             Target Keywords
                           </label>
@@ -2620,14 +2910,14 @@ export function App() {
                             value={newsKeywords}
                             onChange={(e) => setNewsKeywords(e.target.value)}
                             placeholder="Full Name, Brand Name, Executive Title"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm transition-all"
+                            className="w-full px-4 py-3.5 rounded-xl border border-gray-300 bg-white text-[#0F172A] placeholder:text-slate-400 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 outline-none text-sm transition-all"
                           />
                         </div>
 
                         <div>
                           <label
                             htmlFor="news-notes"
-                            className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5"
+                            className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2"
                           >
                             Additional Notes
                           </label>
@@ -2637,7 +2927,7 @@ export function App() {
                             value={newsNotes}
                             onChange={(e) => setNewsNotes(e.target.value)}
                             placeholder="Factual inaccuracies, outdated claims, or syndication details..."
-                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm transition-all resize-none"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-[#0F172A] placeholder:text-slate-400 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/15 outline-none text-sm transition-all resize-none"
                           />
                         </div>
 
@@ -2651,7 +2941,7 @@ export function App() {
                         <button
                           type="submit"
                           disabled={isNewsSubmitting}
-                          className="w-full inline-flex items-center justify-center gap-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white font-extrabold text-[15.5px] py-4 px-6 rounded-xl shadow-lg shadow-blue-600/25 transition-all cursor-pointer"
+                          className="pw-btn-primary w-full inline-flex items-center justify-center gap-2.5 disabled:opacity-60 text-white font-extrabold text-[15.5px] py-4 px-6 rounded-xl cursor-pointer"
                         >
                           <span>
                             {isNewsSubmitting ? 'Submitting Article Audit...' : 'Request Link Audit & Quote'}
@@ -2659,9 +2949,36 @@ export function App() {
                           <ArrowRight className="w-5 h-5 stroke-[2.5]" />
                         </button>
 
-                        <p className="text-center text-xs text-gray-500">
-                          100% Escrow Protected • Released only after verified removal &amp; Google de-indexing.
-                        </p>
+                        {/* Official Trust Badges Directly Under Submit Button */}
+                        <div className="pt-3 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-gray-200">
+                            <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center shrink-0">
+                              <Lock className="w-3.5 h-3.5" />
+                            </div>
+                            <div>
+                              <div className="text-[11.5px] font-extrabold text-[#0F172A] leading-tight">
+                                Escrow.com Security Verified
+                              </div>
+                              <div className="text-[10.5px] text-slate-500 leading-tight mt-0.5">
+                                Released only post-deindexing
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#F8FAFC] border border-gray-200">
+                            <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 text-[#2563EB] flex items-center justify-center shrink-0">
+                              <ShieldCheck className="w-3.5 h-3.5" />
+                            </div>
+                            <div>
+                              <div className="text-[11.5px] font-extrabold text-[#0F172A] leading-tight">
+                                Mutual NDA Guaranteed
+                              </div>
+                              <div className="text-[10.5px] text-slate-500 leading-tight mt-0.5">
+                                Zero secondary media exposure
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </form>
                     )}
                   </div>
