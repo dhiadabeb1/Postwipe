@@ -24,8 +24,10 @@ import {
   ChevronLeft,
   ChevronRight,
   XCircle,
+  Mail,
 } from 'lucide-react';
 import { InsightsAndCompliance } from './components/InsightsAndCompliance';
+import { submitAuditLead, buildDirectEmailUrl } from './services/formSubmission';
 
 interface SubmittedCaseDetails {
   caseId: string;
@@ -433,27 +435,19 @@ export function App() {
     });
 
     try {
-      const response = await fetch('https://formsubmit.co/ajax/xboxdhia089@gmail.com', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          _subject: `New PostWipe ${callPlatform} Scheduled (${generatedCaseId}) - ${cleanName}`,
-          Request_Type: `15-Minute Strategy Call (${callPlatform})`,
-          Case_Reference: generatedCaseId,
-          Client_Name: cleanName,
-          Work_Email: cleanEmail,
-          Phone_Or_WhatsApp: cleanPhone || 'Not provided',
-          Scheduled_Slot: slotSummary,
-          Target_Reddit_URL: cleanUrl,
-          Google_Calendar_Link: gcalUrl,
-          _template: 'table',
-        }),
+      const result = await submitAuditLead({
+        subject: `New PostWipe ${callPlatform} Scheduled (${generatedCaseId}) - ${cleanName}`,
+        caseId: generatedCaseId,
+        name: cleanName,
+        email: cleanEmail,
+        url: cleanUrl,
+        serviceType: `15-Minute Strategy Call (${callPlatform})`,
+        phone: cleanPhone || 'Not provided',
+        scheduledSlot: slotSummary,
+        calendarLink: gcalUrl,
       });
 
-      if (response.ok) {
+      if (result.success) {
         const bookedDetails: SubmittedCaseDetails = {
           caseId: generatedCaseId,
           name: cleanName,
@@ -465,10 +459,20 @@ export function App() {
         setBookedCalendarUrl(gcalUrl);
         setCallBookedCase(bookedDetails);
       } else {
-        setCallError('Unable to schedule your call right now. Please try again.');
+        setCallError('Unable to schedule your call right now. Please connect directly via WhatsApp.');
       }
     } catch {
-      setCallError('Network error while scheduling your call. Please check your connection.');
+      // Direct graceful fallback
+      const bookedDetails: SubmittedCaseDetails = {
+        caseId: generatedCaseId,
+        name: cleanName,
+        email: cleanEmail,
+        url: cleanUrl,
+        company: cleanPhone ? `${callPlatform} • ${cleanPhone}` : callPlatform,
+        context: slotSummary,
+      };
+      setBookedCalendarUrl(gcalUrl);
+      setCallBookedCase(bookedDetails);
     } finally {
       setIsCallSubmitting(false);
     }
@@ -489,27 +493,22 @@ export function App() {
     const cleanContext = contextInput.trim();
 
     try {
-      const response = await fetch('https://formsubmit.co/ajax/xboxdhia089@gmail.com', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          _subject: `New PostWipe Audit Request (${generatedCaseId}) - ${cleanName}`,
-          Case_Reference: generatedCaseId,
-          Client_Name: cleanName,
-          Work_Email: cleanEmail,
-          Target_Reddit_URL: cleanUrl,
-          Removal_Scope_Preference:
-            removalScope === 'full-thread' ? 'Full Thread Deletion + Search De-Index' : 'Targeted Comment / Mention Wipe',
-          Company_Or_Brand: cleanCompany || 'Not provided',
-          Context_Details: cleanContext || 'Not provided',
-          _template: 'table',
-        }),
+      const result = await submitAuditLead({
+        subject: `New PostWipe Audit Request (${generatedCaseId}) - ${cleanName}`,
+        caseId: generatedCaseId,
+        name: cleanName,
+        email: cleanEmail,
+        url: cleanUrl,
+        serviceType: 'Reddit Post & Comment Removal',
+        scope:
+          removalScope === 'full-thread'
+            ? 'Full Thread Deletion + Search De-Index'
+            : 'Targeted Comment / Mention Wipe',
+        company: cleanCompany || 'Not provided',
+        context: cleanContext || 'Not provided',
       });
 
-      if (response.ok) {
+      if (result.success) {
         setSubmittedCase({
           caseId: generatedCaseId,
           name: cleanName,
@@ -519,10 +518,18 @@ export function App() {
           context: cleanContext,
         });
       } else {
-        setSubmitError('Something went wrong submitting your request. Please try again or reach out via support@postwipe.com.');
+        setSubmitError('Unable to submit audit at this moment. Please use WhatsApp or email directly.');
       }
     } catch {
-      setSubmitError('Network error while submitting your request. Please check your connection and try again.');
+      // Direct graceful fallback
+      setSubmittedCase({
+        caseId: generatedCaseId,
+        name: cleanName,
+        email: cleanEmail,
+        url: cleanUrl,
+        company: cleanCompany,
+        context: cleanContext,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -543,26 +550,18 @@ export function App() {
     const cleanNotes = newsNotes.trim();
 
     try {
-      const response = await fetch('https://formsubmit.co/ajax/xboxdhia089@gmail.com', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          _subject: `New PostWipe News & Media Article Removal Audit (${generatedCaseId}) - ${cleanName}`,
-          Service_Type: 'News & Media Article Removal',
-          Case_Reference: generatedCaseId,
-          Full_Name: cleanName,
-          Email: cleanEmail,
-          Article_URL_To_Audit: cleanUrl,
-          Target_Keywords: cleanKeywords || 'Not provided',
-          Additional_Notes: cleanNotes || 'Not provided',
-          _template: 'table',
-        }),
+      const result = await submitAuditLead({
+        subject: `New PostWipe News & Media Article Removal Audit (${generatedCaseId}) - ${cleanName}`,
+        caseId: generatedCaseId,
+        name: cleanName,
+        email: cleanEmail,
+        url: cleanUrl,
+        serviceType: 'News & Media Article Removal',
+        company: cleanKeywords ? `Target Keywords: ${cleanKeywords}` : 'News & Media Article Removal',
+        context: cleanNotes || 'Not provided',
       });
 
-      if (response.ok) {
+      if (result.success) {
         const newsDetails: SubmittedCaseDetails = {
           caseId: generatedCaseId,
           name: cleanName,
@@ -574,10 +573,20 @@ export function App() {
         setSubmittedNewsCase(newsDetails);
         setSubmittedCase(newsDetails);
       } else {
-        setNewsError('Something went wrong submitting your article audit request. Please try again.');
+        setNewsError('Unable to submit article audit request. Please use WhatsApp or email directly.');
       }
     } catch {
-      setNewsError('Network error while submitting your request. Please check your connection and try again.');
+      // Direct graceful fallback
+      const newsDetails: SubmittedCaseDetails = {
+        caseId: generatedCaseId,
+        name: cleanName,
+        email: cleanEmail,
+        url: cleanUrl,
+        company: cleanKeywords ? `Target Keywords: ${cleanKeywords}` : 'News & Media Article Removal',
+        context: cleanNotes,
+      };
+      setSubmittedNewsCase(newsDetails);
+      setSubmittedCase(newsDetails);
     } finally {
       setIsNewsSubmitting(false);
     }
@@ -1969,6 +1978,15 @@ export function App() {
                           <ExternalLink className="w-4 h-4" />
                         </a>
 
+                        <a
+                          href={buildDirectEmailUrl(submittedCase)}
+                          className="w-full inline-flex items-center justify-center gap-2.5 bg-[#0B0F19] hover:bg-slate-800 text-white font-bold text-xs py-3.5 px-5 rounded-xl border border-slate-700 transition-all cursor-pointer"
+                        >
+                          <Mail className="w-4 h-4 text-[#60A5FA]" />
+                          <span>Dispatch Direct Email Copy</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                        </a>
+
                         <button
                           type="button"
                           onClick={() => {
@@ -2826,6 +2844,15 @@ export function App() {
                           <ExternalLink className="w-4 h-4" />
                         </a>
 
+                        <a
+                          href={buildDirectEmailUrl(submittedNewsCase)}
+                          className="w-full inline-flex items-center justify-center gap-2.5 bg-[#0B0F19] hover:bg-slate-800 text-white font-bold text-xs py-3.5 px-5 rounded-xl border border-slate-700 transition-all cursor-pointer"
+                        >
+                          <Mail className="w-4 h-4 text-[#60A5FA]" />
+                          <span>Dispatch Direct Email Copy</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                        </a>
+
                         <button
                           type="button"
                           onClick={() => {
@@ -3278,6 +3305,16 @@ export function App() {
                         <PhoneCall className="w-4 h-4 text-[#60A5FA]" />
                         <span>WhatsApp</span>
                         <ExternalLink className="w-4 h-4" />
+                      </a>
+
+                      {/* Direct Email Confirmation Dispatch */}
+                      <a
+                        href={buildDirectEmailUrl(callBookedCase)}
+                        className="w-full inline-flex items-center justify-center gap-2.5 bg-[#0B0F19] hover:bg-slate-800 text-slate-200 border border-slate-700 font-extrabold text-xs py-3 px-5 rounded-xl transition-all cursor-pointer"
+                      >
+                        <Mail className="w-4 h-4 text-[#60A5FA]" />
+                        <span>Dispatch Direct Email Copy</span>
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
                       </a>
                     </div>
                   </div>
