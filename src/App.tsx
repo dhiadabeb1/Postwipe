@@ -41,7 +41,7 @@ interface SubmittedCaseDetails {
 const WHATSAPP_BASE_URL = 'https://wa.me/21695022973';
 const WEB3FORMS_ACCESS_KEY =
   (import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined) ||
-  'YOUR_WEB3FORMS_ACCESS_KEY';
+  'e78de3f1-0676-470e-b5a1-092bb88eeccf';
 
 function buildWhatsAppUrl(details: SubmittedCaseDetails | null): string {
   if (!details) {

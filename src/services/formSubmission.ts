@@ -39,7 +39,9 @@ export async function submitAuditLead(payload: FormSubmissionPayload): Promise<S
     (import.meta.env.VITE_AUDIT_ENDPOINT as string | undefined) ||
     (import.meta.env.VITE_API_URL as string | undefined);
 
-  const web3FormsKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined;
+  const web3FormsKey =
+    (import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined) ||
+    'e78de3f1-0676-470e-b5a1-092bb88eeccf';
   const formspreeId = import.meta.env.VITE_FORMSPREE_ID as string | undefined;
 
   // 1. Try Custom API Endpoint if configured in environment
