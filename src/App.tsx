@@ -25,8 +25,10 @@ import {
   ChevronRight,
   XCircle,
   Mail,
+  Star,
 } from 'lucide-react';
 import { InsightsAndCompliance } from './components/InsightsAndCompliance';
+import { ReviewsPage } from './components/ReviewsPage';
 import { buildDirectEmailUrl } from './services/formSubmission';
 
 interface SubmittedCaseDetails {
@@ -248,7 +250,7 @@ export function App() {
   const [emailInput, setEmailInput] = useState('');
   const [companyInput, setCompanyInput] = useState('');
   const [contextInput, setContextInput] = useState('');
-  const [removalScope, setRemovalScope] = useState<'full-thread' | 'comment-only'>('full-thread');
+  const [removalScope, setRemovalScope] = useState<'full-thread' | 'comment-only' | 'review-audit'>('full-thread');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submittedCase, setSubmittedCase] = useState<SubmittedCaseDetails | null>(null);
@@ -324,7 +326,7 @@ export function App() {
   ];
   const currentProofSlide = clientProofSlides[activeProofIndex] || clientProofSlides[0];
 
-  const [activePage, setActivePage] = useState<'reddit' | 'news' | 'insights'>(() => {
+  const [activePage, setActivePage] = useState<'reddit' | 'news' | 'insights' | 'reviews'>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
@@ -333,6 +335,9 @@ export function App() {
       }
       if (path.includes('news') || hash.includes('news')) {
         return 'news';
+      }
+      if (path.includes('review') || hash.includes('review')) {
+        return 'reviews';
       }
     }
     return 'reddit';
@@ -346,6 +351,8 @@ export function App() {
         setActivePage('insights');
       } else if (path.includes('news') || hash.includes('news')) {
         setActivePage('news');
+      } else if (path.includes('review') || hash.includes('review')) {
+        setActivePage('reviews');
       } else {
         setActivePage('reddit');
       }
@@ -354,7 +361,7 @@ export function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const switchPage = (page: 'reddit' | 'news' | 'insights', targetHash?: string) => {
+  const switchPage = (page: 'reddit' | 'news' | 'insights' | 'reviews', targetHash?: string) => {
     setActivePage(page);
     if (typeof window !== 'undefined') {
       const newUrl =
@@ -362,6 +369,8 @@ export function App() {
           ? `/news-removal${targetHash ? targetHash : ''}`
           : page === 'insights'
           ? `/insights${targetHash ? targetHash : ''}`
+          : page === 'reviews'
+          ? `/reviews${targetHash ? targetHash : ''}`
           : `/${targetHash ? targetHash : ''}`;
       try {
         window.history.pushState({ page }, '', newUrl);
@@ -504,7 +513,11 @@ export function App() {
     const cleanScope =
       removalScope === 'full-thread'
         ? 'Full Thread Deletion + Search De-Index'
-        : 'Targeted Comment / Mention Wipe';
+        : removalScope === 'comment-only'
+        ? 'Targeted Comment / Mention Wipe'
+        : 'Review Platform Removal & Suppression Audit';
+
+    const isReviewScope = removalScope === 'review-audit';
 
     try {
       const response = await fetch('https://api.web3forms.com/submit', {
@@ -515,13 +528,14 @@ export function App() {
         },
         body: JSON.stringify({
           access_key: WEB3FORMS_ACCESS_KEY,
-          subject: `New PostWipe Reddit Audit Request (${generatedCaseId}) - ${cleanName}`,
+          subject: `New PostWipe ${isReviewScope ? 'Review' : 'Reddit'} Audit Request (${generatedCaseId}) - ${cleanName}`,
           from_name: 'PostWipe Audit Desk',
           case_reference: generatedCaseId,
-          service_type: 'Reddit Post & Comment Removal',
+          service_type: isReviewScope ? 'Review Management & Suppression' : 'Reddit Post & Comment Removal',
           name: cleanName,
           email: cleanEmail,
           company: cleanCompany || 'Not provided',
+          target_url: cleanUrl,
           target_reddit_url: cleanUrl,
           audit_scope: cleanScope,
           context: cleanContext || 'Not provided',
@@ -664,14 +678,14 @@ export function App() {
                   setOpenNavDropdown(openNavDropdown === 'solutions' ? null : 'solutions')
                 }
                 className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all cursor-pointer ${
-                  activePage === 'reddit' || activePage === 'news'
+                  activePage === 'reddit' || activePage === 'news' || activePage === 'reviews'
                     ? 'text-white bg-slate-800/90 border border-slate-700/60'
                     : 'hover:text-white hover:bg-slate-800/50'
                 }`}
               >
                 <span>Solutions</span>
                 <span className="px-1.5 py-0.5 rounded bg-blue-950/80 text-blue-300 border border-blue-500/30 font-mono text-[10px] font-bold">
-                  {activePage === 'news' ? 'News & Media' : 'Reddit'}
+                  {activePage === 'news' ? 'News & Media' : activePage === 'reviews' ? 'Reviews' : 'Reddit'}
                 </span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
@@ -738,6 +752,34 @@ export function App() {
                         </p>
                       </div>
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpenNavDropdown(null);
+                        switchPage('reviews');
+                      }}
+                      className={`w-full text-left p-3 rounded-lg transition-all flex items-start gap-3 cursor-pointer ${
+                        activePage === 'reviews'
+                          ? 'bg-blue-950/50 border border-blue-500/40 text-white'
+                          : 'hover:bg-slate-800/60 border border-transparent text-slate-300'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-amber-950/80 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 border border-amber-500/30">
+                        <Star className="w-4 h-4 fill-amber-400/20" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-extrabold text-white flex items-center gap-1.5">
+                          <span>Review Management &amp; Suppression</span>
+                          {activePage === 'reviews' && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-400 leading-snug mt-0.5 font-normal">
+                          Trustpilot, Google Maps, Glassdoor &amp; Sitejabber
+                        </p>
+                      </div>
+                    </button>
                   </div>
                 </div>
               )}
@@ -790,6 +832,32 @@ export function App() {
                           className="block px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors"
                         >
                           <div className="text-xs font-bold text-blue-400">Submit Article URL for Audit →</div>
+                        </a>
+                      </>
+                    ) : activePage === 'reviews' ? (
+                      <>
+                        <a
+                          href="#review-audit-form"
+                          onClick={() => setOpenNavDropdown(null)}
+                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors"
+                        >
+                          <div className="text-xs font-bold text-white">12-Hour Review Feasibility Audit</div>
+                          <div className="text-[11px] text-slate-400 font-normal">Free intake for Google Maps &amp; Trustpilot</div>
+                        </a>
+                        <a
+                          href="#review-audit-form"
+                          onClick={() => setOpenNavDropdown(null)}
+                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors"
+                        >
+                          <div className="text-xs font-bold text-white">Two-Pillar Strategy Framework</div>
+                          <div className="text-[11px] text-slate-400 font-normal">Direct removal + organic suppression</div>
+                        </a>
+                        <a
+                          href="#review-audit-form"
+                          onClick={() => setOpenNavDropdown(null)}
+                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors"
+                        >
+                          <div className="text-xs font-bold text-blue-400">Submit Review URL for Audit →</div>
                         </a>
                       </>
                     ) : (
@@ -901,6 +969,17 @@ export function App() {
               </button>
               <button
                 type="button"
+                onClick={() => switchPage('reviews')}
+                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  activePage === 'reviews'
+                    ? 'bg-[#2563EB] text-white shadow-2xs'
+                    : 'text-slate-400'
+                }`}
+              >
+                Reviews
+              </button>
+              <button
+                type="button"
                 onClick={() => switchPage('insights')}
                 className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
                   activePage === 'insights'
@@ -916,13 +995,27 @@ export function App() {
               type="button"
               onClick={() =>
                 switchPage(
-                  activePage === 'news' ? 'news' : 'reddit',
-                  activePage === 'news' ? '#news-audit-form' : '#audit-form'
+                  activePage === 'news'
+                    ? 'news'
+                    : activePage === 'reviews'
+                    ? 'reviews'
+                    : 'reddit',
+                  activePage === 'news'
+                    ? '#news-audit-form'
+                    : activePage === 'reviews'
+                    ? '#review-audit-form'
+                    : '#audit-form'
                 )
               }
               className="pw-btn-primary inline-flex items-center gap-2 text-white font-bold text-[13px] sm:text-[13.5px] px-4 sm:px-5 py-2.5 rounded-xl border border-blue-500/40 cursor-pointer"
             >
-              <span>{activePage === 'news' ? 'Request Link Audit' : 'Free 12h Link Audit'}</span>
+              <span>
+                {activePage === 'news'
+                  ? 'Request Link Audit'
+                  : activePage === 'reviews'
+                  ? 'Request Review Audit'
+                  : 'Free 12h Link Audit'}
+              </span>
               <ArrowRight className="w-4 h-4 text-blue-100 hidden sm:inline" />
             </button>
           </div>
@@ -932,7 +1025,7 @@ export function App() {
       {activePage === 'reddit' ? (
       <main className="flex-1">
         {/* =========================================================
-            SECTION 1: HERO — CLEAR VALUE PROPOSITION + ESCROW + LIVE VERIFICATION DASHBOARD (DARK)
+            SECTION 1: HERO - CLEAR VALUE PROPOSITION + ESCROW + LIVE VERIFICATION DASHBOARD (DARK)
            ========================================================= */}
         <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-28 overflow-hidden bg-[#090D16] pw-grid-bg border-b border-slate-800">
           {/* Soft ambient cobalt-indigo glow */}
@@ -1535,7 +1628,7 @@ export function App() {
         </section>
 
         {/* =========================================================
-            SECTION 5: COMPARISON — POSTWIPE VS DIY MOD APPEALS VS PR AGENCIES (DARK)
+            SECTION 5: COMPARISON - POSTWIPE VS DIY MOD APPEALS VS PR AGENCIES (DARK)
            ========================================================= */}
         <section className="py-24 bg-[#090D16] border-b border-slate-800">
           <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -2027,7 +2120,7 @@ export function App() {
                           }}
                           className="w-full text-center text-xs font-mono text-slate-400 hover:text-white py-2 cursor-pointer"
                         >
-                          Submit another Reddit URL for review
+                          Submit another URL for confidential review
                         </button>
                       </div>
                     </div>
@@ -2047,17 +2140,17 @@ export function App() {
                         </span>
                       </div>
 
-                      {/* Target Reddit URL */}
+                      {/* Target Link */}
                       <div>
                         <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
-                          Target Reddit Post or Comment URL *
+                          Target URL (Reddit, Trustpilot, Google Maps, Glassdoor) *
                         </label>
                         <input
                           type="url"
                           required
                           value={urlInput}
                           onChange={(e) => setUrlInput(e.target.value)}
-                          placeholder="https://www.reddit.com/r/..."
+                          placeholder="https://... (Reddit post, Trustpilot review, or Google Maps listing)"
                           className="w-full px-4 py-3.5 rounded-xl border border-slate-700 bg-[#0B0F19] text-white placeholder:text-slate-500 focus:bg-[#0D1527] focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/20 outline-none text-sm font-mono transition-all"
                         />
                       </div>
@@ -2065,36 +2158,51 @@ export function App() {
                       {/* Scope Selector */}
                       <div>
                         <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
-                          Preferred Removal Scope
+                          Preferred Service Scope
                         </label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                           <button
                             type="button"
                             onClick={() => setRemovalScope('full-thread')}
-                            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                               removalScope === 'full-thread'
                                 ? 'border-[#2563EB] ring-2 ring-blue-500/25 bg-blue-950/60 text-white font-semibold'
                                 : 'border-slate-800 bg-[#0B0F19] text-slate-300 hover:border-slate-700'
                             }`}
                           >
-                            <div className="text-xs font-bold text-white">Full Thread + SERP Wipe</div>
+                            <div className="text-xs font-bold text-white">Full Reddit Thread</div>
                             <div className="text-[11px] text-slate-400 mt-0.5">
-                              Erase entire post &amp; Google/AI cache
+                              Erase entire post &amp; search cache
                             </div>
                           </button>
 
                           <button
                             type="button"
                             onClick={() => setRemovalScope('comment-only')}
-                            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                               removalScope === 'comment-only'
                                 ? 'border-[#2563EB] ring-2 ring-blue-500/25 bg-blue-950/60 text-white font-semibold'
                                 : 'border-slate-800 bg-[#0B0F19] text-slate-300 hover:border-slate-700'
                             }`}
                           >
-                            <div className="text-xs font-bold text-white">Targeted Comment Wipe</div>
+                            <div className="text-xs font-bold text-white">Targeted Comment</div>
                             <div className="text-[11px] text-slate-400 mt-0.5">
-                              Remove specific reply or brand mention
+                              Remove specific reply / mention
+                            </div>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setRemovalScope('review-audit')}
+                            className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                              removalScope === 'review-audit'
+                                ? 'border-[#2563EB] ring-2 ring-blue-500/25 bg-blue-950/60 text-white font-semibold'
+                                : 'border-slate-800 bg-[#0B0F19] text-slate-300 hover:border-slate-700'
+                            }`}
+                          >
+                            <div className="text-xs font-bold text-white">Review Takedown</div>
+                            <div className="text-[11px] text-slate-400 mt-0.5">
+                              Trustpilot, Maps, Glassdoor
                             </div>
                           </button>
                         </div>
@@ -3046,6 +3154,19 @@ export function App() {
           </div>
         </section>
       </main>
+      ) : activePage === 'reviews' ? (
+      /* =========================================================
+         DEDICATED PAGE: REVIEW MANAGEMENT & SUPPRESSION (/reviews)
+         ========================================================= */
+      <ReviewsPage
+        onScheduleCall={() => {
+          setCallBookedCase(null);
+          setCallStep('slot');
+          setIsCallModalOpen(true);
+        }}
+        web3FormsKey={WEB3FORMS_ACCESS_KEY}
+        whatsAppUrl={WHATSAPP_BASE_URL}
+      />
       ) : (
       /* =========================================================
          DEDICATED PAGE: INSIGHTS & COMPLIANCE BLOG (/insights)
@@ -3083,7 +3204,7 @@ export function App() {
                 </span>
               </a>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Specialized Reddit post removal, news article takedowns, and Google/AI search de-indexing for founders, SaaS operators, and executives. Protected by Escrow.com and released only after delete verification.
+                Specialized Reddit post removal, news article takedowns, review management &amp; suppression, and Google/AI search de-indexing for founders, SaaS operators, and executives. Protected by Escrow.com and released only after delete verification.
               </p>
             </div>
 
@@ -3105,6 +3226,15 @@ export function App() {
                 }`}
               >
                 News &amp; Media Removal Page
+              </button>
+              <button
+                type="button"
+                onClick={() => switchPage('reviews')}
+                className={`hover:text-white transition-colors cursor-pointer ${
+                  activePage === 'reviews' ? 'text-[#60A5FA] font-extrabold' : ''
+                }`}
+              >
+                Review Management Page
               </button>
               <button
                 type="button"
@@ -3148,7 +3278,7 @@ export function App() {
         </div>
       </footer>
 
-      {/* Floating WhatsApp Widget — Styled in Cobalt Blue */}
+      {/* Floating WhatsApp Widget - Styled in Cobalt Blue */}
       <aside className="fixed bottom-5 right-5 z-50">
         <a
           href={activeWhatsAppUrl}
