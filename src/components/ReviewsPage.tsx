@@ -279,9 +279,23 @@ export function ReviewsPage({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Column: Headline, Subheadline, CTAs */}
             <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-950/70 border border-blue-500/30 text-blue-300 text-xs font-bold tracking-wide uppercase mb-6 shadow-2xs">
-                <Star className="w-4 h-4 text-[#60A5FA] fill-[#60A5FA]/20 shrink-0" />
-                <span>TRUSTPILOT • GOOGLE MAPS • GLASSDOOR • SITEJABBER</span>
+              <div className="flex flex-wrap items-center gap-2.5 mb-6">
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-950/70 border border-blue-500/30 text-blue-300 text-xs font-bold tracking-wide uppercase shadow-2xs">
+                  <Star className="w-4 h-4 text-[#60A5FA] fill-[#60A5FA]/20 shrink-0" />
+                  <span>TRUSTPILOT • GOOGLE MAPS • GLASSDOOR • SITEJABBER</span>
+                </div>
+
+                <a
+                  href="https://www.trustpilot.com/review/postwipe.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/60 hover:bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-all shadow-sm group"
+                >
+                  <span className="text-emerald-400 font-extrabold text-xs">★ Trustpilot</span>
+                  <span className="text-white font-mono text-[11px]">4.9/5</span>
+                  <span className="text-slate-400 text-[10px] hidden sm:inline">• Read Verified Client Reviews</span>
+                  <ExternalLink className="w-3 h-3 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+                </a>
               </div>
 
               <h1 className="font-display text-[36px] sm:text-[48px] lg:text-[54px] font-extrabold text-white tracking-tight leading-[1.06] mb-6">

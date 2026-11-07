@@ -1038,10 +1038,24 @@ export function App() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-12 items-center">
               {/* Left Column: Core Pitch, Pricing + Escrow, 3 Trust Pillars */}
               <div className="lg:col-span-7">
-                {/* Category Pill */}
-                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-950/60 border border-blue-500/30 text-blue-300 text-xs font-bold tracking-wide uppercase mb-6 shadow-sm">
-                  <ShieldCheck className="w-4 h-4 text-[#60A5FA] shrink-0" />
-                  <span>Corporate Policy Escalation • No Moderator Begging</span>
+                {/* Category Pill & Trustpilot Rating Pill */}
+                <div className="flex flex-wrap items-center gap-2.5 mb-6">
+                  <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-950/60 border border-blue-500/30 text-blue-300 text-xs font-bold tracking-wide uppercase shadow-sm">
+                    <ShieldCheck className="w-4 h-4 text-[#60A5FA] shrink-0" />
+                    <span>Corporate Policy Escalation • No Moderator Begging</span>
+                  </div>
+
+                  <a
+                    href="https://www.trustpilot.com/review/postwipe.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/60 hover:bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-all shadow-sm group"
+                  >
+                    <span className="text-emerald-400 font-extrabold text-xs">★ Trustpilot</span>
+                    <span className="text-white font-mono text-[11px]">4.9/5</span>
+                    <span className="text-slate-400 text-[10px] hidden sm:inline">• Read Verified Client Reviews</span>
+                    <ExternalLink className="w-3 h-3 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+                  </a>
                 </div>
 
                 {/* Main Headline */}
@@ -2390,9 +2404,23 @@ export function App() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-12 items-center">
               {/* Left Column: Headline, Subheadline, Primary CTAs */}
               <div className="lg:col-span-7">
-                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-950/70 border border-blue-500/30 text-blue-300 text-xs font-bold tracking-wide uppercase mb-6 shadow-2xs">
-                  <Globe className="w-4 h-4 text-[#60A5FA] shrink-0" />
-                  <span>News &amp; Media Article Removal • Legal &amp; Publisher Escalation</span>
+                <div className="flex flex-wrap items-center gap-2.5 mb-6">
+                  <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-950/70 border border-blue-500/30 text-blue-300 text-xs font-bold tracking-wide uppercase shadow-2xs">
+                    <Globe className="w-4 h-4 text-[#60A5FA] shrink-0" />
+                    <span>News &amp; Media Article Removal • Legal &amp; Publisher Escalation</span>
+                  </div>
+
+                  <a
+                    href="https://www.trustpilot.com/review/postwipe.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/60 hover:bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-all shadow-sm group"
+                  >
+                    <span className="text-emerald-400 font-extrabold text-xs">★ Trustpilot</span>
+                    <span className="text-white font-mono text-[11px]">4.9/5</span>
+                    <span className="text-slate-400 text-[10px] hidden sm:inline">• Read Verified Client Reviews</span>
+                    <ExternalLink className="w-3 h-3 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+                  </a>
                 </div>
 
                 <h1 className="font-display text-[36px] sm:text-[48px] lg:text-[54px] font-extrabold text-white tracking-tight leading-[1.06] mb-6">
@@ -3189,7 +3217,7 @@ export function App() {
       <footer className="bg-[#050811] text-slate-400 py-14 border-t border-slate-800">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-10 border-b border-slate-800">
-            <div className="space-y-3 max-w-md">
+            <div className="space-y-4 max-w-xl">
               <a
                 href="/"
                 onClick={(e) => {
@@ -3203,9 +3231,43 @@ export function App() {
                   Post<span className="text-[#60A5FA]">Wipe</span>
                 </span>
               </a>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Specialized Reddit post removal, news article takedowns, review management &amp; suppression, and Google/AI search de-indexing for founders, SaaS operators, and executives. Protected by Escrow.com and released only after delete verification.
-              </p>
+
+              <div className="space-y-2.5 text-xs text-slate-300 leading-relaxed font-normal">
+                <p>
+                  PostWipe is a premier corporate online reputation management firm specializing in the permanent removal and search de-indexing of hostile Reddit threads, defamatory forum discussions, and damaging search results. Modern search engines and AI answer engines routinely index unverified forum discussions on page one, directly contaminating executive due diligence, customer acquisition, and enterprise sales pipelines. PostWipe neutralizes this vulnerability through direct compliance pathways, terms-of-service enforcement, and expedited search engine cache purges, eliminating defamatory material at the source rather than relying on slow, temporary suppression tactics.
+                </p>
+                <p>
+                  Serving B2B tech companies, high-profile founders, and global consumer brands, PostWipe operates under strict mutual non-disclosure agreements with a zero-risk, pay-on-success model backed by neutral Escrow.com settlement. Clients retain total financial protection: funds are released only after source deletion and Google search cache clearing are independently verified.
+                </p>
+              </div>
+
+              {/* Verified Trustpilot Badge Card */}
+              <div className="pt-2">
+                <a
+                  href="https://www.trustpilot.com/review/postwipe.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block p-3.5 rounded-xl bg-[#0B0F19] hover:bg-[#0F172A] border border-emerald-500/40 text-slate-200 transition-all text-xs group cursor-pointer shadow-md max-w-lg"
+                >
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-sm text-white flex items-center gap-1.5">
+                        <span className="text-emerald-400">★</span> Trustpilot
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 font-mono text-[11px] font-bold border border-emerald-500/30">
+                        TrustScore 4.9 / 5.0
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-0.5 text-emerald-400 text-sm">
+                      <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-[11.5px] text-slate-400 group-hover:text-slate-300">
+                    <span>Rated Excellent • Read our verified client reviews on Trustpilot</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-400 transition-colors shrink-0 ml-2" />
+                  </div>
+                </a>
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-6 text-xs font-semibold text-slate-300">
