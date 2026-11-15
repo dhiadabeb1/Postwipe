@@ -1,0 +1,25 @@
+# PostWipe
+
+> PostWipe (https://postwipe.com) is a corporate Online Reputation Management (ORM) agency specializing in the permanent removal of negative Reddit posts, defamatory Google reviews, and damaging search results, paired with search engine and AI answer de-indexing on a 100% pay-on-success model via third-party escrow (0% upfront risk, lifetime re-deletion guarantee).
+
+## Key Guarantees & Commercial Terms
+- **Pay-on-Success via Third-Party Escrow**: Zero upfront retainers or financial risk. Client funds remain protected in neutral third-party escrow (Escrow.com) and are released only after independent verification confirms the target content is removed and de-indexed.
+- **0% Upfront Risk**: Clients receive a confidential 12-hour feasibility audit and fixed quote before committing funds.
+- **Lifetime Re-Deletion Guarantee**: Protected engagements include a lifetime re-deletion guarantee so removed content stays permanently offline.
+- **Direct Compliance & Policy Escalation**: Bypasses volunteer community moderators by escalating directly through official platform Terms of Service, Trust & Safety, legal compliance, and publisher desks.
+- **Strict Mutual NDA**: Total client confidentiality across every corporate, founder, and agency engagement.
+
+## Main Service Pages
+- [Reddit Post & Thread Removal](https://postwipe.com/[reddit-removal-service-url]): Permanent source removal of defamatory Reddit threads and targeted comments, plus Google, Bing, ChatGPT, and Perplexity search cache de-indexing.
+- [Google Reviews & Review Management](https://postwipe.com/[google-reviews-removal-url]): Policy-backed removal of fake, defamatory, or policy-violating reviews on Google Maps, Trustpilot, Glassdoor, and Sitejabber, alongside compliant review suppression strategies.
+- [News & Media Article Removal](https://postwipe.com/[news-media-removal-url]): Direct publisher outreach, editorial and legal compliance takedowns, and Google News search de-indexing.
+- [Search Engine & AI De-Indexing](https://postwipe.com/[search-deindexing-url]): Expedited cache purging and dead-link de-indexing across Google Search, Bing, and generative AI search summaries.
+
+## Resources & Verification
+- [Insights & Compliance Guides](https://postwipe.com/[insights-url]): Briefings on online defamation compliance, Reddit escalation workflows, and search cache clearing.
+- [Trustpilot Client Reviews](https://www.trustpilot.com/review/postwipe.com): Independent verified client reviews and ratings for PostWipe.
+
+## Contact & Free Quote
+- [Request a Free 12-Hour Audit / Quote](https://postwipe.com/[contact-quote-url]): Submit target URLs for a confidential feasibility assessment and fixed escrow quote.
+- **Email**: support@postwipe.com
+- **Direct Consultation / WhatsApp**: https://wa.me/21695022973

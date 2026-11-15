@@ -100,19 +100,24 @@
     <meta name="twitter:title" content="PostWipe | Pay-on-Success News Article &amp; Reddit Removal Agency" />
     <meta name="twitter:description" content="PostWipe permanently removes negative news articles, damaging Reddit threads, and Google search results on a 100% Pay-on-Success model protected by Escrow.com." />
     <meta name="twitter:image" content="https://postwipe.com/og-image.png" />
-    <script type="application/ld+json">
+    <script id="postwipe-jsonld" type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@graph": [
           {
-            "@type": ["Organization", "ProfessionalService", "LegalService"],
+            "@type": ["Organization", "ProfessionalService"],
             "@id": "https://postwipe.com/#organization",
             "name": "PostWipe",
             "alternateName": "PostWipe Content Removal & Search De-Indexing",
             "url": "https://postwipe.com/",
-            "logo": "https://postwipe.com/favicon-96x96.png",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://postwipe.com/favicon-96x96.png",
+              "width": 96,
+              "height": 96
+            },
             "image": "https://postwipe.com/og-image.png",
-            "description": "Success-based online reputation compliance firm specializing in permanent news article removal, media takedowns, Reddit thread deletion, and Google/AI search de-indexing backed by Escrow.com.",
+            "description": "Corporate online reputation compliance firm specializing in permanent Reddit thread deletion, review takedowns, news article removal, and Google/AI search de-indexing backed by Escrow.com.",
             "email": "support@postwipe.com",
             "sameAs": [
               "https://www.trustpilot.com/review/postwipe.com",
@@ -120,20 +125,37 @@
             ],
             "priceRange": "From $300",
             "areaServed": "Worldwide",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "Compliance & Audit Desk",
+              "email": "support@postwipe.com",
+              "availableLanguage": ["English"]
+            },
             "knowsAbout": [
-              "News Article Removal",
-              "Online Media Takedowns",
-              "Google Search Engine De-Indexing",
               "Reddit Post & Comment Removal",
+              "Google Search Engine De-Indexing",
+              "News & Media Article Removal",
+              "Review Management & Suppression",
               "Defamation & Editorial Compliance",
               "DMCA & Privacy Takedowns",
-              "Escrow-Protected Reputation Management",
-              "White-Label ORM for Agencies"
+              "Escrow-Protected Reputation Management"
             ],
             "hasOfferCatalog": {
               "@type": "OfferCatalog",
               "name": "Pay-on-Success Content Removal Services",
               "itemListElement": [
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "@id": "https://postwipe.com/#reddit-service",
+                    "name": "Reddit Post & Comment Removal",
+                    "serviceType": "Reddit Content Removal & AI Search Cache Clearing",
+                    "provider": { "@id": "https://postwipe.com/#organization" },
+                    "url": "https://postwipe.com/",
+                    "description": "Permanent source deletion of defamatory Reddit threads and comments via corporate policy compliance, followed by Google, Bing, ChatGPT, and Perplexity cache de-indexing."
+                  }
+                },
                 {
                   "@type": "Offer",
                   "itemOffered": {
@@ -150,12 +172,12 @@
                   "@type": "Offer",
                   "itemOffered": {
                     "@type": "Service",
-                    "@id": "https://postwipe.com/#reddit-service",
-                    "name": "Reddit Post & Comment Removal",
-                    "serviceType": "Reddit Content Removal & AI Search Cache Clearing",
+                    "@id": "https://postwipe.com/reviews#service",
+                    "name": "Review Management & Suppression Services",
+                    "serviceType": "Review Removal & Brand Rating Recovery",
                     "provider": { "@id": "https://postwipe.com/#organization" },
-                    "url": "https://postwipe.com/",
-                    "description": "Permanent source deletion of defamatory Reddit threads and comments via corporate policy compliance, followed by Google, Bing, ChatGPT, and Perplexity cache de-indexing."
+                    "url": "https://postwipe.com/reviews",
+                    "description": "Removal of fake, defamatory, or policy-violating reviews across Google Maps, Trustpilot, Glassdoor, and Sitejabber backed by Escrow.com protection."
                   }
                 }
               ]
@@ -167,34 +189,42 @@
             "mainEntity": [
               {
                 "@type": "Question",
-                "name": "How can I permanently remove a damaging news article from Google search results?",
+                "name": "What if the subreddit moderators already ignored or rejected our takedown request?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Traditional SEO suppression only pushes articles down temporarily. To permanently remove a news article from Google, the article must first be unpublished, retracted, or no-indexed at the publisher source through editorial compliance, privacy, or legal takedown channels, followed by an expedited Google search cache purge. PostWipe executes this entire process on a 100% Pay-on-Success basis via Escrow.com."
+                  "text": "Subreddit moderators are unpaid community volunteers who frequently reject business requests, or worse, publicly screenshot your message to mock your brand. PostWipe never contacts volunteer subreddit moderators. Our specialists escalate directly through corporate Trust & Safety, intellectual property, and sitewide Content Policy compliance channels."
                 }
               },
               {
                 "@type": "Question",
-                "name": "What is the best pay-on-success ORM agency for news article and Reddit removal?",
+                "name": "How does the Escrow.com payment protection work?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "PostWipe (postwipe.com) operates strictly on a Pay-on-Success model backed by Escrow.com. Unlike traditional reputation agencies that charge monthly suppression retainers with no guarantee, PostWipe locks client funds in third-party escrow and releases payment only after the target news article or Reddit URL is verified deleted and de-indexed from Google."
+                  "text": "After our free 12-hour audit confirms your link is actionable, we provide a fixed quote starting from $300. Your payment is deposited into a regulated Escrow.com transaction. Funds remain locked in escrow while we execute the removal and are released to PostWipe only after you verify the target content is permanently deleted. If we do not remove it within the agreed timeframe, Escrow.com refunds 100% of your deposit."
                 }
               },
               {
                 "@type": "Question",
-                "name": "What if the subreddit moderators already refused to take down the Reddit post?",
+                "name": "Should we choose a Targeted Comment Wipe or a Full Thread Deletion?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Subreddit moderators are unpaid volunteers who rarely side with businesses. PostWipe never contacts subreddit moderators. We escalate directly to corporate policy, legal, and Trust and Safety teams based on sitewide rule violations."
+                  "text": "If the main Reddit post is neutral and only one or two replies contain false allegations, a Targeted Comment Wipe removes those specific replies cleanly. If the thread title itself contains damaging keywords or false accusations ranking on Google, we recommend a Full Thread Deletion so the entire URL can be de-indexed from Google, Bing, ChatGPT, and Perplexity."
                 }
               },
               {
                 "@type": "Question",
-                "name": "How long does news article or Reddit post removal and Google de-indexing take?",
+                "name": "How fast do Google, ChatGPT, and Perplexity stop showing the deleted Reddit thread?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "We complete a feasibility audit within 12 hours. Most Reddit removals complete in 5 to 14 business days, while news and media publication removals typically resolve within 10 to 30 business days depending on publisher compliance review. Once deleted at the source, Google and AI search cache clearing finishes within 24 to 72 hours."
+                  "text": "Once a Reddit thread or article is permanently deleted at the source, Google and Bing normally take weeks to recrawl it naturally. PostWipe accelerates this immediately by submitting verified dead-link cache purge requests across search engines, clearing the snippet from Google search results and AI answer engines within 24 to 72 hours."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Will the original poster or competitors know our company hired PostWipe?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Every audit and policy escalation is conducted under strict Mutual NDA. Because removals are executed through formal platform policy enforcement rather than public replies or mass-reporting bots, there is zero public footprint linking the removal back to your brand."
                 }
               }
             ]
@@ -202,9 +232,32 @@
         ]
       }
     </script>
+    <link
+      rel="preload"
+      as="image"
+      href="/assets/aistudio/Screenshot_2026-10-26_at_02.55.40_4bfa1df0.webp"
+      type="image/webp"
+      fetchpriority="high"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
   </head>
   <body class="bg-[#090D16] text-[#F8FAFC] antialiased selection:bg-blue-600/30 selection:text-white">
     <div id="root"></div>

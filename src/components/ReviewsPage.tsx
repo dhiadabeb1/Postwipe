@@ -1204,3 +1204,5 @@ export function ReviewsPage({
     </main>
   );
 }
+
+export default ReviewsPage;

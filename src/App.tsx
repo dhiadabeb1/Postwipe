@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import {
   ShieldCheck,
   ArrowRight,
@@ -18,202 +18,51 @@ import {
   Zap,
   MessageSquareOff,
   PhoneCall,
-  Calendar,
-  X,
   Video,
   ChevronLeft,
   ChevronRight,
   XCircle,
   Mail,
-  Star,
+  Menu,
 } from 'lucide-react';
-import { InsightsAndCompliance } from './components/InsightsAndCompliance';
-import { ReviewsPage } from './components/ReviewsPage';
+import { PostWipeLogoMark } from './components/PostWipeLogoMark';
+import { INSIGHTS_ARTICLES_META } from './data/insightsMeta';
 import { buildDirectEmailUrl } from './services/formSubmission';
+import {
+  buildWhatsAppUrl,
+  WEB3FORMS_ACCESS_KEY,
+  WHATSAPP_BASE_URL,
+  type SubmittedCaseDetails,
+} from './types/caseDetails';
+import {
+  buildHomepageSchema,
+  buildAboutPageSchema,
+  buildArticlePageSchema,
+  buildServicePageSchema,
+  syncJsonLdSchema,
+} from './utils/seoSchema';
 
-interface SubmittedCaseDetails {
-  caseId: string;
-  name: string;
-  email: string;
-  url: string;
-  company: string;
-  context: string;
-}
+const InsightsAndCompliance = lazy(() => import('./components/InsightsAndCompliance'));
+const ReviewsPage = lazy(() => import('./components/ReviewsPage'));
+const AboutPage = lazy(() => import('./components/AboutPage'));
+const NewsRemovalPage = lazy(() => import('./components/NewsRemovalPage'));
+const ScheduleCallModal = lazy(() => import('./components/ScheduleCallModal'));
+const MobileMenuDrawer = lazy(() => import('./components/MobileMenuDrawer'));
+const SolutionsDropdown = lazy(() =>
+  import('./components/NavDropdownMenu').then((m) => ({ default: m.SolutionsDropdown }))
+);
+const ProtocolDropdown = lazy(() =>
+  import('./components/NavDropdownMenu').then((m) => ({ default: m.ProtocolDropdown }))
+);
 
-const WHATSAPP_BASE_URL = 'https://wa.me/21695022973';
-const WEB3FORMS_ACCESS_KEY =
-  (import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined) ||
-  'e78de3f1-0676-470e-b5a1-092bb88eeccf';
-
-function buildWhatsAppUrl(details: SubmittedCaseDetails | null): string {
-  if (!details) {
-    return WHATSAPP_BASE_URL;
-  }
-  const lines = [
-    `Hi PostWipe team, I just submitted my Reddit link for a removal audit.`,
-    ``,
-    `• Client Name: ${details.name}`,
-    `• Case Reference: ${details.caseId}`,
-    `• Email: ${details.email}`,
-    `• Target Reddit URL: ${details.url}`,
-    details.company ? `• Brand / Company: ${details.company}` : null,
-    details.context ? `• Additional Details: ${details.context}` : null,
-    ``,
-    `Please confirm receipt of my submission and let me know the next steps.`,
-  ].filter(Boolean);
-
-  return `${WHATSAPP_BASE_URL}?text=${encodeURIComponent(lines.join('\n'))}`;
-}
-
-interface UpcomingDay {
-  isoDate: string;
-  dayName: string;
-  monthShort: string;
-  dayNum: string;
-  fullLabel: string;
-}
-
-function getUpcomingBusinessDays(count = 8): UpcomingDay[] {
-  const days: UpcomingDay[] = [];
-  const cursor = new Date();
-  while (days.length < count) {
-    const dayOfWeek = cursor.getDay();
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      const yyyy = cursor.getFullYear();
-      const mm = String(cursor.getMonth() + 1).padStart(2, '0');
-      const dd = String(cursor.getDate()).padStart(2, '0');
-      days.push({
-        isoDate: `${yyyy}-${mm}-${dd}`,
-        dayName: cursor.toLocaleDateString('en-US', { weekday: 'short' }),
-        monthShort: cursor.toLocaleDateString('en-US', { month: 'short' }),
-        dayNum: String(cursor.getDate()),
-        fullLabel: cursor.toLocaleDateString('en-US', {
-          weekday: 'short',
-          month: 'short',
-          day: 'numeric',
-        }),
-      });
-    }
-    cursor.setDate(cursor.getDate() + 1);
-  }
-  return days;
-}
-
-const TIME_SLOTS = [
-  '09:00 AM',
-  '09:30 AM',
-  '10:00 AM',
-  '11:00 AM',
-  '01:00 PM',
-  '02:00 PM',
-  '03:30 PM',
-  '04:30 PM',
-];
-
-function buildGoogleCalendarUrl(params: {
-  caseId: string;
-  name: string;
-  email: string;
-  isoDate: string;
-  timeSlot: string;
-  platform: string;
-  redditUrl: string;
-}): string {
-  const [timePart, meridiem] = params.timeSlot.split(' ');
-  const [rawHours, rawMinutes] = timePart.split(':').map(Number);
-  let hours = rawHours;
-  if (meridiem === 'PM' && hours < 12) hours += 12;
-  if (meridiem === 'AM' && hours === 12) hours = 0;
-
-  const [year, month, day] = params.isoDate.split('-').map(Number);
-  const startDate = new Date(year, month - 1, day, hours, rawMinutes, 0);
-  const endDate = new Date(startDate.getTime() + 15 * 60 * 1000);
-
-  const formatGCalDate = (d: Date) => {
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
-  };
-
-  const datesParam = `${formatGCalDate(startDate)}/${formatGCalDate(endDate)}`;
-  const title = `PostWipe Strategy Call (${params.caseId}) (${params.name})`;
-  const details = [
-    `15-Minute Confidential Reddit Removal & Escrow Consultation`,
-    `Case Reference: ${params.caseId}`,
-    `Client: ${params.name} (${params.email})`,
-    `Call Service: ${params.platform}`,
-    `Target Reddit URL: ${params.redditUrl}`,
-    `WhatsApp Direct Support: https://wa.me/21695022973`,
-  ].join('\n');
-
-  const query = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: title,
-    dates: datesParam,
-    details,
-    location: params.platform,
-    add: 'xboxdhia089@gmail.com',
-  });
-
-  return `https://calendar.google.com/calendar/render?${query.toString()}`;
-}
-
-/**
- * PostWipe Shield + Checkmark Logo Mark in the new Royal Cobalt Blue palette
- */
-function PostWipeLogoMark({ className = 'w-10 h-10' }: { className?: string }) {
+function RouteLoadingFallback() {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 64 64"
-      fill="none"
-      className={className}
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id="pw-cobalt-bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#2563EB" />
-          <stop offset="100%" stopColor="#1E3A8A" />
-        </linearGradient>
-        <linearGradient id="pw-cobalt-shield" x1="12" y1="10" x2="52" y2="54" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FFFFFF" />
-          <stop offset="100%" stopColor="#DBEAFE" />
-        </linearGradient>
-      </defs>
-      <rect width="64" height="64" rx="16" fill="url(#pw-cobalt-bg)" />
-      <rect
-        x="2"
-        y="2"
-        width="60"
-        height="60"
-        rx="14"
-        stroke="#93C5FD"
-        strokeOpacity="0.4"
-        strokeWidth="2"
-      />
-      <path
-        d="M32 11L15 18.5V30.5C15 41.8 22.2 51.9 32 55C41.8 51.9 49 41.8 49 30.5V18.5L32 11Z"
-        fill="#FFFFFF"
-        fillOpacity="0.14"
-        stroke="url(#pw-cobalt-shield)"
-        strokeWidth="3.2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M23.5 27.5H34.5"
-        stroke="#BFDBFE"
-        strokeOpacity="0.85"
-        strokeWidth="2.8"
-        strokeLinecap="round"
-        strokeDasharray="3 4"
-      />
-      <path
-        d="M24 34.5L29.5 40L41 26.5"
-        stroke="#FFFFFF"
-        strokeWidth="4.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <div className="flex-1 min-h-[60vh] bg-[#090D16] flex items-center justify-center px-4">
+      <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-xl bg-[#0F172A] border border-slate-800 text-xs font-mono text-slate-300">
+        <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
+        <span>Loading PostWipe workspace...</span>
+      </div>
+    </div>
   );
 }
 
@@ -265,7 +114,7 @@ export function App() {
       sector: 'D2C E-Commerce & Architectural Lighting',
       metrics: '53 Upvotes • 35 Replies',
       status: 'Removed by Reddit Filters',
-      image: '/assets/aistudio/Screenshot_2026-10-26_at_02.55.40_4bfa1df0.png',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_02.55.40_4bfa1df0.webp',
     },
     {
       id: 'PW-ENG-201',
@@ -273,7 +122,7 @@ export function App() {
       sector: 'Engineering & Industrial Recruitment',
       metrics: '2,000+ Upvotes • 22 Replies • 463 Shares',
       status: 'Removed by Reddit Filters',
-      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.49_b07a1d32.png',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.49_b07a1d32.webp',
     },
     {
       id: 'PW-CAR-202',
@@ -281,7 +130,7 @@ export function App() {
       sector: 'Enterprise Hiring & HR Tech',
       metrics: '935 Upvotes • 33 Replies • 88 Shares',
       status: 'Removed by Moderator & Locked',
-      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.43_6ad6a35b.png',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.43_6ad6a35b.webp',
     },
     {
       id: 'PW-CSC-203',
@@ -289,7 +138,7 @@ export function App() {
       sector: 'Software Training & EdTech Platform',
       metrics: '10 Upvotes • 56 Replies • 32 Shares',
       status: 'Removed by Moderators',
-      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.56_496a2012.png',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.56_496a2012.webp',
     },
     {
       id: 'PW-GMB-205',
@@ -297,7 +146,7 @@ export function App() {
       sector: 'Regulated iGaming & Digital Entertainment',
       metrics: '14 Upvotes • 21 Replies • 310 Shares',
       status: 'Removed by Moderator & Archived',
-      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.23.27_a3d91ed2.png',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.23.27_a3d91ed2.webp',
     },
     {
       id: 'PW-MED-206',
@@ -305,7 +154,7 @@ export function App() {
       sector: 'Sports Media & Digital Broadcasting',
       metrics: '7 Upvotes • 2 Replies • 17 Shares',
       status: 'Removed by Reddit Filters',
-      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.30_ebca3f99.png',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.30_ebca3f99.webp',
     },
     {
       id: 'PW-ARC-207',
@@ -313,7 +162,7 @@ export function App() {
       sector: 'Digital Media & Content Protection',
       metrics: '17 Replies • 12 Shares',
       status: 'Removed by Reddit Filters',
-      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.19_e5af89ad.png',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.19_e5af89ad.webp',
     },
     {
       id: 'PW-WEB-208',
@@ -321,15 +170,18 @@ export function App() {
       sector: 'Digital Platform & Brand Protection',
       metrics: '1 Upvote • 2 Replies',
       status: 'Removed by Reddit Filters',
-      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.08_848815a3.png',
+      image: '/assets/aistudio/Screenshot_2026-10-26_at_03.24.08_848815a3.webp',
     },
   ];
   const currentProofSlide = clientProofSlides[activeProofIndex] || clientProofSlides[0];
 
-  const [activePage, setActivePage] = useState<'reddit' | 'news' | 'insights' | 'reviews'>(() => {
+  const [activePage, setActivePage] = useState<'reddit' | 'news' | 'insights' | 'reviews' | 'about'>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
+      if (path.includes('about') || hash.includes('about')) {
+        return 'about';
+      }
       if (path.includes('insights') || path.includes('blog') || hash.includes('insights') || hash.includes('blog')) {
         return 'insights';
       }
@@ -343,12 +195,25 @@ export function App() {
     return 'reddit';
   });
 
+  const [selectedInsightId, setSelectedInsightId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const matched = INSIGHTS_ARTICLES_META.find((art) => path.includes(art.slug));
+      if (matched) return matched.id;
+    }
+    return INSIGHTS_ARTICLES_META[0].id;
+  });
+
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
-      if (path.includes('insights') || path.includes('blog') || hash.includes('insights') || hash.includes('blog')) {
+      if (path.includes('about') || hash.includes('about')) {
+        setActivePage('about');
+      } else if (path.includes('insights') || path.includes('blog') || hash.includes('insights') || hash.includes('blog')) {
         setActivePage('insights');
+        const matched = INSIGHTS_ARTICLES_META.find((art) => path.includes(art.slug));
+        if (matched) setSelectedInsightId(matched.id);
       } else if (path.includes('news') || hash.includes('news')) {
         setActivePage('news');
       } else if (path.includes('review') || hash.includes('review')) {
@@ -361,16 +226,22 @@ export function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const switchPage = (page: 'reddit' | 'news' | 'insights' | 'reviews', targetHash?: string) => {
+  const switchPage = (
+    page: 'reddit' | 'news' | 'insights' | 'reviews' | 'about',
+    targetHash?: string,
+    articleSlug?: string
+  ) => {
     setActivePage(page);
     if (typeof window !== 'undefined') {
       const newUrl =
         page === 'news'
           ? `/news-removal${targetHash ? targetHash : ''}`
           : page === 'insights'
-          ? `/insights${targetHash ? targetHash : ''}`
+          ? `/insights${articleSlug ? `/${articleSlug}` : ''}${targetHash ? targetHash : ''}`
           : page === 'reviews'
           ? `/reviews${targetHash ? targetHash : ''}`
+          : page === 'about'
+          ? `/about${targetHash ? targetHash : ''}`
           : `/${targetHash ? targetHash : ''}`;
       try {
         window.history.pushState({ page }, '', newUrl);
@@ -390,112 +261,31 @@ export function App() {
     }
   };
 
-  // News & Media Article Removal Form State
-  const [newsPreviewMode, setNewsPreviewMode] = useState<'after' | 'before'>('after');
-  const [newsName, setNewsName] = useState('');
-  const [newsEmail, setNewsEmail] = useState('');
-  const [newsArticleUrl, setNewsArticleUrl] = useState('');
-  const [newsKeywords, setNewsKeywords] = useState('');
-  const [newsNotes, setNewsNotes] = useState('');
-  const [isNewsSubmitting, setIsNewsSubmitting] = useState(false);
-  const [newsError, setNewsError] = useState('');
-  const [submittedNewsCase, setSubmittedNewsCase] = useState<SubmittedCaseDetails | null>(null);
-
-  // Schedule a Call (Google Calendar / Meet) Modal State
-  const upcomingDays = getUpcomingBusinessDays(8);
-  const detectedTimezone =
-    typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
+  useEffect(() => {
+    if (activePage === 'about') {
+      document.title = 'About PostWipe | Enterprise Reputation & Content Removal Agency';
+      syncJsonLdSchema(buildAboutPageSchema());
+    } else if (activePage === 'insights') {
+      const activeArticle =
+        INSIGHTS_ARTICLES_META.find((art) => art.id === selectedInsightId) ||
+        INSIGHTS_ARTICLES_META[0];
+      document.title = `${activeArticle.title} | PostWipe Insights`;
+      syncJsonLdSchema(buildArticlePageSchema(activeArticle));
+    } else if (activePage === 'news') {
+      document.title = 'PostWipe | News & Media Article Removal Agency';
+      syncJsonLdSchema(buildServicePageSchema('news'));
+    } else if (activePage === 'reviews') {
+      document.title = 'PostWipe | Review Management & Suppression Services';
+      syncJsonLdSchema(buildServicePageSchema('reviews'));
+    } else {
+      document.title = 'PostWipe | Pay-on-Success News Article & Reddit Removal Agency';
+      syncJsonLdSchema(buildHomepageSchema());
+    }
+  }, [activePage, selectedInsightId]);
 
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
-  const [callStep, setCallStep] = useState<'slot' | 'details'>('slot');
-  const [callPlatform, setCallPlatform] = useState<'Google Meet' | 'WhatsApp Call' | 'Phone Call'>('Google Meet');
-  const [callDate, setCallDate] = useState(upcomingDays[0]?.isoDate || '');
-  const [callTimeSlot, setCallTimeSlot] = useState('10:00 AM');
-  const [callName, setCallName] = useState('');
-  const [callEmail, setCallEmail] = useState('');
-  const [callPhone, setCallPhone] = useState('');
-  const [callUrl, setCallUrl] = useState('');
-  const [isCallSubmitting, setIsCallSubmitting] = useState(false);
-  const [callError, setCallError] = useState('');
-  const [callBookedCase, setCallBookedCase] = useState<SubmittedCaseDetails | null>(null);
-  const [bookedCalendarUrl, setBookedCalendarUrl] = useState('');
-
-  const selectedDayObj = upcomingDays.find((d) => d.isoDate === callDate) || upcomingDays[0];
-
-  const handleCallSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!callName.trim() || !callEmail.trim() || !callDate.trim()) return;
-
-    setIsCallSubmitting(true);
-    setCallError('');
-
-    const generatedCaseId = `PW-CALL-${Math.floor(10000 + Math.random() * 90000)}`;
-    const cleanName = callName.trim();
-    const cleanEmail = callEmail.trim();
-    const cleanPhone = callPhone.trim();
-    const cleanUrl = callUrl.trim() || 'To be discussed on call';
-    const slotSummary = `${selectedDayObj?.fullLabel || callDate} at ${callTimeSlot} (${detectedTimezone}) via ${callPlatform}`;
-
-    const gcalUrl = buildGoogleCalendarUrl({
-      caseId: generatedCaseId,
-      name: cleanName,
-      email: cleanEmail,
-      isoDate: callDate,
-      timeSlot: callTimeSlot,
-      platform: callPlatform,
-      redditUrl: cleanUrl,
-    });
-
-    try {
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_ACCESS_KEY,
-          subject: `New PostWipe Strategy Call Scheduled (${generatedCaseId}) - ${cleanName}`,
-          from_name: 'PostWipe Calendar Desk',
-          case_reference: generatedCaseId,
-          service_type: `15-Minute Strategy Call (${callPlatform})`,
-          name: cleanName,
-          email: cleanEmail,
-          phone_or_whatsapp: cleanPhone || 'Not provided',
-          scheduled_slot: slotSummary,
-          target_reddit_url: cleanUrl,
-          google_calendar_link: gcalUrl,
-          botcheck: '',
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.status === 200 && data.success) {
-        const bookedDetails: SubmittedCaseDetails = {
-          caseId: generatedCaseId,
-          name: cleanName,
-          email: cleanEmail,
-          url: cleanUrl,
-          company: cleanPhone ? `${callPlatform} • ${cleanPhone}` : callPlatform,
-          context: slotSummary,
-        };
-        setBookedCalendarUrl(gcalUrl);
-        setCallBookedCase(bookedDetails);
-      } else {
-        setCallError(
-          data.message ||
-            'Unable to schedule call. Please verify your Web3Forms access key or reach out on WhatsApp.'
-        );
-      }
-    } catch (err: unknown) {
-      const errorMsg =
-        err instanceof Error ? err.message : 'Network error while scheduling call';
-      setCallError(`${errorMsg}. Please connect directly via WhatsApp.`);
-    } finally {
-      setIsCallSubmitting(false);
-    }
-  };
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [openNavDropdown, setOpenNavDropdown] = useState<'solutions' | 'protocol' | null>(null);
 
   const handleAuditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -571,75 +361,7 @@ export function App() {
     }
   };
 
-  const handleNewsAuditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newsName.trim() || !newsEmail.trim() || !newsArticleUrl.trim()) return;
-
-    setIsNewsSubmitting(true);
-    setNewsError('');
-
-    const generatedCaseId = `PW-NEWS-${Math.floor(100000 + Math.random() * 900000)}`;
-    const cleanName = newsName.trim();
-    const cleanEmail = newsEmail.trim();
-    const cleanUrl = newsArticleUrl.trim();
-    const cleanKeywords = newsKeywords.trim();
-    const cleanNotes = newsNotes.trim();
-
-    try {
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_ACCESS_KEY,
-          subject: `New PostWipe News & Media Removal Audit (${generatedCaseId}) - ${cleanName}`,
-          from_name: 'PostWipe News Desk',
-          case_reference: generatedCaseId,
-          service_type: 'News & Media Article Removal',
-          name: cleanName,
-          email: cleanEmail,
-          article_url_to_audit: cleanUrl,
-          target_keywords: cleanKeywords || 'Not provided',
-          additional_notes: cleanNotes || 'Not provided',
-          botcheck: '',
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.status === 200 && data.success) {
-        const newsDetails: SubmittedCaseDetails = {
-          caseId: generatedCaseId,
-          name: cleanName,
-          email: cleanEmail,
-          url: cleanUrl,
-          company: cleanKeywords ? `Target Keywords: ${cleanKeywords}` : 'News & Media Article Removal',
-          context: cleanNotes,
-        };
-        setSubmittedNewsCase(newsDetails);
-        setSubmittedCase(newsDetails);
-      } else {
-        setNewsError(
-          data.message ||
-            'Submission was not accepted by Web3Forms. Please check your access key or use WhatsApp.'
-        );
-      }
-    } catch (err: unknown) {
-      const errorMsg =
-        err instanceof Error ? err.message : 'Network error while sending article audit request';
-      setNewsError(
-        `${errorMsg}. Please verify your connection or reach out directly on WhatsApp.`
-      );
-    } finally {
-      setIsNewsSubmitting(false);
-    }
-  };
-
-  const [openNavDropdown, setOpenNavDropdown] = useState<'solutions' | 'protocol' | null>(null);
-
-  const activeWhatsAppUrl = buildWhatsAppUrl(submittedCase || submittedNewsCase);
+  const activeWhatsAppUrl = buildWhatsAppUrl(submittedCase);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#090D16] text-[#F8FAFC] selection:bg-blue-600/30 selection:text-white">
@@ -695,93 +417,15 @@ export function App() {
               </button>
 
               {openNavDropdown === 'solutions' && (
-                <div className="absolute left-0 top-full pt-2 w-80 z-50">
-                  <div className="bg-[#0F172A] rounded-xl border border-slate-800 shadow-2xl p-2 space-y-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpenNavDropdown(null);
-                        switchPage('reddit');
-                      }}
-                      className={`w-full text-left p-3 rounded-lg transition-all flex items-start gap-3 cursor-pointer ${
-                        activePage === 'reddit'
-                          ? 'bg-blue-950/50 border border-blue-500/40 text-white'
-                          : 'hover:bg-slate-800/60 border border-transparent text-slate-300'
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-[#2563EB] text-white flex items-center justify-center shrink-0 mt-0.5">
-                        <ShieldCheck className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-extrabold text-white flex items-center gap-1.5">
-                          <span>Reddit Thread &amp; Comment Removal</span>
-                          {activePage === 'reddit' && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                          )}
-                        </div>
-                        <p className="text-[11px] text-slate-400 leading-snug mt-0.5 font-normal">
-                          Source deletion + Google &amp; AI search cache purge
-                        </p>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpenNavDropdown(null);
-                        switchPage('news');
-                      }}
-                      className={`w-full text-left p-3 rounded-lg transition-all flex items-start gap-3 cursor-pointer ${
-                        activePage === 'news'
-                          ? 'bg-blue-950/50 border border-blue-500/40 text-white'
-                          : 'hover:bg-slate-800/60 border border-transparent text-slate-300'
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-slate-800 text-blue-300 flex items-center justify-center shrink-0 mt-0.5 border border-slate-700">
-                        <Globe className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-extrabold text-white flex items-center gap-1.5">
-                          <span>News &amp; Media Article Removal</span>
-                          {activePage === 'news' && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                          )}
-                        </div>
-                        <p className="text-[11px] text-slate-400 leading-snug mt-0.5 font-normal">
-                          Publisher legal takedowns &amp; Google News de-indexing
-                        </p>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpenNavDropdown(null);
-                        switchPage('reviews');
-                      }}
-                      className={`w-full text-left p-3 rounded-lg transition-all flex items-start gap-3 cursor-pointer ${
-                        activePage === 'reviews'
-                          ? 'bg-blue-950/50 border border-blue-500/40 text-white'
-                          : 'hover:bg-slate-800/60 border border-transparent text-slate-300'
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-amber-950/80 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 border border-amber-500/30">
-                        <Star className="w-4 h-4 fill-amber-400/20" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-extrabold text-white flex items-center gap-1.5">
-                          <span>Review Management &amp; Suppression</span>
-                          {activePage === 'reviews' && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                          )}
-                        </div>
-                        <p className="text-[11px] text-slate-400 leading-snug mt-0.5 font-normal">
-                          Trustpilot, Google Maps, Glassdoor &amp; Sitejabber
-                        </p>
-                      </div>
-                    </button>
-                  </div>
-                </div>
+                <Suspense fallback={null}>
+                  <SolutionsDropdown
+                    activePage={activePage}
+                    onSelectPage={(page) => {
+                      setOpenNavDropdown(null);
+                      switchPage(page);
+                    }}
+                  />
+                </Suspense>
               )}
             </div>
 
@@ -806,110 +450,16 @@ export function App() {
               </button>
 
               {openNavDropdown === 'protocol' && (
-                <div className="absolute left-0 top-full pt-2 w-72 z-50">
-                  <div className="bg-[#0F172A] rounded-xl border border-slate-800 shadow-2xl p-2 space-y-0.5">
-                    {activePage === 'news' ? (
-                      <>
-                        <a
-                          href="#news-process"
-                          onClick={() => setOpenNavDropdown(null)}
-                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors"
-                        >
-                          <div className="text-xs font-bold text-white">3-Stage Publisher Protocol</div>
-                          <div className="text-[11px] text-slate-400 font-normal">Editorial, legal &amp; SERP de-indexing</div>
-                        </a>
-                        <a
-                          href="#news-features"
-                          onClick={() => setOpenNavDropdown(null)}
-                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors"
-                        >
-                          <div className="text-xs font-bold text-white">Escrow &amp; Free-Fix Guarantee</div>
-                          <div className="text-[11px] text-slate-400 font-normal">Zero upfront retainer risk model</div>
-                        </a>
-                        <a
-                          href="#news-audit-form"
-                          onClick={() => setOpenNavDropdown(null)}
-                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors"
-                        >
-                          <div className="text-xs font-bold text-blue-400">Submit Article URL for Audit →</div>
-                        </a>
-                      </>
-                    ) : activePage === 'reviews' ? (
-                      <>
-                        <a
-                          href="#review-audit-form"
-                          onClick={() => setOpenNavDropdown(null)}
-                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors"
-                        >
-                          <div className="text-xs font-bold text-white">12-Hour Review Feasibility Audit</div>
-                          <div className="text-[11px] text-slate-400 font-normal">Free intake for Google Maps &amp; Trustpilot</div>
-                        </a>
-                        <a
-                          href="#review-audit-form"
-                          onClick={() => setOpenNavDropdown(null)}
-                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors"
-                        >
-                          <div className="text-xs font-bold text-white">Two-Pillar Strategy Framework</div>
-                          <div className="text-[11px] text-slate-400 font-normal">Direct removal + organic suppression</div>
-                        </a>
-                        <a
-                          href="#review-audit-form"
-                          onClick={() => setOpenNavDropdown(null)}
-                          className="block px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors"
-                        >
-                          <div className="text-xs font-bold text-blue-400">Submit Review URL for Audit →</div>
-                        </a>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOpenNavDropdown(null);
-                            switchPage('reddit', '#why-postwipe');
-                          }}
-                          className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors cursor-pointer"
-                        >
-                          <div className="text-xs font-bold text-white">Why Hostile Reddit Threads Hurt</div>
-                          <div className="text-[11px] text-slate-400 font-normal">Google SERP &amp; AI search contamination</div>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOpenNavDropdown(null);
-                            switchPage('reddit', '#removal-options');
-                          }}
-                          className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors cursor-pointer"
-                        >
-                          <div className="text-xs font-bold text-white">Surgical Removal Scope</div>
-                          <div className="text-[11px] text-slate-400 font-normal">Comment wipe vs. full thread deletion</div>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOpenNavDropdown(null);
-                            switchPage('reddit', '#escrow-workflow');
-                          }}
-                          className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors cursor-pointer"
-                        >
-                          <div className="text-xs font-bold text-white">4-Step Escrow.com Workflow</div>
-                          <div className="text-[11px] text-slate-400 font-normal">Pay only after verified deletion</div>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOpenNavDropdown(null);
-                            switchPage('reddit', '#faq');
-                          }}
-                          className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors cursor-pointer"
-                        >
-                          <div className="text-xs font-bold text-white">Due Diligence &amp; Escrow FAQ</div>
-                          <div className="text-[11px] text-slate-400 font-normal">Timelines, guarantees &amp; NDA terms</div>
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
+                <Suspense fallback={null}>
+                  <ProtocolDropdown
+                    activePage={activePage}
+                    onClose={() => setOpenNavDropdown(null)}
+                    onSwitchPage={(page, targetHash) => {
+                      setOpenNavDropdown(null);
+                      switchPage(page, targetHash);
+                    }}
+                  />
+                </Suspense>
               )}
             </div>
 
@@ -939,57 +489,33 @@ export function App() {
             >
               Insights &amp; Blog
             </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setOpenNavDropdown(null);
+                switchPage('about');
+              }}
+              className={`px-3.5 py-2 rounded-lg transition-all cursor-pointer ${
+                activePage === 'about'
+                  ? 'text-blue-400 bg-blue-950/60 font-bold border border-blue-500/30'
+                  : 'hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              About
+            </button>
           </nav>
 
           {/* Header Action Area */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Compact Mobile Page Switcher */}
-            <div className="lg:hidden flex items-center gap-1 bg-slate-900/90 p-1 rounded-lg border border-slate-800">
-              <button
-                type="button"
-                onClick={() => switchPage('reddit')}
-                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
-                  activePage === 'reddit'
-                    ? 'bg-[#2563EB] text-white shadow-2xs'
-                    : 'text-slate-400'
-                }`}
-              >
-                Reddit
-              </button>
-              <button
-                type="button"
-                onClick={() => switchPage('news')}
-                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
-                  activePage === 'news'
-                    ? 'bg-[#2563EB] text-white shadow-2xs'
-                    : 'text-slate-400'
-                }`}
-              >
-                News
-              </button>
-              <button
-                type="button"
-                onClick={() => switchPage('reviews')}
-                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
-                  activePage === 'reviews'
-                    ? 'bg-[#2563EB] text-white shadow-2xs'
-                    : 'text-slate-400'
-                }`}
-              >
-                Reviews
-              </button>
-              <button
-                type="button"
-                onClick={() => switchPage('insights')}
-                className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
-                  activePage === 'insights'
-                    ? 'bg-[#2563EB] text-white shadow-2xs'
-                    : 'text-slate-400'
-                }`}
-              >
-                Blog
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Open navigation menu"
+              className="lg:hidden inline-flex items-center justify-center p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-200 hover:text-white hover:border-slate-700 cursor-pointer"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
 
             <button
               type="button"
@@ -1086,11 +612,7 @@ export function App() {
 
                     <button
                       type="button"
-                      onClick={() => {
-                        setCallBookedCase(null);
-                        setCallStep('slot');
-                        setIsCallModalOpen(true);
-                      }}
+                      onClick={() => setIsCallModalOpen(true)}
                       className="inline-flex items-center justify-center gap-2.5 bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-[15px] px-6 py-4 rounded-xl border border-slate-700 hover:border-slate-600 shadow-sm transition-all cursor-pointer shrink-0"
                     >
                       <Video className="w-5 h-5 text-[#60A5FA]" />
@@ -1848,13 +1370,18 @@ export function App() {
                     </div>
                   </div>
 
-                  {/* Layered Coverflow Slide Showcase (Large Pictures, Compact Buttons, Slow Smooth Sliding) */}
+                  {/* Layered Coverflow Slide Showcase (Optimized WebP + Preloaded Primary Visual + Lazy Adjacent Loading) */}
                   <div className="lg:col-span-7">
                     <div className="relative rounded-2xl overflow-hidden bg-[#090D16] px-4 sm:px-6 py-4 sm:py-5 shadow-2xl border border-slate-800 select-none">
-                      {/* Soft Blurred Ambient Backdrop of Current Slide */}
-                      <div
-                        className="absolute inset-0 bg-cover bg-center opacity-25 blur-2xl scale-110 transition-all duration-1000 ease-in-out pointer-events-none"
-                        style={{ backgroundImage: `url(${currentProofSlide.image})` }}
+                      {/* Ambient Backdrop Reusing Cached Active WebP */}
+                      <img
+                        src={currentProofSlide.image}
+                        alt=""
+                        aria-hidden="true"
+                        width={1470}
+                        height={804}
+                        decoding="async"
+                        className="absolute inset-0 w-full h-full object-cover opacity-20 blur-2xl scale-110 transition-all duration-1000 ease-in-out pointer-events-none"
                       />
                       <div className="absolute inset-0 bg-gradient-to-b from-[#090D16]/60 via-[#090D16]/40 to-[#090D16]/85 pointer-events-none" />
 
@@ -1864,6 +1391,8 @@ export function App() {
                           const total = clientProofSlides.length;
                           const prevIdx = (activeProofIndex - 1 + total) % total;
                           const nextIdx = (activeProofIndex + 1) % total;
+                          const isVisibleSlide =
+                            idx === activeProofIndex || idx === prevIdx || idx === nextIdx;
 
                           let positionClasses =
                             'opacity-0 scale-75 translate-x-0 z-0 pointer-events-none';
@@ -1888,12 +1417,19 @@ export function App() {
                               }}
                               className={`absolute inset-0 rounded-lg overflow-hidden bg-[#0B0F19] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${positionClasses}`}
                             >
-                              <img
-                                src={slide.image}
-                                alt="Verified Reddit thread removal proof"
-                                className="w-full h-full object-cover"
-                                draggable={false}
-                              />
+                              {isVisibleSlide && (
+                                <img
+                                  src={slide.image}
+                                  alt={`Verified Reddit removal proof for ${slide.subreddit}`}
+                                  width={1470}
+                                  height={804}
+                                  loading={idx === activeProofIndex ? 'eager' : 'lazy'}
+                                  fetchPriority={idx === activeProofIndex ? 'high' : 'low'}
+                                  decoding="async"
+                                  className="w-full h-full object-cover"
+                                  draggable={false}
+                                />
+                              )}
                             </div>
                           );
                         })}
@@ -2042,11 +1578,7 @@ export function App() {
                   <div className="pt-2">
                     <button
                       type="button"
-                      onClick={() => {
-                        setCallBookedCase(null);
-                        setCallStep('slot');
-                        setIsCallModalOpen(true);
-                      }}
+                      onClick={() => setIsCallModalOpen(true)}
                       className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-5 rounded-xl bg-[#0F172A] hover:bg-slate-800 border border-slate-700 text-white font-bold text-sm transition-all cursor-pointer shadow-md"
                     >
                       <Video className="w-4 h-4 text-[#60A5FA]" />
@@ -2389,825 +1921,45 @@ export function App() {
         </section>
       </main>
       ) : activePage === 'news' ? (
-      /* =========================================================
-         DEDICATED PAGE: NEWS & MEDIA ARTICLE REMOVAL (/news-removal)
-         ========================================================= */
-      <main className="flex-1 bg-[#090D16] text-[#F8FAFC]">
-        {/* 1. HERO SECTION: HEADLINE, SUBHEADLINE & MEDIA DE-INDEXING CONSOLE */}
-        <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-28 overflow-hidden bg-gradient-to-b from-[#090D16] via-[#0B0F19] to-[#090D16] pw-grid-bg border-b border-slate-800">
-          <div
-            className="pointer-events-none absolute -top-28 right-1/4 w-[560px] h-[560px] rounded-full bg-blue-600/10 blur-3xl"
-            aria-hidden="true"
-          />
-
-          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-12 items-center">
-              {/* Left Column: Headline, Subheadline, Primary CTAs */}
-              <div className="lg:col-span-7">
-                <div className="flex flex-wrap items-center gap-2.5 mb-6">
-                  <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-blue-950/70 border border-blue-500/30 text-blue-300 text-xs font-bold tracking-wide uppercase shadow-2xs">
-                    <Globe className="w-4 h-4 text-[#60A5FA] shrink-0" />
-                    <span>News &amp; Media Article Removal • Legal &amp; Publisher Escalation</span>
-                  </div>
-
-                  <a
-                    href="https://www.trustpilot.com/review/postwipe.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/60 hover:bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-all shadow-sm group"
-                  >
-                    <span className="text-emerald-400 font-extrabold text-xs">★ Trustpilot</span>
-                    <span className="text-white font-mono text-[11px]">4.9/5</span>
-                    <span className="text-slate-400 text-[10px] hidden sm:inline">• Read Verified Client Reviews</span>
-                    <ExternalLink className="w-3 h-3 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
-                  </a>
-                </div>
-
-                <h1 className="font-display text-[36px] sm:text-[48px] lg:text-[54px] font-extrabold text-white tracking-tight leading-[1.06] mb-6">
-                  Complete Removal of Damaging <span className="pw-hl">News Articles</span> &amp; Online Media Publications.
-                </h1>
-
-                <div className="space-y-3.5 text-[16px] sm:text-[17.5px] text-slate-300 leading-relaxed max-w-2xl mb-8">
-                  <p>
-                    We handle direct <strong className="text-white font-semibold">publisher outreach, legal and editorial compliance pathways, and complete Google de-indexing</strong> to permanently eliminate defamatory press, outdated news coverage, and digital media articles at the source.
-                  </p>
-                  <p>
-                    Every case is backed by <strong className="text-white font-semibold">100% Escrow.com protection</strong>, our <strong className="text-white font-semibold">Free-Fix Guarantee</strong>, and strict <span className="underline decoration-[#2563EB] decoration-2 underline-offset-4 font-semibold text-white">NDA confidentiality</span> with zero secondary media exposure.
-                  </p>
-                </div>
-
-                <div className="space-y-4 mb-10">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3.5">
-                    <a
-                      href="#news-audit-form"
-                      className="pw-btn-primary inline-flex items-center justify-center gap-3 text-white font-extrabold text-[15.5px] px-7 py-4 rounded-xl border border-blue-500/40 cursor-pointer shrink-0"
-                    >
-                      <span>Request Link Audit &amp; Quote</span>
-                      <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-                    </a>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCallBookedCase(null);
-                        setCallStep('slot');
-                        setIsCallModalOpen(true);
-                      }}
-                      className="inline-flex items-center justify-center gap-2.5 bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-[15px] px-6 py-4 rounded-xl border border-slate-700 hover:border-blue-400 shadow-xs transition-all cursor-pointer shrink-0"
-                    >
-                      <Video className="w-5 h-5 text-[#60A5FA]" />
-                      <span>Schedule a Call (Google Meet)</span>
-                    </button>
-                  </div>
-
-                  {/* Escrow & Risk-Free Summary Strip */}
-                  <div className="inline-flex items-center gap-3.5 bg-[#0F172A] px-4 py-3 rounded-xl border border-slate-800 shadow-xs">
-                    <div className="w-10 h-10 rounded-lg bg-blue-950/60 border border-blue-500/30 flex items-center justify-center shrink-0">
-                      <Lock className="w-5 h-5 text-[#60A5FA]" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-display font-extrabold text-[15px] text-white">
-                          100% Escrow Protected
-                        </span>
-                        <span className="text-[11px] font-mono font-semibold uppercase px-2 py-0.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-300">
-                          Escrow.com
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-400 font-medium mt-0.5">
-                        Payment released only after verified source removal &amp; Google de-indexing
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 3 Quick Highlight Pillars */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-slate-800">
-                  <div className="bg-[#0F172A] p-4 rounded-xl border border-slate-800 shadow-xs flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-950/60 text-[#60A5FA] flex items-center justify-center shrink-0 mt-0.5">
-                      <Lock className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-bold text-white">100% Escrow Protected</div>
-                      <p className="text-[11.5px] text-slate-400 leading-snug mt-0.5">
-                        Funds held in third-party escrow until verified removal.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="bg-[#0F172A] p-4 rounded-xl border border-slate-800 shadow-xs flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-950/60 text-[#60A5FA] flex items-center justify-center shrink-0 mt-0.5">
-                      <ShieldCheck className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-bold text-white">Free-Fix Guarantee</div>
-                      <p className="text-[11.5px] text-slate-400 leading-snug mt-0.5">
-                        Ongoing monitoring &amp; automatic remediation if content resurfaces.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="bg-[#0F172A] p-4 rounded-xl border border-slate-800 shadow-xs flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-950/60 text-[#60A5FA] flex items-center justify-center shrink-0 mt-0.5">
-                      <EyeOff className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-bold text-white">Complete Confidentiality</div>
-                      <p className="text-[11.5px] text-slate-400 leading-snug mt-0.5">
-                        Zero publicity or media exposure under strict NDA.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column: Interactive Media Takedown & De-Indexing Verification Console */}
-              <div className="lg:col-span-5">
-                <div className="bg-[#0F172A] text-white rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
-                  <div className="px-5 py-3.5 bg-[#0B0F19] text-white border-b border-slate-800 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
-                      <span className="font-mono text-[11px] text-slate-200 font-semibold tracking-wide">
-                        MEDIA VERIFICATION DASHBOARD
-                      </span>
-                    </div>
-
-                    <div className="inline-flex rounded-lg bg-[#0F172A] p-0.5 border border-slate-700 text-[11px] font-mono">
-                      <button
-                        type="button"
-                        onClick={() => setNewsPreviewMode('before')}
-                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
-                          newsPreviewMode === 'before'
-                            ? 'bg-rose-500/20 text-rose-300 font-bold border border-rose-400/30'
-                            : 'text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        Before
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setNewsPreviewMode('after')}
-                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
-                          newsPreviewMode === 'after'
-                            ? 'bg-[#2563EB] text-white font-bold shadow-xs'
-                            : 'text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        After Removal
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Crisp Verification Status Badges Bar */}
-                  <div className="px-5 py-3 bg-[#0B0F19]/80 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-mono text-[10.5px] font-bold border transition-all ${
-                          newsPreviewMode === 'after'
-                            ? 'bg-blue-950/80 text-blue-300 border-blue-500/40'
-                            : 'bg-rose-950/70 text-rose-300 border-rose-800/60'
-                        }`}
-                      >
-                        <CheckCircle2 className="w-3 h-3 shrink-0" />
-                        <span>{newsPreviewMode === 'after' ? 'De-Indexed' : 'Page 1 News'}</span>
-                      </span>
-
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-mono text-[10.5px] font-bold border transition-all ${
-                          newsPreviewMode === 'after'
-                            ? 'bg-blue-950/80 text-blue-300 border-blue-500/40'
-                            : 'bg-amber-950/70 text-amber-300 border-amber-800/60'
-                        }`}
-                      >
-                        <Sparkles className="w-3 h-3 shrink-0" />
-                        <span>{newsPreviewMode === 'after' ? 'Cache Purged' : 'Syndicated'}</span>
-                      </span>
-
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-950/60 text-blue-300 font-mono text-[10.5px] font-bold border border-blue-500/30">
-                        <Lock className="w-3 h-3 text-[#60A5FA] shrink-0" />
-                        <span>Escrow Protected</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-5 sm:p-6 space-y-4">
-                    <div
-                      className={`rounded-xl p-4 border transition-all ${
-                        newsPreviewMode === 'after'
-                          ? 'bg-blue-950/40 border-blue-500/30'
-                          : 'bg-rose-950/30 border-rose-900/40'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2 mb-2.5">
-                        <span className="font-mono text-[11px] text-slate-400 truncate">
-                          digitalpressdaily.com/business/executive-inquiry-report...
-                        </span>
-                        {newsPreviewMode === 'after' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#2563EB] text-white font-mono text-[10px] font-bold shrink-0">
-                            UNPUBLISHED &amp; DELETED
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800/60 font-mono text-[10px] font-bold shrink-0">
-                            PAGE 1 GOOGLE NEWS
-                          </span>
-                        )}
-                      </div>
-
-                      {newsPreviewMode === 'after' ? (
-                        <div className="space-y-2.5">
-                          <p className="text-sm font-semibold text-slate-500 line-through">
-                             Investigation into Former Biotech Executive Raises Governance Questions
-                          </p>
-                          <div className="flex items-center gap-2 text-xs text-blue-300 font-mono bg-blue-950/70 border border-blue-500/30 rounded-lg px-3 py-2">
-                            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#60A5FA]" />
-                            <span>[Article permanently removed via publisher legal compliance]</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <p className="text-sm font-semibold text-white">
-                            Investigation into Former Biotech Executive Raises Governance Questions
-                          </p>
-                          <p className="text-xs text-rose-400">
-                            Indexed in Google Search, Google News &amp; AI summaries for executive name search
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="rounded-xl bg-[#0B0F19] border border-slate-800 p-4">
-                      <div className="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
-                        <span>Publisher &amp; Search De-Indexing Status</span>
-                        <span className="text-[#60A5FA] font-bold">
-                          {newsPreviewMode === 'after' ? 'VERIFIED CLEAN' : 'ACTIVE EXPOSURE'}
-                        </span>
-                      </div>
-
-                      <div className="space-y-2.5 text-xs">
-                        <div className="flex items-center justify-between py-1.5 border-b border-slate-800">
-                          <span className="text-slate-300 font-medium flex items-center gap-2">
-                            <Scale className="w-3.5 h-3.5 text-[#60A5FA]" />
-                            Publisher Source URL
-                          </span>
-                          {newsPreviewMode === 'after' ? (
-                            <span className="font-mono text-[11px] text-[#60A5FA] font-bold">
-                              Removed at Source
-                            </span>
-                          ) : (
-                            <span className="font-mono text-[11px] text-rose-400 font-bold">
-                              Live Publication
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between py-1.5 border-b border-slate-800">
-                          <span className="text-slate-300 font-medium flex items-center gap-2">
-                            <Globe className="w-3.5 h-3.5 text-[#60A5FA]" />
-                            Google Search &amp; News Cache
-                          </span>
-                          {newsPreviewMode === 'after' ? (
-                            <span className="font-mono text-[11px] text-[#60A5FA] font-bold">
-                              De-Indexed &amp; Cache Purged
-                            </span>
-                          ) : (
-                            <span className="font-mono text-[11px] text-rose-400 font-bold">
-                              Ranking for Target Keywords
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between pt-1">
-                          <span className="text-slate-300 font-medium flex items-center gap-2">
-                            <Lock className="w-3.5 h-3.5 text-[#60A5FA]" />
-                            Escrow.com Protection
-                          </span>
-                          {newsPreviewMode === 'after' ? (
-                            <span className="font-mono text-[11px] bg-blue-950/80 text-blue-300 px-2 py-0.5 rounded border border-blue-500/40 font-bold">
-                              ESCROW PROTECTED • RELEASED
-                            </span>
-                          ) : (
-                            <span className="font-mono text-[11px] bg-amber-950/80 text-amber-300 px-2 py-0.5 rounded border border-amber-800/60 font-bold">
-                              ESCROW PROTECTED • LOCKED
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-1">
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />
-                        Free-Fix Guarantee Included
-                      </span>
-                      <a href="#news-audit-form" className="text-[#60A5FA] hover:underline font-bold">
-                        Audit Article URL →
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 2. PROCESS BREAKDOWN SECTION */}
-        <section id="news-process" className="py-24 bg-[#0B0F19] border-b border-slate-800">
-          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mb-14">
-              <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#60A5FA] mb-3">
-                01. PROCESS BREAKDOWN
-              </div>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white mb-4">
-                How We Remove News Articles &amp; Clear Search Indices
-              </h2>
-              <p className="text-slate-300 text-[16.5px] leading-relaxed">
-                Every media removal engagement follows a structured three-stage protocol combining editorial compliance, legal takedown filings, and search engine cache clearing.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Step 1 */}
-              <div className="pw-card bg-[#0F172A] rounded-2xl p-8 border border-slate-800 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-sm shadow-blue-600/30">
-                      01
-                    </span>
-                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-blue-300 bg-blue-950/80 border border-blue-500/40 px-3 py-1 rounded-full">
-                      Step 1
-                    </span>
-                  </div>
-                  <h3 className="font-display text-xl font-extrabold text-white mb-3">
-                    Case Evaluation &amp; Scope Mapping
-                  </h3>
-                  <p className="text-slate-300 text-sm leading-relaxed">
-                    We audit the target publication, editorial standards, syndication network, and search indexing status to determine the most viable editorial, privacy, or legal removal pathway before any outreach begins.
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-slate-800 font-mono text-[11px] font-bold text-slate-400 uppercase">
-                  Deliverable: Feasibility &amp; Scope Assessment
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="pw-card bg-[#0F172A] rounded-2xl p-8 border border-slate-800 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-sm shadow-blue-600/30">
-                      02
-                    </span>
-                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-blue-300 bg-blue-950/80 border border-blue-500/40 px-3 py-1 rounded-full">
-                      Step 2
-                    </span>
-                  </div>
-                  <h3 className="font-display text-xl font-extrabold text-white mb-3">
-                    Source Removal &amp; Legal / Privacy Takedowns
-                  </h3>
-                  <p className="text-slate-300 text-sm leading-relaxed">
-                    Our team executes direct publisher representation and submits formal editorial standards reviews, defamation notices, copyright claims, and privacy compliance filings to unpublish or delete the article at the source.
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-slate-800 font-mono text-[11px] font-bold text-slate-400 uppercase">
-                  Deliverable: Source Article Deletion
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className="pw-card bg-[#0F172A] rounded-2xl p-8 border border-slate-800 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <span className="w-12 h-12 rounded-xl bg-[#2563EB] text-white font-mono text-base font-extrabold flex items-center justify-center shadow-sm shadow-blue-600/30">
-                      03
-                    </span>
-                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-blue-300 bg-blue-950/80 border border-blue-500/40 px-3 py-1 rounded-full">
-                      Step 3
-                    </span>
-                  </div>
-                  <h3 className="font-display text-xl font-extrabold text-white mb-3">
-                    Google Search Engine De-indexing &amp; Cache Clearing
-                  </h3>
-                  <p className="text-slate-300 text-sm leading-relaxed">
-                    Once the source publication removes or retracts the article, we file expedited search engine de-indexing and cache-clearing requests across Google, Bing, and AI search indices so residual snippets are completely wiped.
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-slate-800 font-mono text-[11px] font-bold text-slate-400 uppercase">
-                  Deliverable: Complete SERP &amp; Cache Purge
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 3. KEY FEATURES & RISK-FREE MODEL SECTION */}
-        <section id="news-features" className="py-24 bg-[#090D16] border-b border-slate-800">
-          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mb-14">
-              <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#60A5FA] mb-3">
-                02. KEY FEATURES &amp; RISK-FREE MODEL
-              </div>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white mb-4">
-                Built on Verified Results, Escrow Security &amp; Strict Discretion
-              </h2>
-              <p className="text-slate-300 text-[16.5px] leading-relaxed">
-                We eliminate the financial and reputational risk of traditional PR retainers with performance-locked escrow protection and ongoing post-removal monitoring.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* 100% Escrow Protected */}
-              <div className="pw-card bg-[#0F172A] rounded-2xl p-8 border border-slate-800 flex flex-col justify-between">
-                <div>
-                  <div className="w-12 h-12 rounded-xl bg-blue-950/60 border border-blue-500/30 text-[#60A5FA] flex items-center justify-center mb-5">
-                    <Lock className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-display text-xl font-extrabold text-white mb-3">
-                    100% Escrow Protected
-                  </h3>
-                  <p className="text-slate-300 text-sm leading-relaxed">
-                    Payment is held by a third-party escrow service and released only after successful removal and verification. If we do not remove the target article within the agreed scope, your deposit is refunded in full.
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between font-mono text-xs font-bold text-[#60A5FA]">
-                  <span>ESCROW.COM VERIFIED</span>
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-              </div>
-
-              {/* Free-Fix Guarantee */}
-              <div className="pw-card bg-[#0F172A] rounded-2xl p-8 border border-slate-800 flex flex-col justify-between">
-                <div>
-                  <div className="w-12 h-12 rounded-xl bg-blue-950/60 border border-blue-500/30 text-[#60A5FA] flex items-center justify-center mb-5">
-                    <ShieldCheck className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-display text-xl font-extrabold text-white mb-3">
-                    Free-Fix Guarantee
-                  </h3>
-                  <p className="text-slate-300 text-sm leading-relaxed">
-                    Post-removal monitoring with automatic remediation if the content resurfaces. Our system tracks search indices and syndicated mirrors to ensure deleted articles stay permanently offline.
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between font-mono text-xs font-bold text-[#60A5FA]">
-                  <span>AUTOMATIC REMEDIATION</span>
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-              </div>
-
-              {/* Complete Confidentiality */}
-              <div className="pw-card bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-blue-950 text-white rounded-2xl p-8 border border-blue-500/30 shadow-md flex flex-col justify-between">
-                <div>
-                  <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 text-white flex items-center justify-center mb-5">
-                    <EyeOff className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-display text-xl font-extrabold text-white mb-3">
-                    Complete Confidentiality
-                  </h3>
-                  <p className="text-blue-100 text-sm leading-relaxed">
-                    High privacy standards without publicity or media exposure. Every case is handled under strict mutual NDA through private legal and editorial channels.
-                  </p>
-                </div>
-                <div className="mt-6 pt-4 border-t border-white/15 flex items-center justify-between font-mono text-xs font-bold text-blue-200">
-                  <span>ZERO MEDIA EXPOSURE</span>
-                  <CheckCircle2 className="w-4 h-4 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 4. FORM / CTA COMPONENT SECTION */}
-        <section id="news-audit-form" className="py-24 bg-[#0B0F19] border-b border-slate-800">
-          <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-              {/* Left Column: Audit Instructions & Direct Consultation */}
-              <div className="lg:col-span-5 space-y-6">
-                <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#60A5FA]">
-                  03. CONFIDENTIAL LINK AUDIT
-                </div>
-                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white leading-tight">
-                  Submit Your Article URL for a Feasibility Audit &amp; Quote
-                </h2>
-                <p className="text-slate-300 text-[16px] leading-relaxed">
-                  Provide the publication URL and target search keywords below. Our media compliance team will evaluate the publisher, map the removal pathway, and deliver a fixed-fee Escrow quote within 12 hours.
-                </p>
-
-                <div className="space-y-4 pt-2">
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-8 h-8 rounded-lg bg-blue-950/60 border border-blue-500/30 text-[#60A5FA] flex items-center justify-center shrink-0 mt-0.5">
-                      <Check className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white">Direct Publisher &amp; Legal Assessment</div>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        We verify editorial jurisdiction, syndication copies, and de-indexing eligibility before quoting.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-8 h-8 rounded-lg bg-blue-950/60 border border-blue-500/30 text-[#60A5FA] flex items-center justify-center shrink-0 mt-0.5">
-                      <Check className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white">100% Escrow.com Protection</div>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        Zero upfront agency retainers. Funds remain locked in escrow until verified article removal.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-8 h-8 rounded-lg bg-blue-950/60 border border-blue-500/30 text-[#60A5FA] flex items-center justify-center shrink-0 mt-0.5">
-                      <Check className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white">Strict NDA Confidentiality</div>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        Your identity, brand, and submitted URLs are never shared outside our compliance team.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#0F172A] border border-slate-800 space-y-3">
-                  <div className="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">
-                    Prefer a Live Consultation First?
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Book a confidential 15-minute call with our senior media removal specialists via Google Meet.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCallBookedCase(null);
-                      setCallStep('slot');
-                      setIsCallModalOpen(true);
-                    }}
-                    className="inline-flex items-center gap-2 bg-[#0B0F19] hover:bg-slate-800 text-blue-300 font-extrabold text-xs px-4 py-2.5 rounded-xl border border-slate-700 transition-all cursor-pointer"
-                  >
-                    <Video className="w-4 h-4 text-[#60A5FA]" />
-                    <span>Schedule a Call (Google Meet)</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Right Column: Clean Request Card */}
-              <div className="lg:col-span-7">
-                <div className="bg-[#0F172A] text-white rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
-                  <div className="px-6 py-4 bg-[#0B0F19] border-b border-slate-800 flex items-center justify-between">
-                    <div>
-                      <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#60A5FA] block">
-                        NEWS &amp; MEDIA ARTICLE REMOVAL
-                      </span>
-                      <h3 className="font-display text-lg font-extrabold text-white">
-                        Request Link Audit &amp; Quote
-                      </h3>
-                    </div>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-950/80 border border-blue-500/40 font-mono text-[11px] font-bold text-blue-300">
-                      <Lock className="w-3.5 h-3.5 text-[#60A5FA]" />
-                      100% Escrow Protected
-                    </span>
-                  </div>
-
-                  <div className="p-6 sm:p-8">
-                    {submittedNewsCase ? (
-                      <div className="space-y-5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-xl bg-blue-950/80 border border-blue-500/40 text-[#60A5FA] flex items-center justify-center shrink-0">
-                            <CheckCircle2 className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <div className="font-mono text-xs font-bold uppercase text-[#60A5FA]">
-                              Article Audit Logged
-                            </div>
-                            <h4 className="font-display text-xl font-extrabold text-white">
-                              Case ID: {submittedNewsCase.caseId}
-                            </h4>
-                          </div>
-                        </div>
-
-                        <div className="p-4 rounded-xl bg-[#0B0F19] border border-slate-800 text-slate-300 text-sm leading-relaxed font-medium">
-                          Thank you for your submission. If you do not see our email reply within a few hours or if it lands in your spam folder, click below to chat with us instantly on WhatsApp.
-                        </div>
-
-                        <div className="rounded-xl bg-[#0B0F19] border border-slate-800 p-4 font-mono text-xs space-y-1.5 text-slate-400">
-                          <div>
-                            <span className="text-slate-500">Client:</span>{' '}
-                            <strong className="text-white">{submittedNewsCase.name}</strong> ({submittedNewsCase.email})
-                          </div>
-                          <div className="truncate">
-                            <span className="text-slate-500">Article URL:</span>{' '}
-                            <strong className="text-white">{submittedNewsCase.url}</strong>
-                          </div>
-                        </div>
-
-                        <a
-                          href={buildWhatsAppUrl(submittedNewsCase)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="pw-btn-primary w-full inline-flex items-center justify-center gap-2.5 text-white font-extrabold text-[15px] py-4 px-6 rounded-xl cursor-pointer"
-                        >
-                          <PhoneCall className="w-5 h-5" />
-                          <span>WhatsApp</span>
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-
-                        <a
-                          href={buildDirectEmailUrl(submittedNewsCase)}
-                          className="w-full inline-flex items-center justify-center gap-2.5 bg-[#0B0F19] hover:bg-slate-800 text-white font-bold text-xs py-3.5 px-5 rounded-xl border border-slate-700 transition-all cursor-pointer"
-                        >
-                          <Mail className="w-4 h-4 text-[#60A5FA]" />
-                          <span>Dispatch Direct Email Copy</span>
-                          <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                        </a>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSubmittedNewsCase(null);
-                            setNewsArticleUrl('');
-                            setNewsKeywords('');
-                            setNewsNotes('');
-                          }}
-                          className="w-full text-center text-xs text-slate-400 hover:text-white underline cursor-pointer pt-1"
-                        >
-                          Submit another article URL for evaluation
-                        </button>
-                      </div>
-                    ) : (
-                      <form onSubmit={handleNewsAuditSubmit} className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label
-                              htmlFor="news-full-name"
-                              className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2"
-                            >
-                              Full Name *
-                            </label>
-                            <input
-                              id="news-full-name"
-                              type="text"
-                              required
-                              value={newsName}
-                              onChange={(e) => setNewsName(e.target.value)}
-                              placeholder="Jordan Vance"
-                              className="w-full px-4 py-3.5 rounded-xl border border-slate-700 bg-[#0B0F19] text-white placeholder:text-slate-500 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/20 outline-none text-sm transition-all"
-                            />
-                          </div>
-
-                          <div>
-                            <label
-                              htmlFor="news-email"
-                              className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2"
-                            >
-                              Email *
-                            </label>
-                            <input
-                              id="news-email"
-                              type="email"
-                              required
-                              value={newsEmail}
-                              onChange={(e) => setNewsEmail(e.target.value)}
-                              placeholder="jordan@organization.com"
-                              className="w-full px-4 py-3.5 rounded-xl border border-slate-700 bg-[#0B0F19] text-white placeholder:text-slate-500 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/20 outline-none text-sm transition-all"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label
-                            htmlFor="news-article-url"
-                            className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2"
-                          >
-                            Article URL to Audit *
-                          </label>
-                          <input
-                            id="news-article-url"
-                            type="url"
-                            required
-                            value={newsArticleUrl}
-                            onChange={(e) => setNewsArticleUrl(e.target.value)}
-                            placeholder="https://publication.com/article-slug..."
-                            className="w-full px-4 py-3.5 rounded-xl border border-slate-700 bg-[#0B0F19] text-white placeholder:text-slate-500 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/20 outline-none text-sm font-mono transition-all"
-                          />
-                        </div>
-
-                        <div>
-                          <label
-                            htmlFor="news-keywords"
-                            className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2"
-                          >
-                            Target Keywords
-                          </label>
-                          <input
-                            id="news-keywords"
-                            type="text"
-                            value={newsKeywords}
-                            onChange={(e) => setNewsKeywords(e.target.value)}
-                            placeholder="Full Name, Brand Name, Executive Title"
-                            className="w-full px-4 py-3.5 rounded-xl border border-slate-700 bg-[#0B0F19] text-white placeholder:text-slate-500 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/20 outline-none text-sm transition-all"
-                          />
-                        </div>
-
-                        <div>
-                          <label
-                            htmlFor="news-notes"
-                            className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2"
-                          >
-                            Additional Notes
-                          </label>
-                          <textarea
-                            id="news-notes"
-                            rows={3}
-                            value={newsNotes}
-                            onChange={(e) => setNewsNotes(e.target.value)}
-                            placeholder="Factual inaccuracies, outdated claims, or syndication details..."
-                            className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-[#0B0F19] text-white placeholder:text-slate-500 focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/20 outline-none text-sm transition-all resize-none"
-                          />
-                        </div>
-
-                        {newsError && (
-                          <div className="p-3.5 rounded-xl bg-rose-950/70 border border-rose-800 text-rose-300 text-xs font-medium flex items-center gap-2">
-                            <AlertTriangle className="w-4 h-4 shrink-0" />
-                            <span>{newsError}</span>
-                          </div>
-                        )}
-
-                        <button
-                          type="submit"
-                          disabled={isNewsSubmitting}
-                          className="pw-btn-primary w-full inline-flex items-center justify-center gap-2.5 disabled:opacity-60 text-white font-extrabold text-[15.5px] py-4 px-6 rounded-xl cursor-pointer"
-                        >
-                          <span>
-                            {isNewsSubmitting ? 'Submitting Article Audit...' : 'Request Link Audit & Quote'}
-                          </span>
-                          <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-                        </button>
-
-                        {/* Official Trust Badges Directly Under Submit Button */}
-                        <div className="pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-slate-800">
-                            <div className="w-7 h-7 rounded-lg bg-blue-950/80 border border-blue-500/30 text-[#60A5FA] flex items-center justify-center shrink-0">
-                              <Lock className="w-3.5 h-3.5" />
-                            </div>
-                            <div>
-                              <div className="text-[11.5px] font-extrabold text-white leading-tight">
-                                Escrow.com Security Verified
-                              </div>
-                              <div className="text-[10.5px] text-slate-400 leading-tight mt-0.5">
-                                Released only post-deindexing
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-slate-800">
-                            <div className="w-7 h-7 rounded-lg bg-blue-950/80 border border-blue-500/30 text-[#60A5FA] flex items-center justify-center shrink-0">
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                            </div>
-                            <div>
-                              <div className="text-[11.5px] font-extrabold text-white leading-tight">
-                                Mutual NDA Guaranteed
-                              </div>
-                              <div className="text-[10.5px] text-slate-400 leading-tight mt-0.5">
-                                Zero secondary media exposure
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </form>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-      ) : activePage === 'reviews' ? (
-      /* =========================================================
-         DEDICATED PAGE: REVIEW MANAGEMENT & SUPPRESSION (/reviews)
-         ========================================================= */
-      <ReviewsPage
-        onScheduleCall={() => {
-          setCallBookedCase(null);
-          setCallStep('slot');
-          setIsCallModalOpen(true);
-        }}
-        web3FormsKey={WEB3FORMS_ACCESS_KEY}
-        whatsAppUrl={WHATSAPP_BASE_URL}
-      />
-      ) : (
-      /* =========================================================
-         DEDICATED PAGE: INSIGHTS & COMPLIANCE BLOG (/insights)
-         ========================================================= */
-      <main className="flex-1 bg-[#090D16]">
-        <InsightsAndCompliance
-          onRequestAudit={(articleTitle) => {
-            if (articleTitle && !contextInput) {
-              setContextInput(`Compliance Briefing Inquiry: ${articleTitle}`);
-            }
-            switchPage('reddit', '#audit-form');
-          }}
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <NewsRemovalPage
+          onScheduleCall={() => setIsCallModalOpen(true)}
+          onCaseSubmitted={(details) => setSubmittedCase(details)}
         />
+      </Suspense>
+      ) : activePage === 'reviews' ? (
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <ReviewsPage
+          onScheduleCall={() => setIsCallModalOpen(true)}
+          web3FormsKey={WEB3FORMS_ACCESS_KEY}
+          whatsAppUrl={WHATSAPP_BASE_URL}
+        />
+      </Suspense>
+      ) : activePage === 'about' ? (
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <AboutPage
+          onRequestAudit={() => switchPage('reddit', '#audit-form')}
+          onScheduleCall={() => setIsCallModalOpen(true)}
+          whatsAppUrl={WHATSAPP_BASE_URL}
+        />
+      </Suspense>
+      ) : (
+      <main className="flex-1 bg-[#090D16]">
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <InsightsAndCompliance
+            selectedArticleId={selectedInsightId}
+            onSelectArticle={(article) => {
+              setSelectedInsightId(article.id);
+              switchPage('insights', undefined, article.slug);
+            }}
+            onRequestAudit={(articleTitle) => {
+              if (articleTitle && !contextInput) {
+                setContextInput(`Compliance Briefing Inquiry: ${articleTitle}`);
+              }
+              switchPage('reddit', '#audit-form');
+            }}
+          />
+        </Suspense>
       </main>
       )}
 
@@ -3309,6 +2061,15 @@ export function App() {
               </button>
               <button
                 type="button"
+                onClick={() => switchPage('about')}
+                className={`hover:text-white transition-colors cursor-pointer ${
+                  activePage === 'about' ? 'text-[#60A5FA] font-extrabold' : ''
+                }`}
+              >
+                About PostWipe
+              </button>
+              <button
+                type="button"
                 onClick={() => switchPage('reddit', '#escrow-workflow')}
                 className="hover:text-white transition-colors cursor-pointer"
               >
@@ -3356,374 +2117,22 @@ export function App() {
         </a>
       </aside>
 
-      {/* Interactive Google Calendar / Google Meet Appointment Scheduler Modal */}
+      {/* Lazy-Loaded Mobile Drawer Menu */}
+      {isMobileMenuOpen && (
+        <Suspense fallback={null}>
+          <MobileMenuDrawer
+            activePage={activePage}
+            onClose={() => setIsMobileMenuOpen(false)}
+            onSelectPage={(page, targetHash) => switchPage(page, targetHash)}
+          />
+        </Suspense>
+      )}
+
+      {/* Lazy-Loaded Google Calendar / Google Meet Appointment Scheduler Modal */}
       {isCallModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="schedule-call-title"
-        >
-          <div className="bg-[#0F172A] text-white w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden my-8">
-            {/* Top Bar */}
-            <div className="px-6 py-4 bg-[#0B0F19] border-b border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center shadow-xs">
-                  <Calendar className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 id="schedule-call-title" className="font-display text-lg font-extrabold text-white">
-                      PostWipe Appointment Scheduler
-                    </h3>
-                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-300 font-mono text-[10px] font-bold">
-                      GOOGLE CALENDAR &amp; MEET
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-400">
-                    Book a confidential 15-minute Reddit removal &amp; Escrow consultation
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsCallModalOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-                aria-label="Close modal"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* 2-Column Google Calendar Appointment Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-12">
-              {/* Left Column: Host & Meeting Info */}
-              <div className="md:col-span-5 bg-[#0B0F19]/90 p-6 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col justify-between space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <PostWipeLogoMark className="w-9 h-9" />
-                    <div>
-                      <div className="text-xs font-mono text-slate-400 uppercase font-bold">Host</div>
-                      <div className="font-display font-extrabold text-sm text-white">
-                        PostWipe Senior Policy Team
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-display text-xl font-extrabold text-white leading-snug">
-                      15-Min Reddit Removal Strategy Call
-                    </h4>
-                    <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                      Live feasibility review of your target Reddit URL, Google/AI cache purge timeline, and Escrow.com milestone setup.
-                    </p>
-                  </div>
-
-                  <div className="space-y-2.5 pt-2 text-xs text-slate-300 font-medium">
-                    <div className="flex items-center gap-2.5">
-                      <Clock className="w-4 h-4 text-[#60A5FA] shrink-0" />
-                      <span>15 Minutes • 1-on-1 Confidential</span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <Video className="w-4 h-4 text-[#60A5FA] shrink-0" />
-                      <span>Google Meet / WhatsApp / Phone</span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <Globe className="w-4 h-4 text-[#60A5FA] shrink-0" />
-                      <span className="truncate">Timezone: {detectedTimezone}</span>
-                    </div>
-                  </div>
-
-                  {/* Call Service Selector */}
-                  <div className="pt-2">
-                    <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold mb-2">
-                      Select Call Service
-                    </label>
-                    <div className="space-y-1.5">
-                      {(['Google Meet', 'WhatsApp Call', 'Phone Call'] as const).map((plat) => (
-                        <button
-                          key={plat}
-                          type="button"
-                          onClick={() => setCallPlatform(plat)}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                            callPlatform === plat
-                              ? 'bg-blue-950/80 border-[#2563EB] text-blue-200 shadow-xs'
-                              : 'bg-[#0F172A] border-slate-700 text-slate-300 hover:border-slate-600'
-                          }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            {plat === 'Google Meet' ? (
-                              <Video className="w-3.5 h-3.5 text-[#60A5FA]" />
-                            ) : (
-                              <PhoneCall className="w-3.5 h-3.5 text-[#60A5FA]" />
-                            )}
-                            {plat}
-                          </span>
-                          {callPlatform === plat && <Check className="w-3.5 h-3.5 text-[#60A5FA]" />}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-[#0F172A] border border-slate-800 text-[11px] text-slate-400 flex items-center gap-2">
-                  <Lock className="w-3.5 h-3.5 text-[#60A5FA] shrink-0" />
-                  <span>Protected by Mutual NDA &amp; Escrow.com</span>
-                </div>
-              </div>
-
-              {/* Right Column: Interactive Date/Slot Picker -> Details -> Confirmation */}
-              <div className="md:col-span-7 p-6">
-                {callBookedCase ? (
-                  <div className="space-y-5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-blue-950/80 border border-blue-500/40 text-[#60A5FA] flex items-center justify-center shrink-0">
-                        <CheckCircle2 className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <span className="font-mono text-xs uppercase font-bold text-[#60A5FA]">
-                          Appointment Scheduled
-                        </span>
-                        <h4 className="font-display text-xl font-extrabold text-white">
-                          Reference: {callBookedCase.caseId}
-                        </h4>
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-[#0B0F19] border border-slate-800 text-slate-300 text-sm leading-relaxed font-medium">
-                      Thank you for your submission. If you do not see our email reply within a few hours or if it lands in your spam folder, click below to chat with us instantly on WhatsApp.
-                    </div>
-
-                    <div className="rounded-xl bg-blue-950/40 border border-blue-500/30 p-4 font-mono text-xs space-y-1.5 text-slate-300">
-                      <div>
-                        <span className="text-slate-400">Attendee:</span>{' '}
-                        <strong className="text-white">{callBookedCase.name}</strong> ({callBookedCase.email})
-                      </div>
-                      <div>
-                        <span className="text-slate-400">When:</span>{' '}
-                        <strong className="text-[#60A5FA]">{callBookedCase.context}</strong>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2.5">
-                      {/* 1-Click Add to Google Calendar */}
-                      <a
-                        href={bookedCalendarUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full inline-flex items-center justify-center gap-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-sm py-3.5 px-5 rounded-xl shadow-md shadow-blue-600/30 transition-all cursor-pointer"
-                      >
-                        <Calendar className="w-4 h-4" />
-                        <span>Add Appointment to Google Calendar</span>
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-
-                      {/* Instant WhatsApp Follow-Up */}
-                      <a
-                        href={buildWhatsAppUrl(callBookedCase)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full inline-flex items-center justify-center gap-2.5 bg-[#0B0F19] hover:bg-slate-800 text-white border border-slate-700 font-extrabold text-sm py-3 px-5 rounded-xl transition-all cursor-pointer"
-                      >
-                        <PhoneCall className="w-4 h-4 text-[#60A5FA]" />
-                        <span>WhatsApp</span>
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-
-                      {/* Direct Email Confirmation Dispatch */}
-                      <a
-                        href={buildDirectEmailUrl(callBookedCase)}
-                        className="w-full inline-flex items-center justify-center gap-2.5 bg-[#0B0F19] hover:bg-slate-800 text-slate-200 border border-slate-700 font-extrabold text-xs py-3 px-5 rounded-xl transition-all cursor-pointer"
-                      >
-                        <Mail className="w-4 h-4 text-[#60A5FA]" />
-                        <span>Dispatch Direct Email Copy</span>
-                        <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                      </a>
-                    </div>
-                  </div>
-                ) : callStep === 'slot' ? (
-                  <div className="space-y-5">
-                    <div>
-                      <div className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2.5">
-                        1. Select a Date
-                      </div>
-                      <div className="grid grid-cols-4 gap-2">
-                        {upcomingDays.map((d) => {
-                          const isSelected = d.isoDate === callDate;
-                          return (
-                            <button
-                              key={d.isoDate}
-                              type="button"
-                              onClick={() => setCallDate(d.isoDate)}
-                              className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                                isSelected
-                                  ? 'bg-[#2563EB] border-[#2563EB] text-white shadow-sm'
-                                  : 'bg-[#0B0F19] border-slate-700 hover:border-blue-500 text-slate-300'
-                              }`}
-                            >
-                              <div className={`text-[10px] font-mono uppercase ${isSelected ? 'text-blue-100' : 'text-slate-400'}`}>
-                                {d.dayName}
-                              </div>
-                              <div className="font-display font-extrabold text-base leading-tight my-0.5">
-                                {d.dayNum}
-                              </div>
-                              <div className={`text-[10px] font-semibold ${isSelected ? 'text-blue-100' : 'text-slate-400'}`}>
-                                {d.monthShort}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-2.5">
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                          2. Select an Available Time ({selectedDayObj?.fullLabel})
-                        </span>
-                        <span className="text-[11px] font-mono text-[#60A5FA] font-semibold">
-                          15-min slots
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {TIME_SLOTS.map((slot) => {
-                          const isSelected = slot === callTimeSlot;
-                          return (
-                            <button
-                              key={slot}
-                              type="button"
-                              onClick={() => setCallTimeSlot(slot)}
-                              className={`py-2.5 px-3 rounded-xl border font-mono text-xs font-bold transition-all cursor-pointer ${
-                                isSelected
-                                  ? 'bg-blue-950/90 border-2 border-[#2563EB] text-blue-300'
-                                  : 'bg-[#0B0F19] border-slate-700 hover:border-blue-500 text-slate-300'
-                              }`}
-                            >
-                              {slot}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="pt-2">
-                      <button
-                        type="button"
-                        onClick={() => setCallStep('details')}
-                        className="w-full inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold text-sm py-3.5 px-6 rounded-xl shadow-md shadow-blue-600/30 transition-all cursor-pointer"
-                      >
-                        <span>
-                          Continue with {selectedDayObj?.fullLabel} at {callTimeSlot}
-                        </span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <form onSubmit={handleCallSubmit} className="space-y-4">
-                    {/* Selected Slot Pill */}
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-blue-950/50 border border-blue-500/30 text-xs">
-                      <div className="flex items-center gap-2 font-semibold text-blue-200">
-                        <Calendar className="w-4 h-4 text-[#60A5FA]" />
-                        <span>
-                          {selectedDayObj?.fullLabel} • {callTimeSlot} ({callPlatform})
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setCallStep('slot')}
-                        className="text-[#60A5FA] hover:underline font-bold cursor-pointer"
-                      >
-                        Change
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                          Your Name *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={callName}
-                          onChange={(e) => setCallName(e.target.value)}
-                          placeholder="Alex Rivera"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B0F19] text-white placeholder:text-slate-500 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                          Email for Calendar Invite *
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={callEmail}
-                          onChange={(e) => setCallEmail(e.target.value)}
-                          placeholder="alex@company.com"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B0F19] text-white placeholder:text-slate-500 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                          Phone / WhatsApp Number
-                        </label>
-                        <input
-                          type="tel"
-                          value={callPhone}
-                          onChange={(e) => setCallPhone(e.target.value)}
-                          placeholder="+1 (555) 000-0000"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B0F19] text-white placeholder:text-slate-500 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                          Target Reddit URL (Optional)
-                        </label>
-                        <input
-                          type="url"
-                          value={callUrl}
-                          onChange={(e) => setCallUrl(e.target.value)}
-                          placeholder="https://www.reddit.com/r/..."
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B0F19] text-white placeholder:text-slate-500 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 outline-none text-sm font-mono"
-                        />
-                      </div>
-                    </div>
-
-                    {callError && (
-                      <div className="p-3 rounded-xl bg-rose-950/70 border border-rose-800 text-rose-300 text-xs font-medium flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 shrink-0" />
-                        <span>{callError}</span>
-                      </div>
-                    )}
-
-                    <div className="pt-2 flex items-center justify-between gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setCallStep('slot')}
-                        className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 text-xs font-bold cursor-pointer"
-                      >
-                        ← Back to Calendar
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={isCallSubmitting}
-                        className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-60 text-white font-extrabold text-sm px-6 py-3 rounded-xl shadow-md shadow-blue-600/30 transition-all cursor-pointer"
-                      >
-                        <Calendar className="w-4 h-4" />
-                        <span>{isCallSubmitting ? 'Scheduling...' : 'Confirm & Create Invite'}</span>
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <Suspense fallback={null}>
+          <ScheduleCallModal onClose={() => setIsCallModalOpen(false)} />
+        </Suspense>
       )}
     </div>
   );
