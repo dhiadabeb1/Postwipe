@@ -1,0 +1,10 @@
+name,ttl,type,value
+"postwipe.com","3600","NETLIFY","illustrious-semifreddo-da5b1b.netlify.app"
+"www.postwipe.com","3600","NETLIFY","illustrious-semifreddo-da5b1b.netlify.app"
+"postwipe.com","3600","NETLIFYv6","illustrious-semifreddo-da5b1b.netlify.app"
+"www.postwipe.com","3600","NETLIFYv6","illustrious-semifreddo-da5b1b.netlify.app"
+"postwipe.com","3600","MX","mx1.privateemail.com"
+"postwipe.com","3600","MX","mx2.privateemail.com"
+"postwipe.com","3600","TXT","v=spf1 include:spf.privateemail.com ~all"
+"_dmarc.postwipe.com","3600","TXT","v=DMARC1; p=none;"
+"privateemail._domainkey.postwipe.com","3600","TXT","v=DKIM1;k=rsa;p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7RyTAtcUtJKDqAhXjvQBnTnIVvP4iyhpDa3wgFdFoet3Jgx4Y4iVJ38DkVXWLHxaxdPgBz0mIsRKGVUtY5MaLuPdd5qC8Vy5kKLpuubK7FrosHbQGyjxgpFPueas0xOtEm8gU0fSmOwtNmTKClZfwqknpbCXmPqrf+KXsjf7DRElpMdfp2VXLgvk7AIRsyjgWIHUtTnOAXK9CtbA+kWWnmVQYV1y47XBt9z+zGqgckYB12FNJS34TglurigC9rlr4qLbc/bNL2SbIjssbAE+KMwBmQo4GbLhvT7hiapLZFpnXHVIKFHOjBQwl+TwHg9kbGwCmRK0kJDGec1qn0O6RQIDAQAB"

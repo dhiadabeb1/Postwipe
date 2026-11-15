@@ -40,6 +40,7 @@ import {
   buildArticlePageSchema,
   buildServicePageSchema,
   syncJsonLdSchema,
+  syncPageHeadMetadata,
 } from './utils/seoSchema';
 
 const InsightsAndCompliance = lazy(() => import('./components/InsightsAndCompliance'));
@@ -204,22 +205,39 @@ export function App() {
     return INSIGHTS_ARTICLES_META[0].id;
   });
 
+  const [hasInsightSlug, setHasInsightSlug] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      return INSIGHTS_ARTICLES_META.some((art) => path.includes(art.slug));
+    }
+    return false;
+  });
+
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
       if (path.includes('about') || hash.includes('about')) {
         setActivePage('about');
+        setHasInsightSlug(false);
       } else if (path.includes('insights') || path.includes('blog') || hash.includes('insights') || hash.includes('blog')) {
         setActivePage('insights');
         const matched = INSIGHTS_ARTICLES_META.find((art) => path.includes(art.slug));
-        if (matched) setSelectedInsightId(matched.id);
+        if (matched) {
+          setSelectedInsightId(matched.id);
+          setHasInsightSlug(true);
+        } else {
+          setHasInsightSlug(false);
+        }
       } else if (path.includes('news') || hash.includes('news')) {
         setActivePage('news');
+        setHasInsightSlug(false);
       } else if (path.includes('review') || hash.includes('review')) {
         setActivePage('reviews');
+        setHasInsightSlug(false);
       } else {
         setActivePage('reddit');
+        setHasInsightSlug(false);
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -232,6 +250,7 @@ export function App() {
     articleSlug?: string
   ) => {
     setActivePage(page);
+    setHasInsightSlug(page === 'insights' && Boolean(articleSlug));
     if (typeof window !== 'undefined') {
       const newUrl =
         page === 'news'
@@ -263,25 +282,64 @@ export function App() {
 
   useEffect(() => {
     if (activePage === 'about') {
-      document.title = 'About PostWipe | Enterprise Reputation & Content Removal Agency';
+      syncPageHeadMetadata({
+        title: 'About PostWipe | Enterprise Reputation & Content Removal Agency',
+        description:
+          'Learn how PostWipe permanently removes defamatory Reddit threads, damaging news articles, fake reviews, and Google search results on a 100% Pay-on-Success model via Escrow.com.',
+        canonicalUrl: 'https://postwipe.com/about',
+        ogType: 'website',
+      });
       syncJsonLdSchema(buildAboutPageSchema());
     } else if (activePage === 'insights') {
       const activeArticle =
         INSIGHTS_ARTICLES_META.find((art) => art.id === selectedInsightId) ||
         INSIGHTS_ARTICLES_META[0];
-      document.title = `${activeArticle.title} | PostWipe Insights`;
+      if (hasInsightSlug) {
+        syncPageHeadMetadata({
+          title: `${activeArticle.title} | PostWipe Insights`,
+          description: activeArticle.executiveSummary,
+          canonicalUrl: `https://postwipe.com/insights/${activeArticle.slug}`,
+          ogType: 'article',
+        });
+      } else {
+        syncPageHeadMetadata({
+          title: 'Reddit Removal & Google De-Indexing Guides | PostWipe Insights',
+          description:
+            'Compliance guides on removing negative Reddit posts, why SEO suppression fails, and clearing Google & AI search caches within 24 to 72 hours.',
+          canonicalUrl: 'https://postwipe.com/insights',
+          ogType: 'website',
+        });
+      }
       syncJsonLdSchema(buildArticlePageSchema(activeArticle));
     } else if (activePage === 'news') {
-      document.title = 'PostWipe | News & Media Article Removal Agency';
+      syncPageHeadMetadata({
+        title: 'News & Media Article Removal Service | Pay on Success | PostWipe',
+        description:
+          'Permanently remove negative news articles and de-index press coverage from Google & AI search. 100% Escrow.com protected with $0 upfront risk.',
+        canonicalUrl: 'https://postwipe.com/news-removal',
+        ogType: 'website',
+      });
       syncJsonLdSchema(buildServicePageSchema('news'));
     } else if (activePage === 'reviews') {
-      document.title = 'PostWipe | Review Management & Suppression Services';
+      syncPageHeadMetadata({
+        title: 'Remove Fake Google, Trustpilot & Glassdoor Reviews | PostWipe',
+        description:
+          'Compliant takedown and suppression for fake or defamatory reviews on Google Maps, Trustpilot, Glassdoor, and Sitejabber. Backed by Escrow.com.',
+        canonicalUrl: 'https://postwipe.com/reviews',
+        ogType: 'website',
+      });
       syncJsonLdSchema(buildServicePageSchema('reviews'));
     } else {
-      document.title = 'PostWipe | Pay-on-Success News Article & Reddit Removal Agency';
+      syncPageHeadMetadata({
+        title: 'Reddit Post Removal Service | Pay on Success via Escrow | PostWipe',
+        description:
+          'Need a service to remove a negative Reddit post or comment? PostWipe permanently deletes threads and de-indexes Google links. $0 upfront, Escrow.com protected.',
+        canonicalUrl: 'https://postwipe.com/',
+        ogType: 'website',
+      });
       syncJsonLdSchema(buildHomepageSchema());
     }
-  }, [activePage, selectedInsightId]);
+  }, [activePage, selectedInsightId, hasInsightSlug]);
 
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -1957,6 +2015,19 @@ export function App() {
                 setContextInput(`Compliance Briefing Inquiry: ${articleTitle}`);
               }
               switchPage('reddit', '#audit-form');
+            }}
+            onNavigatePath={(href) => {
+              if (href.startsWith('/news-removal')) {
+                switchPage('news');
+              } else if (href.startsWith('/reviews')) {
+                switchPage('reviews');
+              } else if (href.startsWith('/about')) {
+                switchPage('about');
+              } else if (href.startsWith('/#')) {
+                switchPage('reddit', href.slice(1));
+              } else {
+                switchPage('reddit');
+              }
             }}
           />
         </Suspense>

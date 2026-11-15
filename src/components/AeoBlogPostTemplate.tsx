@@ -255,6 +255,48 @@ interface AeoBlogPostTemplateProps {
   sidebar?: React.ReactNode;
   ctaHref?: string;
   onRequestQuote?: (articleTitle?: string) => void;
+  onNavigatePath?: (href: string) => void;
+}
+
+function renderRichText(
+  text: string,
+  onNavigatePath?: (href: string) => void
+): React.ReactNode {
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    const label = match[1];
+    const href = match[2];
+    const isInternal = href.startsWith('/');
+    parts.push(
+      <a
+        key={`${match.index}-${href}`}
+        href={href}
+        onClick={(e) => {
+          if (isInternal && onNavigatePath) {
+            e.preventDefault();
+            onNavigatePath(href);
+          }
+        }}
+        className="text-[#60A5FA] font-semibold underline decoration-blue-500/50 underline-offset-4 hover:text-blue-300 transition-colors"
+      >
+        {label}
+      </a>
+    );
+    lastIndex = linkRegex.lastIndex;
+  }
+
+  if (lastIndex === 0) return text;
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  return parts;
 }
 
 export function AeoBlogPostTemplate({
@@ -262,6 +304,7 @@ export function AeoBlogPostTemplate({
   sidebar,
   ctaHref = '/#audit-form',
   onRequestQuote,
+  onNavigatePath,
 }: AeoBlogPostTemplateProps) {
   return (
     <article className="rounded-2xl border border-slate-800 bg-[#0F172A] shadow-2xl overflow-hidden">
@@ -344,7 +387,7 @@ export function AeoBlogPostTemplate({
                         key={pIdx}
                         className="text-[15.5px] sm:text-[16.5px] text-slate-300 leading-[1.8]"
                       >
-                        {para}
+                        {renderRichText(para, onNavigatePath)}
                       </p>
                     ))}
                   </div>
@@ -403,7 +446,7 @@ export function AeoBlogPostTemplate({
                         {faq.q}
                       </h3>
                       <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                        {faq.a}
+                        {renderRichText(faq.a, onNavigatePath)}
                       </p>
                     </div>
                   ))}

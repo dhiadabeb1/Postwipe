@@ -291,3 +291,81 @@ export function syncJsonLdSchema(schemaPayload: Record<string, unknown>): void {
 
   primaryScript.textContent = JSON.stringify(schemaPayload, null, 2);
 }
+
+export interface PageHeadMetadataInput {
+  title: string;
+  description: string;
+  canonicalUrl: string;
+  ogType?: 'website' | 'article';
+}
+
+function upsertMetaTag(
+  selectorAttr: 'name' | 'property',
+  attrValue: string,
+  content: string
+): void {
+  const existing = document.querySelectorAll(
+    `meta[${selectorAttr}="${attrValue}"]`
+  ) as NodeListOf<HTMLMetaElement>;
+
+  let target: HTMLMetaElement | null = null;
+  existing.forEach((el, index) => {
+    if (index === 0) {
+      target = el;
+    } else {
+      el.remove();
+    }
+  });
+
+  if (!target) {
+    target = document.createElement('meta');
+    target.setAttribute(selectorAttr, attrValue);
+    document.head.appendChild(target);
+  }
+
+  target.content = content;
+}
+
+/**
+ * Synchronizes document.title, <meta name="description">, <link rel="canonical">,
+ * and OpenGraph / Twitter card metadata cleanly on every route transition.
+ */
+export function syncPageHeadMetadata({
+  title,
+  description,
+  canonicalUrl,
+  ogType = 'website',
+}: PageHeadMetadataInput): void {
+  if (typeof document === 'undefined') return;
+
+  if (document.title !== title) {
+    document.title = title;
+  }
+
+  const canonicalNodes = document.querySelectorAll(
+    'link[rel="canonical"]'
+  ) as NodeListOf<HTMLLinkElement>;
+  let canonicalEl: HTMLLinkElement | null = null;
+  canonicalNodes.forEach((el, index) => {
+    if (index === 0) {
+      canonicalEl = el;
+    } else {
+      el.remove();
+    }
+  });
+  if (!canonicalEl) {
+    canonicalEl = document.createElement('link');
+    canonicalEl.rel = 'canonical';
+    document.head.appendChild(canonicalEl);
+  }
+  canonicalEl.href = canonicalUrl;
+
+  upsertMetaTag('name', 'description', description);
+  upsertMetaTag('property', 'og:type', ogType);
+  upsertMetaTag('property', 'og:url', canonicalUrl);
+  upsertMetaTag('property', 'og:title', title);
+  upsertMetaTag('property', 'og:description', description);
+  upsertMetaTag('name', 'twitter:title', title);
+  upsertMetaTag('name', 'twitter:description', description);
+}
+

@@ -28,12 +28,14 @@ interface InsightsAndComplianceProps {
   onRequestAudit?: (prefillContext?: string) => void;
   selectedArticleId?: string;
   onSelectArticle?: (article: InsightArticle) => void;
+  onNavigatePath?: (href: string) => void;
 }
 
 export function InsightsAndCompliance({
   onRequestAudit,
   selectedArticleId: controlledArticleId,
   onSelectArticle,
+  onNavigatePath,
 }: InsightsAndComplianceProps) {
   const [internalArticleId, setInternalArticleId] = useState<string>(
     INSIGHTS_ARTICLES_DATA[0].id
@@ -201,6 +203,7 @@ export function InsightsAndCompliance({
             sidebar={authorSidebar}
             ctaHref="/#audit-form"
             onRequestQuote={handleTriggerAudit}
+            onNavigatePath={onNavigatePath}
           />
         </div>
 

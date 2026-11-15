@@ -1,0 +1,8 @@
+name,ttl,type,value
+"postwipe.com","3600","NETLIFY","illustrious-semifreddo-da5b1b.netlify.app"
+"www.postwipe.com","3600","NETLIFY","illustrious-semifreddo-da5b1b.netlify.app"
+"postwipe.com","3600","NETLIFYv6","illustrious-semifreddo-da5b1b.netlify.app"
+"www.postwipe.com","3600","NETLIFYv6","illustrious-semifreddo-da5b1b.netlify.app"
+"postwipe.com","3600","MX","mx1.privateemail.com"
+"postwipe.com","3600","MX","mx2.privateemail.com"
+"postwipe.com","3600","TXT","v=spf1 include:spf.privateemail.com ~all"
